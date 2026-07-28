@@ -63,5 +63,23 @@
         @if(session('warning'))
             showToast(@json(session('warning')), 'warning');
         @endif
+
+        // 2. Preservasi Posisi Scroll Otomatis (Anti-Reset scroll saat reload/submit form)
+        // Simpan posisi scroll sebelum halaman di-reload/unload
+        window.addEventListener("beforeunload", function () {
+            sessionStorage.setItem("scrollPosition_" + window.location.pathname, window.scrollY);
+        });
+
+        // Kembalikan posisi scroll setelah halaman selesai dimuat
+        const savedScrollPosition = sessionStorage.getItem("scrollPosition_" + window.location.pathname);
+        if (savedScrollPosition !== null) {
+            setTimeout(function () {
+                window.scrollTo({
+                    top: parseFloat(savedScrollPosition),
+                    behavior: "instant"
+                });
+                sessionStorage.removeItem("scrollPosition_" + window.location.pathname);
+            }, 50);
+        }
     });
 </script>

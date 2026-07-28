@@ -239,6 +239,7 @@
             <p><strong>Guru Bimbingan Konseling</strong></p>
             <div class="space"></div>
             <div class="name">{{ $case->handler?->name ?? 'Nama Guru BK' }}</div>
+            <div class="role" style="font-size: 0.85rem; color: #555; margin-top: 4px;">NIP. {{ $case->handler?->nip ?? '.....................................' }}</div>
         </div>
     </div>
 

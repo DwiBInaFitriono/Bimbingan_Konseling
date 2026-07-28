@@ -186,4 +186,28 @@ class Admin extends Controller
 
         return redirect()->route('siswa.tampil')->with('success', 'Data siswa berhasil diperbarui.');
     }
+
+    // Cetak Surat Peringatan / SP Siswa (Poin Pelanggaran)
+    public function printWarningLetter(Request $request, $id)
+    {
+        $user = Auth::user();
+        if ($user->isSiswa()) {
+            // Siswa hanya boleh melihat/mencetak surat peringatan milik sendiri
+            $studentModel = $user->student;
+            if (!$studentModel) {
+                $studentModel = Student::where('full_name', $user->name)->first();
+            }
+            if (!$studentModel || $studentModel->id != $id) {
+                abort(403, 'Akses ditolak. Anda hanya dapat melihat surat peringatan milik akun Anda sendiri.');
+            }
+        }
+
+        $student = Student::with(['class', 'parent', 'pointDatas' => function ($query) {
+            $query->orderBy('violation_date', 'asc');
+        }])->findOrFail($id);
+
+        $printType = $request->query('type', 'default'); // default or expel
+
+        return view('Student.cetak_sp', compact('student', 'printType'));
+    }
 }

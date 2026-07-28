@@ -176,7 +176,7 @@ class CounselingSessionController extends Controller
         if ($user->isGuruBk()) {
             return redirect()->route('counseling.index')->with('success', 'Pengajuan jadwal konseling berhasil disimpan.');
         }
-        return redirect()->route('counseling.studentIndex')->with('success', 'Pengajuan jadwal konseling berhasil disimpan.');
+        return redirect()->route('counseling.siswa')->with('success', 'Pengajuan jadwal konseling berhasil disimpan.');
     }
 
     /**
@@ -261,7 +261,18 @@ class CounselingSessionController extends Controller
         if (Auth::user()->isGuruBk()) {
             return redirect()->route('counseling.index')->with('success', 'Pengajuan konseling berhasil dibatalkan.');
         }
-        return redirect()->route('counseling.studentIndex')->with('success', 'Pengajuan konseling berhasil dibatalkan.');
+        return redirect()->route('counseling.siswa')->with('success', 'Pengajuan konseling berhasil dibatalkan.');
+    }
+
+    /**
+     * Hapus sesi konseling
+     */
+    public function destroy($id)
+    {
+        $session = CounselingSession::findOrFail($id);
+        $session->delete();
+
+        return redirect()->route('counseling.index')->with('success', 'Jadwal konseling berhasil dihapus.');
     }
 
 }

@@ -115,7 +115,8 @@
         <div class="signature-box">
             <p>Mengetahui,</p>
             <p><strong>Guru Bimbingan Konseling</strong></p>
-            <div class="name">{{ auth()->user()->name ?? 'Nama Guru BK' }}</div>
+            <div class="name" style="text-decoration: none;">{{ auth()->user()->name ?? 'Nama Guru BK' }}</div>
+            <div style="font-size: 11px; margin-top: 4px;">NIP. {{ auth()->user()->nip ?? '.....................................' }}</div>
         </div>
     </div>
 </body>

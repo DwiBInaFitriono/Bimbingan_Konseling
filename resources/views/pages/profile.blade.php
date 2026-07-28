@@ -68,6 +68,16 @@
                                 </div>
                             </div>
 
+                             <div class="d-flex align-items-center mb-3">
+                                <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;">
+                                    <i class="bi bi-card-text text-primary"></i>
+                                </div>
+                                <div>
+                                    <small class="text-muted d-block">NIP</small>
+                                    <span class="fw-semibold">{{ $pageUser?->nip ?? '-' }}</span>
+                                </div>
+                            </div>
+
                             <div class="d-flex align-items-center mb-3">
                                 <div class="rounded-circle bg-light d-flex align-items-center justify-content-center me-3" style="width:40px;height:40px;">
                                     <i class="bi bi-envelope text-primary"></i>
@@ -135,6 +145,11 @@
                                     </div>
 
                                     <div class="row mb-3">
+                                        <div class="col-lg-3 col-md-4 label fw-semibold">NIP</div>
+                                        <div class="col-lg-9 col-md-8">{{ $pageUser?->nip ?? '-' }}</div>
+                                    </div>
+
+                                    <div class="row mb-3">
                                         <div class="col-lg-3 col-md-4 label fw-semibold">Email</div>
                                         <div class="col-lg-9 col-md-8">{{ $pageUser?->email ?? '-' }}</div>
                                     </div>
@@ -168,6 +183,16 @@
                                             <div class="col-md-8 col-lg-9">
                                                 <input name="name" type="text" class="form-control @error('name') is-invalid @enderror" id="profileName" value="{{ old('name', $pageUser?->name) }}">
                                                 @error('name')
+                                                    <div class="invalid-feedback">{{ $message }}</div>
+                                                @enderror
+                                            </div>
+                                        </div>
+
+                                        <div class="row mb-3">
+                                            <label for="profileNip" class="col-md-4 col-lg-3 col-form-label">NIP</label>
+                                            <div class="col-md-8 col-lg-9">
+                                                <input name="nip" type="text" class="form-control @error('nip') is-invalid @enderror" id="profileNip" value="{{ old('nip', $pageUser?->nip) }}" placeholder="Masukkan NIP Anda...">
+                                                @error('nip')
                                                     <div class="invalid-feedback">{{ $message }}</div>
                                                 @enderror
                                             </div>
