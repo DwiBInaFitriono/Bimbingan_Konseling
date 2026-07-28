@@ -214,44 +214,47 @@
                                                     @endif
                                                 </td>
                                                 <td class="text-center">
-                                                    @if(in_array($session->status, ['menunggu', 'disetujui', 'selesai']))
-                                                        <div class="dropdown d-inline-block">
-                                                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle px-3" type="button" data-bs-toggle="dropdown" data-bs-boundary="viewport" data-bs-popper-config='{"strategy":"fixed"}' aria-expanded="false">
-                                                                <i class="bi bi-gear me-1"></i> Aksi
-                                                            </button>
-                                                            <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="max-height: 250px; overflow-y: auto;">
-                                                                @if($session->status == 'menunggu')
-                                                                    <li>
-                                                                        <form method="POST" action="{{ route('counseling.approve', $session->id) }}" class="m-0 p-0">
-                                                                            @csrf
-                                                                            <button type="submit" class="dropdown-item d-flex align-items-center py-2 text-success">
-                                                                                <i class="bi bi-check-lg me-2"></i> Terima
-                                                                            </button>
-                                                                        </form>
-                                                                    </li>
-                                                                    <li>
-                                                                        <button type="button" class="dropdown-item d-flex align-items-center py-2 text-danger" data-bs-toggle="modal" data-bs-target="#modalTolak{{ $session->id }}">
-                                                                            <i class="bi bi-x-lg me-2"></i> Tolak
-                                                                        </button>
-                                                                    </li>
-                                                                @elseif($session->status == 'disetujui')
-                                                                    <li>
-                                                                        <button type="button" class="dropdown-item d-flex align-items-center py-2 text-success" data-bs-toggle="modal" data-bs-target="#modalSelesai{{ $session->id }}">
-                                                                            <i class="bi bi-check2-square me-2"></i> Selesaikan
-                                                                        </button>
-                                                                    </li>
-                                                                @elseif($session->status == 'selesai')
-                                                                    <li>
-                                                                        <button type="button" class="dropdown-item d-flex align-items-center py-2 text-primary" onclick="triggerFollowUp('{{ $session->student_id }}', '{{ addslashes($session->student?->full_name) }}', '{{ $session->student?->nis }}', '{{ $session->student?->class?->grade ?? '' }}', '{{ addslashes($session->student?->class?->school_class_name ?? '') }}', 'Kontrol: {{ addslashes($session->topic) }}', '{{ $session->case_study_id }}')">
-                                                                            <i class="bi bi-calendar-plus me-2"></i> Jadwal Kontrol
-                                                                        </button>
-                                                                    </li>
-                                                                @endif
-                                                            </ul>
-                                                        </div>
-                                                    @else
-                                                        <span class="text-muted small">-</span>
-                                                    @endif
+                                                     <div class="dropdown d-inline-block">
+                                                         <button class="btn btn-sm btn-outline-secondary dropdown-toggle px-3" type="button" data-bs-toggle="dropdown" data-bs-boundary="viewport" data-bs-popper-config='{"strategy":"fixed"}' aria-expanded="false">
+                                                             <i class="bi bi-gear me-1"></i> Aksi
+                                                         </button>
+                                                         <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="max-height: 250px; overflow-y: auto;">
+                                                             @if($session->status == 'menunggu')
+                                                                 <li>
+                                                                     <button type="button" class="dropdown-item d-flex align-items-center py-2 text-success" data-bs-toggle="modal" data-bs-target="#modalSetujui{{ $session->id }}">
+                                                                         <i class="bi bi-check-lg me-2"></i> Terima
+                                                                     </button>
+                                                                 </li>
+                                                                 <li>
+                                                                     <button type="button" class="dropdown-item d-flex align-items-center py-2 text-danger" data-bs-toggle="modal" data-bs-target="#modalTolak{{ $session->id }}">
+                                                                         <i class="bi bi-x-lg me-2"></i> Tolak
+                                                                     </button>
+                                                                 </li>
+                                                             @elseif($session->status == 'disetujui')
+                                                                 <li>
+                                                                     <button type="button" class="dropdown-item d-flex align-items-center py-2 text-success" data-bs-toggle="modal" data-bs-target="#modalSelesai{{ $session->id }}">
+                                                                         <i class="bi bi-check2-square me-2"></i> Selesaikan
+                                                                     </button>
+                                                                 </li>
+                                                             @elseif($session->status == 'selesai')
+                                                                 <li>
+                                                                     <button type="button" class="dropdown-item d-flex align-items-center py-2 text-primary" onclick="triggerFollowUp('{{ $session->student_id }}', '{{ addslashes($session->student?->full_name) }}', '{{ $session->student?->nis }}', '{{ $session->student?->class?->grade ?? '' }}', '{{ addslashes($session->student?->class?->school_class_name ?? '') }}', 'Kontrol: {{ addslashes($session->topic) }}', '{{ $session->case_study_id }}')">
+                                                                         <i class="bi bi-calendar-plus me-2"></i> Jadwal Kontrol
+                                                                     </button>
+                                                                 </li>
+                                                             @endif
+
+                                                             @if(in_array($session->status, ['menunggu', 'disetujui', 'selesai']))
+                                                                 <li><hr class="dropdown-divider"></li>
+                                                             @endif
+
+                                                             <li>
+                                                                 <a class="dropdown-item d-flex align-items-center py-2 text-danger" href="{{ route('counseling.destroy', $session->id) }}" onclick="return confirm('Yakin ingin menghapus jadwal konseling ini?')">
+                                                                     <i class="bi bi-trash me-2"></i> Hapus
+                                                                 </a>
+                                                             </li>
+                                                         </ul>
+                                                     </div>
                                                 </td>
                                             </tr>
                                         @empty
@@ -275,6 +278,29 @@
 
         {{-- Modals for each session --}}
         @foreach($sessions as $session)
+            {{-- Modal Setujui --}}
+            <div class="modal fade" id="modalSetujui{{ $session->id }}" tabindex="-1" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content border-0 shadow">
+                        <form method="POST" action="{{ route('counseling.approve', $session->id) }}">
+                            @csrf
+                            <div class="modal-header bg-success text-white">
+                                <h5 class="modal-title fw-bold"><i class="bi bi-check-circle me-2"></i>Setujui Pengajuan Konseling</h5>
+                                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body p-4">
+                                <p class="mb-3">Tulis arahan, lokasi pertemuan, atau instruksi awal untuk <strong>{{ $session->student?->full_name }}</strong>:</p>
+                                <textarea name="notes" class="form-control" rows="3" placeholder="Contoh: Silakan datang ke Ruang BK pada jam istirahat pertama." required></textarea>
+                            </div>
+                            <div class="modal-footer bg-light p-3">
+                                <button type="button" class="btn btn-secondary px-3" data-bs-dismiss="modal">Batal</button>
+                                <button type="submit" class="btn btn-success px-4">Setujui & Kirim Arahan</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
             {{-- Modal Tolak --}}
             <div class="modal fade" id="modalTolak{{ $session->id }}" tabindex="-1" aria-hidden="true">
                 <div class="modal-dialog modal-dialog-centered">
@@ -455,19 +481,26 @@
                             </div>
                         </div>
 
-                        <div class="row g-3 mb-3">
+                         <div class="row g-3 mb-3">
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">Tanggal Pertemuan</label>
                                 <div class="input-icon-group">
                                     <i class="bi bi-calendar-event"></i>
-                                    <input type="date" name="requested_date" class="form-control" min="{{ date('Y-m-d') }}" required>
+                                    <input type="date" name="requested_date" id="requestedDateInput" class="form-control" min="{{ date('Y-m-d') }}" onchange="checkSelectedDate(this, 'requestedTimeSelect', 'weekendAlert')" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">Waktu / Jam Pertemuan</label>
                                 <div class="input-icon-group">
                                     <i class="bi bi-clock"></i>
-                                    <input type="time" name="requested_time" class="form-control" required>
+                                    <select name="requested_time" id="requestedTimeSelect" class="form-select" disabled required>
+                                        <option value="">Pilih Tanggal Dahulu...</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-12 d-none" id="weekendAlert">
+                                <div class="alert alert-warning py-2 px-3 mb-0" style="font-size: 0.85rem;">
+                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>Layanan konseling hanya tersedia pada hari kerja (Senin - Jumat) jam 07:00 s.d 15:00.
                                 </div>
                             </div>
                         </div>
@@ -509,6 +542,53 @@
     @include('include.script')
 
     <script>
+        const timeSlots = [
+            { value: "07:00", label: "07:00 WIB" },
+            { value: "08:00", label: "08:00 WIB" },
+            { value: "09:00", label: "09:00 WIB" },
+            { value: "10:00", label: "10:00 WIB" },
+            { value: "11:00", label: "11:00 WIB" },
+            { value: "12:00", label: "12:00 WIB" },
+            { value: "13:00", label: "13:00 WIB" },
+            { value: "14:00", label: "14:00 WIB" },
+            { value: "15:00", label: "15:00 WIB" }
+        ];
+
+        function checkSelectedDate(inputElement, timeSelectId, alertId) {
+            const dateVal = inputElement.value;
+            const timeSelect = document.getElementById(timeSelectId);
+            const alertBox = document.getElementById(alertId);
+            
+            if (!dateVal) {
+                timeSelect.innerHTML = '<option value="">Pilih Tanggal Dahulu...</option>';
+                timeSelect.disabled = true;
+                if (alertBox) alertBox.classList.add('d-none');
+                return;
+            }
+
+            const date = new Date(dateVal);
+            const day = date.getDay(); // 0 = Sunday, 6 = Saturday
+
+            if (day === 0 || day === 6) {
+                // It's a weekend
+                timeSelect.innerHTML = '<option value="">Jam Tidak Tersedia (Hari Libur)</option>';
+                timeSelect.disabled = true;
+                if (alertBox) alertBox.classList.remove('d-none');
+                inputElement.value = ''; // Reset date
+            } else {
+                // It's a weekday
+                timeSelect.disabled = false;
+                if (alertBox) alertBox.classList.add('d-none');
+                
+                // Populate options
+                let html = '<option value="">Pilih Jam...</option>';
+                timeSlots.forEach(slot => {
+                    html += `<option value="${slot.value}">${slot.label}</option>`;
+                });
+                timeSelect.innerHTML = html;
+            }
+        }
+
         document.getElementById('searchKonseling')?.addEventListener('input', function() {
             const q = this.value.toLowerCase();
             const rows = document.querySelectorAll('#tabelKonseling tbody tr');

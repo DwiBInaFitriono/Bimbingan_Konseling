@@ -56,6 +56,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/konseling-siswa', [CounselingSessionController::class, 'studentIndex'])->name('counseling.siswa');
         Route::post('/konseling-siswa/simpan', [CounselingSessionController::class, 'store'])->name('counseling.store');
         Route::post('/konseling-siswa/batalkan/{id}', [CounselingSessionController::class, 'cancel'])->name('counseling.cancel');
+        Route::get('/siswa/cetak-peringatan/{id}', [Admin::class, 'printWarningLetter'])->name('siswa.cetak.peringatan');
     });
 
     // Route khusus Guru BK / Admin
@@ -69,6 +70,7 @@ Route::middleware('auth')->group(function () {
         Route::post('konseling/setujui/{id}', [CounselingSessionController::class, 'approve'])->name('counseling.approve');
         Route::post('konseling/tolak/{id}', [CounselingSessionController::class, 'reject'])->name('counseling.reject');
         Route::post('konseling/selesai/{id}', [CounselingSessionController::class, 'complete'])->name('counseling.complete');
+        Route::get('konseling/hapus/{id}', [CounselingSessionController::class, 'destroy'])->name('counseling.destroy');
 
         // Routes Siswa
         Route::get('siswa', [Admin::class, 'Siswa'])->name('siswa.tampil');

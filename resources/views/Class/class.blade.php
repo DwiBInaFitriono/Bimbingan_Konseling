@@ -31,11 +31,28 @@
                         </a>
                     </div>
 
-                    {{-- Search Bar --}}
-                    <div class="mb-3">
-                        <div class="input-group" style="max-width: 360px;">
-                            <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
-                            <input type="text" id="searchKelas" class="form-control border-start-0 ps-0" placeholder="Cari nama kelas atau tingkat...">
+                    {{-- Search & Filter Bar --}}
+                    <div class="row g-2 mb-3 align-items-center">
+                        <div class="col-md-3 col-sm-6">
+                            <div class="dropdown w-100">
+                                <button class="form-select text-start text-secondary fw-semibold w-100" type="button" id="filterTingkatBtn" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <span>Tingkat: Semua</span>
+                                </button>
+                                <ul class="dropdown-menu w-100 shadow-sm" aria-labelledby="filterTingkatBtn">
+                                    <li><a class="dropdown-item fw-semibold py-2" href="javascript:void(0)" onclick="selectFilterTingkat('', 'Tingkat: Semua')">Semua Tingkat</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item py-2" href="javascript:void(0)" onclick="selectFilterTingkat('10', 'Kelas 10 (X)')">Kelas 10 (X)</a></li>
+                                    <li><a class="dropdown-item py-2" href="javascript:void(0)" onclick="selectFilterTingkat('11', 'Kelas 11 (XI)')">Kelas 11 (XI)</a></li>
+                                    <li><a class="dropdown-item py-2" href="javascript:void(0)" onclick="selectFilterTingkat('12', 'Kelas 12 (XII)')">Kelas 12 (XII)</a></li>
+                                </ul>
+                                <input type="hidden" id="filterTingkat" value="">
+                            </div>
+                        </div>
+                        <div class="col-md-5 col-sm-6">
+                            <div class="input-group">
+                                <span class="input-group-text bg-white border-end-0"><i class="bi bi-search text-muted"></i></span>
+                                <input type="text" id="searchKelas" class="form-control border-start-0 ps-0" placeholder="Cari nama kelas atau tingkat...">
+                            </div>
                         </div>
                     </div>
 
@@ -53,7 +70,7 @@
                             </thead>
                             <tbody>
                                 @forelse ($datakelas as $kelas)
-                                    <tr>
+                                    <tr class="kelas-row" data-tingkat="{{ $kelas->grade }}">
                                         <td>{{ $loop->iteration }}</td>
                                         <td>
                                             @if($kelas->grade == '10')
@@ -113,18 +130,37 @@
     @include('include.script')
 
     <script>
-    document.getElementById('searchKelas').addEventListener('input', function() {
-        const q = this.value.toLowerCase();
-        const rows = document.querySelectorAll('#tabelKelas tbody tr');
+    function filterKelasList() {
+        const q = document.getElementById('searchKelas').value.toLowerCase();
+        const fTingkat = document.getElementById('filterTingkat').value.toLowerCase();
+        const rows = document.querySelectorAll('#tabelKelas tbody tr.kelas-row');
         let found = 0;
+        
         rows.forEach(row => {
+            const rowTingkat = row.getAttribute('data-tingkat') || '';
             const text = row.textContent.toLowerCase();
-            const match = text.includes(q);
+            
+            const matchSearch = text.includes(q) || q === '';
+            const matchTingkat = rowTingkat === fTingkat || fTingkat === '';
+            
+            const match = matchSearch && matchTingkat;
             row.style.display = match ? '' : 'none';
             if (match) found++;
         });
-        document.getElementById('noResultKelas').classList.toggle('d-none', found > 0 || q === '');
-    });
+        
+        const noResult = document.getElementById('noResultKelas');
+        if (noResult) {
+            noResult.classList.toggle('d-none', found > 0 || (q === '' && fTingkat === ''));
+        }
+    }
+
+    function selectFilterTingkat(value, label) {
+        document.getElementById('filterTingkat').value = value;
+        document.getElementById('filterTingkatBtn').querySelector('span').textContent = label;
+        filterKelasList();
+    }
+
+    document.getElementById('searchKelas').addEventListener('input', filterKelasList);
     </script>
 </body>
 

@@ -165,6 +165,18 @@
                                                 </button>
                                                 <ul class="dropdown-menu dropdown-menu-end shadow-sm" style="max-height: 250px; overflow-y: auto;">
                                                     <li>
+                                                        <a class="dropdown-item d-flex align-items-center py-2 text-primary" href="{{ route('siswa.cetak.peringatan', $siswa->id) }}" target="_blank">
+                                                            <i class="bi bi-printer me-2"></i> Cetak Peringatan/SP
+                                                        </a>
+                                                    </li>
+                                                    @if($siswa->status === 'bahaya')
+                                                    <li>
+                                                        <a class="dropdown-item d-flex align-items-center py-2 text-danger fw-semibold" href="{{ route('siswa.cetak.peringatan', $siswa->id) }}?type=expel" target="_blank">
+                                                            <i class="bi bi-exclamation-octagon me-2"></i> Cetak SP Keluar
+                                                        </a>
+                                                    </li>
+                                                    @endif
+                                                    <li>
                                                         <a class="dropdown-item d-flex align-items-center py-2 text-warning" href="{{ url('/edit/' . $siswa->id) }}">
                                                             <i class="bi bi-pencil me-2"></i> Edit
                                                         </a>
