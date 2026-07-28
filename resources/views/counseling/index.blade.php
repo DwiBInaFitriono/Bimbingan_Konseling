@@ -813,4 +813,52 @@
                         
                         const studentOpt = document.querySelector(`.student-option[data-student-id="${studentId}"]`);
                         if (studentOpt) {
-                
+                            // Scroll the student list to the selected student
+                            studentOpt.scrollIntoView({ block: 'nearest' });
+                            studentOpt.click();
+                        }
+                    }, { once: true });
+                }
+            }
+        });
+
+        function triggerFollowUp(studentId, studentName, studentNis, studentGrade, studentClass, topic, caseStudyId) {
+            isFollowUpMode = true;
+            followUpStudentId = studentId;
+
+            // 1. Open the modal
+            const modalEl = document.getElementById('modalTambahKonseling');
+            if (modalEl) {
+                const modal = new bootstrap.Modal(modalEl);
+                modal.show();
+
+                // 2. Pre-fill the topic
+                const topicInput = document.getElementById('topicInput');
+                if (topicInput) {
+                    topicInput.value = topic;
+                }
+
+                // 3. Pre-fill the case study ID hidden input
+                const caseStudyInput = document.getElementById('caseStudyIdInput');
+                if (caseStudyInput) {
+                    caseStudyInput.value = caseStudyId || '';
+                }
+
+                // 4. Select the student in the list
+                modalEl.addEventListener('shown.bs.modal', function () {
+                    handleTypeChange(); // Hide others in individual mode
+                    
+                    const studentOpt = document.querySelector(`.student-option[data-student-id="${studentId}"]`);
+                    if (studentOpt) {
+                        studentOpt.scrollIntoView({ block: 'nearest' });
+                        studentOpt.click();
+                    } else {
+                        selectStudent(studentId, studentName, studentNis, studentGrade, studentClass, null);
+                    }
+                }, { once: true });
+            }
+        }
+    </script>
+</body>
+
+</html>
