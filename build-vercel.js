@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const { execFileSync } = require('child_process');
 const libphp = require('@libphp/almalinux-9-v85');
 
 // Monkey-patch libphp.getFiles to ensure Linux forward slashes on Windows
@@ -37,15 +38,19 @@ async function main() {
     for (const [relPath, fileObj] of Object.entries(libphpFiles)) {
         const destPath = path.join(funcDir, relPath);
         fs.mkdirSync(path.dirname(destPath), { recursive: true });
-        if (fileObj.fsPath && fs.existsSync(fileObj.fsPath)) {
+        
+        const sourcePath = typeof fileObj === 'string' ? fileObj : (fileObj.fsPath || null);
+        const fileData = typeof fileObj === 'string' ? null : (fileObj.data || null);
+
+        if (sourcePath && fs.existsSync(sourcePath)) {
             try {
-                const realPath = fs.realpathSync(fileObj.fsPath);
+                const realPath = fs.realpathSync(sourcePath);
                 fs.copyFileSync(realPath, destPath);
             } catch(e) {
-                try { fs.copyFileSync(fileObj.fsPath, destPath); } catch(err) {}
+                try { fs.copyFileSync(sourcePath, destPath); } catch(err) {}
             }
-        } else if (fileObj.data) {
-            fs.writeFileSync(destPath, fileObj.data);
+        } else if (fileData) {
+            fs.writeFileSync(destPath, fileData);
         }
         try { fs.chmodSync(destPath, 0o755); } catch (e) {}
     }
@@ -91,6 +96,41 @@ async function main() {
             try { fs.chmodSync(destPath, fileObj.mode); } catch (e) {}
         }
     }
+    console.log('📦 Copying shared libraries to php directory to satisfy dynamic linker...');
+    const libDir = path.join(funcDir, 'lib');
+    const phpDir = path.join(funcDir, 'php');
+    if (fs.existsSync(libDir)) {
+        const libs = fs.readdirSync(libDir);
+        for (const lib of libs) {
+            try {
+                fs.copyFileSync(path.join(libDir, lib), path.join(phpDir, lib));
+            } catch(e) {}
+        }
+    }
+
+    console.log('📦 Running composer install in user directory...');
+    try {
+        const phpCli = path.join(funcDir, 'php/php');
+        const composerCli = path.join(funcDir, 'php/composer');
+        const phpIniPath = path.join(funcDir, 'php/php.ini');
+        execFileSync(phpCli, [
+            '-c', phpIniPath,
+            '-d', 'extension_dir=' + path.join(funcDir, 'php/modules'),
+            composerCli,
+            'install',
+            '--no-dev',
+            '--optimize-autoloader'
+        ], {
+            cwd: path.join(funcDir, 'user'),
+            env: Object.assign({}, process.env, {
+                LD_LIBRARY_PATH: path.join(funcDir, 'lib') + (process.env.LD_LIBRARY_PATH ? ':' + process.env.LD_LIBRARY_PATH : '')
+            }),
+            stdio: 'inherit'
+        });
+        console.log('✅ Composer install successful!');
+    } catch (e) {
+        console.error('❌ Composer install failed:', e);
+    }
 
     // 4. Create index.js wrapper using synchronous PHP-CGI (req, res) handler
     console.log('🔧 Creating index.js entrypoint wrapper with (req, res) PHP-CGI runner...');
@@ -113,10 +153,15 @@ async function main() {
 "        const [reqPath, queryString] = reqUrl.split('?');\n" +
 "        const method = (req.method || 'GET').toUpperCase();\n" +
 "\n" +
-"        if (reqUrl === '/health') {\n" +
+"        if (reqUrl === '/ls') {\n" +
 "            res.statusCode = 200;\n" +
 "            res.setHeader('content-type', 'text/plain');\n" +
-"            return res.end('NODE JS IS RUNNING');\n" +
+"            let out = 'NODE JS IS RUNNING\\n';\n" +
+"            try { out += 'DIR: ' + __dirname + '\\n'; } catch(e) {}\n" +
+"            try { out += 'FILES:\\n' + fs.readdirSync(taskRoot).join('\\n') + '\\n'; } catch(e) {}\n" +
+"            try { out += 'USER FILES:\\n' + fs.readdirSync(path.join(taskRoot, 'user')).join('\\n') + '\\n'; } catch(e) {}\n" +
+"            try { out += 'VENDOR FILES:\\n' + fs.readdirSync(path.join(taskRoot, 'user/vendor')).join('\\n') + '\\n'; } catch(e) {}\n" +
+"            return res.end(out);\n" +
 "        }\n" +
 "\n" +
 "        const env = {\n" +
@@ -146,49 +191,54 @@ async function main() {
 "            if (req.headers['content-type']) env.CONTENT_TYPE = req.headers['content-type'];\n" +
 "        }\n" +
 "\n" +
-"        const rawOutput = execFileSync(phpCgiBin, ['-c', phpIni], {\n" +
-"            env,\n" +
-"            cwd: path.join(taskRoot, 'user'),\n" +
-"            input: inputBuffer,\n" +
-"            maxBuffer: 20 * 1024 * 1024,\n" +
-"            timeout: 8000\n" +
-"        });\n" +
-"\n" +
-"        let headerEndIndex = rawOutput.indexOf('\\r\\n\\r\\n');\n" +
-"        let headerLen = 4;\n" +
-"        if (headerEndIndex === -1) {\n" +
-"            headerEndIndex = rawOutput.indexOf('\\n\\n');\n" +
-"            headerLen = 2;\n" +
+"        let result;\n" +
+"        try {\n" +
+"            result = execFileSync(phpCgiBin, ['-c', phpIni, scriptFile], {\n" +
+"                env,\n" +
+"                cwd: path.join(taskRoot, 'user'),\n" +
+"                input: inputBuffer,\n" +
+"                maxBuffer: 20 * 1024 * 1024,\n" +
+"                timeout: 8000\n" +
+"            });\n" +
+"        } catch (error) {\n" +
+"            if (error.stdout) {\n" +
+"                result = error.stdout;\n" +
+"            } else {\n" +
+"                res.statusCode = 500;\n" +
+"                res.setHeader('content-type', 'text/plain');\n" +
+"                return res.end('PHP CGI Error: ' + error.message + '\\n' + (error.stderr ? error.stderr.toString() : ''));\n" +
+"            }\n" +
 "        }\n" +
 "\n" +
-"        if (headerEndIndex === -1) {\n" +
-"            res.statusCode = 200;\n" +
-"            res.setHeader('content-type', 'text/html; charset=UTF-8');\n" +
-"            return res.end(rawOutput);\n" +
-"        }\n" +
+"        try {\n" +
+"            const outStr = result.toString('latin1');\n" +
+"            const [headersPart, ...bodyParts] = outStr.split('\\r\\n\\r\\n');\n" +
+"            const bodyStr = bodyParts.join('\\r\\n\\r\\n');\n" +
 "\n" +
-"        const headerPart = rawOutput.slice(0, headerEndIndex).toString('utf8');\n" +
-"        const bodyPart = rawOutput.slice(headerEndIndex + headerLen);\n" +
-"\n" +
-"        headerPart.split(/\\r?\\n/).forEach(line => {\n" +
-"            const colonIndex = line.indexOf(':');\n" +
-"            if (colonIndex !== -1) {\n" +
-"                const key = line.slice(0, colonIndex).trim().toLowerCase();\n" +
-"                const val = line.slice(colonIndex + 1).trim();\n" +
-"                if (key === 'status') {\n" +
-"                    res.statusCode = parseInt(val, 10) || 200;\n" +
-"                } else {\n" +
-"                    res.setHeader(key, val);\n" +
+"            const headerLines = headersPart.split('\\r\\n');\n" +
+"            for (const line of headerLines) {\n" +
+"                const sep = line.indexOf(':');\n" +
+"                if (sep > 0) {\n" +
+"                    const key = line.substring(0, sep).trim();\n" +
+"                    const val = line.substring(sep + 1).trim();\n" +
+"                    if (key.toLowerCase() === 'status') {\n" +
+"                        res.statusCode = parseInt(val, 10);\n" +
+"                    } else {\n" +
+"                        res.setHeader(key, val);\n" +
+"                    }\n" +
 "                }\n" +
 "            }\n" +
-"        });\n" +
-"\n" +
-"        res.end(bodyPart);\n" +
+"            res.end(Buffer.from(bodyStr, 'latin1'));\n" +
+"        } catch (error) {\n" +
+"            res.statusCode = 500;\n" +
+"            res.setHeader('content-type', 'text/plain');\n" +
+"            res.end('Wrapper Error: ' + error.message);\n" +
+"        }\n" +
 "    } catch (err) {\n" +
 "        console.error('PHP CGI Error:', err);\n" +
 "        res.statusCode = 500;\n" +
 "        res.setHeader('content-type', 'text/plain');\n" +
-"        res.end('PHP CGI Error: ' + (err.stderr ? err.stderr.toString() : err.message));\n" +
+"        res.end('PHP CGI Error: ' + err.message);\n" +
 "    }\n" +
 "};\n";
 
