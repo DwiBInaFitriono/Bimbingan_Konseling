@@ -262,6 +262,13 @@ async function main() {
     fs.mkdirSync(staticDir, { recursive: true });
     try {
         fs.cpSync(path.join(workPath, 'public'), staticDir, { recursive: true, force: true });
+        // Remove PHP files from static so Vercel doesn't serve them as downloads
+        const files = fs.readdirSync(staticDir);
+        for (const file of files) {
+            if (file.endsWith('.php')) {
+                fs.unlinkSync(path.join(staticDir, file));
+            }
+        }
     } catch(e) {
         console.error('Failed to copy public files to static:', e);
     }
