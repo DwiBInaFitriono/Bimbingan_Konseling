@@ -256,13 +256,21 @@ async function main() {
     };
     fs.writeFileSync(path.join(funcDir, '.vc-config.json'), JSON.stringify(vcConfig, null, 2));
 
-    // 6. Create .vercel/output/config.json
+    // 6. Create static files directory
+    console.log('📦 Copying public files to .vercel/output/static...');
+    const staticDir = path.join(workPath, '.vercel/output/static');
+    fs.mkdirSync(staticDir, { recursive: true });
+    try {
+        fs.cpSync(path.join(workPath, 'public'), staticDir, { recursive: true, force: true });
+    } catch(e) {
+        console.error('Failed to copy public files to static:', e);
+    }
+
+    // 7. Create .vercel/output/config.json
     const outputConfig = {
         version: 3,
         routes: [
-            { src: "/build/(.*)", dest: "/public/build/$1" },
-            { src: "/assets/(.*)", dest: "/public/assets/$1" },
-            { src: "/(css|js|images|storage)/(.*)", dest: "/public/$1/$2" },
+            { handle: "filesystem" },
             { src: "/(.*)", dest: "/api/index" }
         ]
     };
