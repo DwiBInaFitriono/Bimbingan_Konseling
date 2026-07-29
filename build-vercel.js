@@ -138,7 +138,7 @@ async function main() {
 "const path = require('path');\n" +
 "const fs = require('fs');\n" +
 "\n" +
-"module.exports = (req, res) => {\n" +
+"module.exports = async (req, res) => {\n" +
 "    try {\n" +
 "        const taskRoot = __dirname;\n" +
 "        const phpCgiBin = path.join(taskRoot, 'php/php-cgi');\n" +
@@ -157,10 +157,6 @@ async function main() {
 "            res.statusCode = 200;\n" +
 "            res.setHeader('content-type', 'text/plain');\n" +
 "            let out = 'NODE JS IS RUNNING\\n';\n" +
-"            try { out += 'DIR: ' + __dirname + '\\n'; } catch(e) {}\n" +
-"            try { out += 'FILES:\\n' + fs.readdirSync(taskRoot).join('\\n') + '\\n'; } catch(e) {}\n" +
-"            try { out += 'USER FILES:\\n' + fs.readdirSync(path.join(taskRoot, 'user')).join('\\n') + '\\n'; } catch(e) {}\n" +
-"            try { out += 'VENDOR FILES:\\n' + fs.readdirSync(path.join(taskRoot, 'user/vendor')).join('\\n') + '\\n'; } catch(e) {}\n" +
 "            return res.end(out);\n" +
 "        }\n" +
 "\n" +
@@ -183,12 +179,38 @@ async function main() {
 "            const headerKey = 'HTTP_' + key.toUpperCase().replace(/-/g, '_');\n" +
 "            env[headerKey] = val;\n" +
 "        }\n" +
+"        if (req.headers['content-type']) env.CONTENT_TYPE = req.headers['content-type'];\n" +
+"        if (req.headers['content-length']) env.CONTENT_LENGTH = req.headers['content-length'];\n" +
 "\n" +
+"        // Collect body manually if needed\n" +
 "        let inputBuffer = Buffer.alloc(0);\n" +
-"        if (req.body) {\n" +
-"            inputBuffer = typeof req.body === 'string' ? Buffer.from(req.body) : req.body;\n" +
+"        if (method !== 'GET' && method !== 'HEAD') {\n" +
+"            if (req.body) {\n" +
+"                if (Buffer.isBuffer(req.body)) {\n" +
+"                    inputBuffer = req.body;\n" +
+"                } else if (typeof req.body === 'string') {\n" +
+"                    inputBuffer = Buffer.from(req.body);\n" +
+"                } else {\n" +
+"                    // If Vercel parsed it as an object, serialize it back based on content type\n" +
+"                    const ct = req.headers['content-type'] || '';\n" +
+"                    if (ct.includes('application/json')) {\n" +
+"                        inputBuffer = Buffer.from(JSON.stringify(req.body));\n" +
+"                    } else if (ct.includes('application/x-www-form-urlencoded')) {\n" +
+"                        inputBuffer = Buffer.from(new URLSearchParams(req.body).toString());\n" +
+"                    } else {\n" +
+"                        inputBuffer = Buffer.from(JSON.stringify(req.body));\n" +
+"                    }\n" +
+"                }\n" +
+"            } else {\n" +
+"                // Read from stream\n" +
+"                inputBuffer = await new Promise((resolve, reject) => {\n" +
+"                    const chunks = [];\n" +
+"                    req.on('data', c => chunks.push(c));\n" +
+"                    req.on('end', () => resolve(Buffer.concat(chunks)));\n" +
+"                    req.on('error', reject);\n" +
+"                });\n" +
+"            }\n" +
 "            env.CONTENT_LENGTH = String(inputBuffer.length);\n" +
-"            if (req.headers['content-type']) env.CONTENT_TYPE = req.headers['content-type'];\n" +
 "        }\n" +
 "\n" +
 "        let result;\n" +
