@@ -5,7 +5,7 @@
     },
     "scripts": {
         "dev": "vite",
-        "build": "vite build"
+        "build": "vite build && node build-vercel.js"
     },
     "devDependencies": {
         "axios": "^1.1.2",
