@@ -230,21 +230,30 @@ async function main() {
 "\n" +
 "        let result;\n" +
 "        try {\n" +
-"            result = execFileSync(phpCgiBin, ['-c', phpIni, scriptFile], {\n" +
+"            const { spawnSync } = require('child_process');\n" +
+"            const child = spawnSync(phpCgiBin, ['-c', phpIni, scriptFile], {\n" +
 "                env,\n" +
 "                cwd: path.join(taskRoot, 'user'),\n" +
 "                input: inputBuffer,\n" +
 "                maxBuffer: 20 * 1024 * 1024,\n" +
 "                timeout: 8000\n" +
 "            });\n" +
-"        } catch (error) {\n" +
-"            if (error.stdout) {\n" +
-"                result = error.stdout;\n" +
-"            } else {\n" +
+"            if (child.stderr && child.stderr.length > 0) {\n" +
+"                console.error('PHP STDERR:', child.stderr.toString());\n" +
+"            }\n" +
+"            if (child.error) {\n" +
+"                throw child.error;\n" +
+"            }\n" +
+"            if (!child.stdout || child.stdout.length === 0) {\n" +
 "                res.statusCode = 500;\n" +
 "                res.setHeader('content-type', 'text/plain');\n" +
-"                return res.end('PHP CGI Error: ' + error.message + '\\n' + (error.stderr ? error.stderr.toString() : ''));\n" +
+"                return res.end('PHP CGI returned empty response. Status: ' + child.status + '\\nSTDERR: ' + (child.stderr ? child.stderr.toString() : ''));\n" +
 "            }\n" +
+"            result = child.stdout;\n" +
+"        } catch (error) {\n" +
+"            res.statusCode = 500;\n" +
+"            res.setHeader('content-type', 'text/plain');\n" +
+"            return res.end('PHP CGI Execution Error: ' + error.message);\n" +
 "        }\n" +
 "\n" +
 "        try {\n" +
