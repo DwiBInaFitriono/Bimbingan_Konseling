@@ -87,7 +87,11 @@ async function main() {
     const vcConfig = {
         runtime: "nodejs20.x",
         handler: "index.js",
-        launcherType: "Nodejs"
+        launcherType: "Nodejs",
+        environment: {
+            NOW_ENTRYPOINT: "api/index.php",
+            NOW_PHP_DEV: "0"
+        }
     };
     fs.writeFileSync(path.join(funcDir, '.vc-config.json'), JSON.stringify(vcConfig, null, 2));
 
