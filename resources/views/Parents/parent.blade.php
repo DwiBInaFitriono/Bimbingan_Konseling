@@ -105,11 +105,9 @@
                             <thead class="table-light">
                                 <tr>
                                     <th style="width:45px;">No</th>
-                                    <th>Nama Orang Tua / Wali</th>
+                                    <th>Nama Wali & Pekerjaan</th>
                                     <th>Orang Tua Dari (Siswa & Kelas)</th>
-                                    <th>Alamat</th>
-                                    <th>Pekerjaan</th>
-                                    <th>No. Telepon</th>
+                                    <th>Alamat & Kontak</th>
                                     <th class="text-center">Aksi</th>
                                 </tr>
                             </thead>
@@ -119,6 +117,7 @@
                                         <td>{{ $loop->iteration }}</td>
                                         <td>
                                             <div class="fw-bold text-dark">{{ $parent->parent_full_name }}</div>
+                                            <div class="text-muted small"><i class="bi bi-briefcase me-1"></i>{{ $parent->job }}</div>
                                         </td>
                                         <td>
                                             @forelse($parent->student as $s)
@@ -136,9 +135,8 @@
                                                 <span class="text-muted small">Belum terhubung ke siswa</span>
                                             @endforelse
                                         </td>
-                                        <td>{{ $parent->address }}</td>
-                                        <td>{{ $parent->job }}</td>
                                         <td>
+                                            <div class="text-truncate mb-1" style="max-width: 250px;" title="{{ $parent->address }}"><i class="bi bi-geo-alt me-1 text-muted"></i>{{ $parent->address }}</div>
                                             <small><i class="bi bi-whatsapp me-1 text-success"></i>{{ $parent->phone_number }}</small>
                                         </td>
                                         <td class="text-center">

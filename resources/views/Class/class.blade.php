@@ -61,10 +61,8 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>No</th>
-                                    <th>Tingkat / Angkatan</th>
-                                    <th>Nama Kelas</th>
-                                    <th>Kompetensi Keahlian / Jurusan</th>
-                                    <th>Jumlah Siswa</th>
+                                    <th>Kelas & Tingkat</th>
+                                    <th>Jurusan & Siswa</th>
                                     <th class="text-center text-nowrap">Aksi</th>
                                 </tr>
                             </thead>
@@ -73,17 +71,19 @@
                                     <tr class="kelas-row" data-tingkat="{{ $kelas->grade }}">
                                         <td>{{ $loop->iteration }}</td>
                                         <td>
-                                            @if($kelas->grade == '10')
-                                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary px-3 py-1">Kelas 10 (X)</span>
-                                            @elseif($kelas->grade == '11')
-                                                <span class="badge bg-info bg-opacity-10 text-info border border-info px-3 py-1">Kelas 11 (XI)</span>
-                                            @else
-                                                <span class="badge bg-purple bg-opacity-10 text-dark border border-secondary px-3 py-1">Kelas 12 (XII)</span>
-                                            @endif
+                                            <div class="fw-bold text-dark fs-6">{{ $kelas->school_class_name }}</div>
+                                            <div class="mt-1">
+                                                @if($kelas->grade == '10')
+                                                    <span class="badge bg-primary bg-opacity-10 text-primary border border-primary px-2 py-1">Kelas 10 (X)</span>
+                                                @elseif($kelas->grade == '11')
+                                                    <span class="badge bg-info bg-opacity-10 text-info border border-info px-2 py-1">Kelas 11 (XI)</span>
+                                                @else
+                                                    <span class="badge bg-purple bg-opacity-10 text-dark border border-secondary px-2 py-1">Kelas 12 (XII)</span>
+                                                @endif
+                                            </div>
                                         </td>
-                                        <td><strong class="text-dark fs-6">{{ $kelas->school_class_name }}</strong></td>
-                                        <td>{{ $kelas->school_class_major }}</td>
                                         <td>
+                                            <div class="text-dark fw-semibold mb-1 text-truncate" style="max-width: 250px;" title="{{ $kelas->school_class_major }}">{{ $kelas->school_class_major }}</div>
                                             <span class="badge bg-secondary bg-opacity-10 text-secondary border px-2 py-1">
                                                 <i class="bi bi-people me-1"></i>{{ $kelas->student_count ?? 0 }} Siswa
                                             </span>

@@ -157,11 +157,9 @@
                                     <thead>
                                         <tr>
                                             <th>No</th>
-                                            <th>Tanggal & Jam</th>
-                                            <th>Topik Pertemuan</th>
+                                            <th>Jadwal & Topik</th>
                                             <th>Guru BK Pembimbing</th>
-                                            <th>Status</th>
-                                            <th>Catatan Guru BK</th>
+                                            <th>Status & Catatan</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -169,31 +167,28 @@
                                             <tr>
                                                 <td>{{ $loop->iteration }}</td>
                                                 <td>
-                                                    <strong>{{ $s->requested_date?->format('d M Y') }}</strong><br>
-                                                    <small class="text-muted">{{ \Carbon\Carbon::parse($s->requested_time)->format('H:i') }} WIB</small>
-                                                </td>
-                                                <td>
-                                                    <span class="fw-semibold">{{ $s->topic }}</span>
+                                                    <div class="fw-semibold text-dark text-truncate" style="max-width: 250px;" title="{{ $s->topic }}">{{ $s->topic }}</div>
                                                     @if($s->description)
-                                                        <br><small class="text-muted">{{ Str::limit($s->description, 40) }}</small>
+                                                        <div class="text-muted small text-truncate mb-1" style="max-width: 250px;" title="{{ $s->description }}">{{ Str::limit($s->description, 40) }}</div>
                                                     @endif
+                                                    <small class="text-muted fw-semibold"><i class="bi bi-calendar3 me-1 text-primary"></i>{{ $s->requested_date?->format('d M Y') }} - {{ \Carbon\Carbon::parse($s->requested_time)->format('H:i') }} WIB</small>
                                                 </td>
                                                 <td>{{ $s->guruBk?->name ?? 'Akan Ditentukan' }}</td>
                                                 <td>
-                                                    @if($s->status == 'menunggu')
-                                                        <span class="badge bg-warning text-dark">Menunggu Persetujuan</span>
-                                                    @elseif($s->status == 'disetujui')
-                                                        <span class="badge bg-primary">Disetujui</span>
-                                                    @elseif($s->status == 'selesai')
-                                                        <span class="badge bg-success">Selesai</span>
-                                                    @elseif($s->status == 'ditolak')
-                                                        <span class="badge bg-danger">Ditolak</span>
-                                                    @else
-                                                        <span class="badge bg-secondary">{{ ucfirst($s->status) }}</span>
-                                                    @endif
-                                                </td>
-                                                <td>
-                                                    <small class="text-muted">{{ $s->notes ?? '-' }}</small>
+                                                    <div class="mb-1">
+                                                        @if($s->status == 'menunggu')
+                                                            <span class="badge bg-warning text-dark">Menunggu Persetujuan</span>
+                                                        @elseif($s->status == 'disetujui')
+                                                            <span class="badge bg-primary">Disetujui</span>
+                                                        @elseif($s->status == 'selesai')
+                                                            <span class="badge bg-success">Selesai</span>
+                                                        @elseif($s->status == 'ditolak')
+                                                            <span class="badge bg-danger">Ditolak</span>
+                                                        @else
+                                                            <span class="badge bg-secondary">{{ ucfirst($s->status) }}</span>
+                                                        @endif
+                                                    </div>
+                                                    <div class="text-muted small text-truncate" style="max-width: 250px;" title="{{ $s->notes }}">{{ $s->notes ?? '-' }}</div>
                                                 </td>
                                             </tr>
                                         @empty

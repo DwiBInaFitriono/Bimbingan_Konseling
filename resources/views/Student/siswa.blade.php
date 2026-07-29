@@ -105,12 +105,9 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>No</th>
-                                    <th>Nama Siswa & NIS</th>
-                                    <th>Angkatan & Kelas</th>
-                                    <th>Gender</th>
-                                    <th>Orang Tua / Wali</th>
-                                    <th>No. HP</th>
-                                    <th>Akun Login</th>
+                                    <th>Siswa & Gender</th>
+                                    <th>Kelas & Orang Tua</th>
+                                    <th>Kontak & Akun</th>
                                     <th>Status BK</th>
                                     <th class="text-center text-nowrap">Aksi</th>
                                 </tr>
@@ -121,28 +118,26 @@
                                         <td>{{ $loop->iteration }}</td>
                                         <td>
                                             <div class="fw-bold text-dark">{{ $siswa->full_name }}</div>
-                                            <small class="text-muted"><i class="bi bi-person-vcard me-1"></i>NIS: {{ $siswa->nis }}</small>
-                                        </td>
-                                        <td>
-                                            <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 me-1">Kelas {{ $siswa->class?->grade ?? '-' }}</span>
-                                            <strong class="text-dark">{{ $siswa->class?->school_class_name ?? 'Tanpa Kelas' }}</strong>
-                                        </td>
-                                        <td>
+                                            <small class="text-muted"><i class="bi bi-person-badge me-1"></i>NIS: {{ $siswa->nis }}</small>
                                             @if (strtolower($siswa->gender) == 'laki-laki')
-                                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 px-2 py-1"><i class="bi bi-gender-male me-1"></i>Laki-laki</span>
+                                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 ms-1"><i class="bi bi-gender-male"></i></span>
                                             @else
-                                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 px-2 py-1"><i class="bi bi-gender-female me-1"></i>Perempuan</span>
+                                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 ms-1"><i class="bi bi-gender-female"></i></span>
                                             @endif
                                         </td>
-                                        <td>{{ $siswa->parent?->parent_full_name ?? '-' }}</td>
+                                        <td>
+                                            <div class="mb-1">
+                                                <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 me-1">Kelas {{ $siswa->class?->grade ?? '-' }}</span>
+                                                <strong class="text-dark">{{ $siswa->class?->school_class_name ?? 'Tanpa Kelas' }}</strong>
+                                            </div>
+                                            <small class="text-muted"><i class="bi bi-people me-1"></i>Wali: {{ $siswa->parent?->parent_full_name ?? '-' }}</small>
+                                        </td>
                                         <td>
                                             @if($siswa->phone_number)
-                                                <small><i class="bi bi-whatsapp text-success me-1"></i>{{ $siswa->phone_number }}</small>
+                                                <div class="mb-1"><small><i class="bi bi-whatsapp text-success me-1"></i>{{ $siswa->phone_number }}</small></div>
                                             @else
-                                                -
+                                                <div class="mb-1 text-muted small"><i class="bi bi-telephone-x me-1"></i>-</div>
                                             @endif
-                                        </td>
-                                        <td>
                                             @if($siswa->user?->email)
                                                 <small class="text-success"><i class="bi bi-check-circle me-1"></i>{{ $siswa->user->email }}</small>
                                             @else
