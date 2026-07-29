@@ -4,12 +4,16 @@
   "functions": {
     "api/index.php": {
       "runtime": "vercel-php@0.6.0"
+    },
+    "api/test.php": {
+      "runtime": "vercel-php@0.6.0"
     }
   },
   "routes": [
     { "src": "/build/(.*)", "dest": "/public/build/$1" },
     { "src": "/assets/(.*)", "dest": "/public/assets/$1" },
     { "src": "/(css|js|images|storage)/(.*)", "dest": "/public/$1/$2" },
+    { "src": "/test.php", "dest": "/api/test.php" },
     { "src": "/(.*)", "dest": "/api/index.php" }
   ],
   "env": {
