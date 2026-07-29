@@ -149,6 +149,19 @@
                         </div>
                     </div>
 
+                    {{-- Quick Demo Info (Dipindah ke atas agar lebih terlihat) --}}
+                    <div class="alert alert-info border-0 shadow-sm mb-4 text-center">
+                        <small class="text-dark d-block mb-2 fw-bold"><i class="bi bi-magic me-1"></i> Uji Coba Demo Akun Cepat:</small>
+                        <div class="d-flex justify-content-center gap-2">
+                            <button type="button" class="btn btn-sm btn-primary py-1" onclick="fillDemo('rdxrio45@gmail.com', 'password', 'guru_bk')">
+                                <i class="bi bi-person-badge me-1"></i>Demo Guru BK
+                            </button>
+                            <button type="button" class="btn btn-sm btn-success py-1" onclick="fillDemo('siswa@school.sch.id', 'password', 'siswa')">
+                                <i class="bi bi-mortarboard me-1"></i>Demo Siswa
+                            </button>
+                        </div>
+                    </div>
+
                     @if (session('success'))
                         <div class="alert alert-success border-0 shadow-sm mb-3">
                             <i class="bi bi-check-circle me-1"></i>{{ session('success') }}
@@ -200,19 +213,6 @@
                     {{-- Notice khusus siswa --}}
                     <div id="siswaNotice" class="alert alert-light border p-2 px-3 mt-3 d-none text-center">
                         <small class="text-muted"><i class="bi bi-info-circle me-1 text-primary"></i>Akun Siswa dibuatkan dan diberikan resmi oleh Guru BK sekolah.</small>
-                    </div>
-
-                    {{-- Quick Demo Info --}}
-                    <div class="mt-4 pt-3 border-top text-center">
-                        <small class="text-muted d-block mb-2 fw-semibold">Uji Coba Demo Akun:</small>
-                        <div class="d-flex justify-content-center gap-2">
-                            <button type="button" class="btn btn-sm btn-outline-primary py-1" onclick="fillDemo('rdxrio45@gmail.com', 'password', 'guru_bk')">
-                                <i class="bi bi-key me-1"></i>Guru BK
-                            </button>
-                            <button type="button" class="btn btn-sm btn-outline-success py-1" onclick="fillDemo('siswa@school.sch.id', 'password', 'siswa')">
-                                <i class="bi bi-key me-1"></i>Siswa SMK
-                            </button>
-                        </div>
                     </div>
                 </div>
             </div>
