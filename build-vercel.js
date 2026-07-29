@@ -94,106 +94,104 @@ async function main() {
 
     // 4. Create index.js wrapper using synchronous PHP-CGI (req, res) handler
     console.log('🔧 Creating index.js entrypoint wrapper with (req, res) PHP-CGI runner...');
-    const indexJsContent = `
-const { execFileSync } = require('child_process');
-const path = require('path');
-const fs = require('fs');
+    const indexJsContent = "const { execFileSync } = require('child_process');\n" +
+"const path = require('path');\n" +
+"const fs = require('fs');\n" +
+"\n" +
+"module.exports = (req, res) => {\n" +
+"    try {\n" +
+"        const taskRoot = __dirname;\n" +
+"        const phpCgiBin = path.join(taskRoot, 'php/php-cgi');\n" +
+"        const phpIni = path.join(taskRoot, 'php/php.ini');\n" +
+"        \n" +
+"        let scriptFile = path.join(taskRoot, 'user/api/index.php');\n" +
+"        if (!fs.existsSync(scriptFile)) {\n" +
+"            scriptFile = path.join(taskRoot, 'user/public/index.php');\n" +
+"        }\n" +
+"\n" +
+"        const reqUrl = req.url || '/';\n" +
+"        const [reqPath, queryString] = reqUrl.split('?');\n" +
+"        const method = (req.method || 'GET').toUpperCase();\n" +
+"\n" +
+"        if (reqUrl === '/health') {\n" +
+"            res.statusCode = 200;\n" +
+"            res.setHeader('content-type', 'text/plain');\n" +
+"            return res.end('NODE JS IS RUNNING');\n" +
+"        }\n" +
+"\n" +
+"        const env = {\n" +
+"            ...process.env,\n" +
+"            GATEWAY_INTERFACE: 'CGI/1.1',\n" +
+"            SERVER_PROTOCOL: 'HTTP/1.1',\n" +
+"            REQUEST_METHOD: method,\n" +
+"            SCRIPT_FILENAME: scriptFile,\n" +
+"            SCRIPT_NAME: '/index.php',\n" +
+"            PATH_INFO: reqPath || '/',\n" +
+"            REQUEST_URI: reqUrl,\n" +
+"            QUERY_STRING: queryString || '',\n" +
+"            HTTP_HOST: req.headers.host || req.headers.Host || 'localhost',\n" +
+"            REDIRECT_STATUS: '200',\n" +
+"            LD_LIBRARY_PATH: path.join(taskRoot, 'lib') + ':' + (process.env.LD_LIBRARY_PATH || '')\n" +
+"        };\n" +
+"\n" +
+"        for (const [key, val] of Object.entries(req.headers || {})) {\n" +
+"            const headerKey = 'HTTP_' + key.toUpperCase().replace(/-/g, '_');\n" +
+"            env[headerKey] = val;\n" +
+"        }\n" +
+"\n" +
+"        let inputBuffer = Buffer.alloc(0);\n" +
+"        if (req.body) {\n" +
+"            inputBuffer = typeof req.body === 'string' ? Buffer.from(req.body) : req.body;\n" +
+"            env.CONTENT_LENGTH = String(inputBuffer.length);\n" +
+"            if (req.headers['content-type']) env.CONTENT_TYPE = req.headers['content-type'];\n" +
+"        }\n" +
+"\n" +
+"        const rawOutput = execFileSync(phpCgiBin, ['-c', phpIni], {\n" +
+"            env,\n" +
+"            cwd: path.join(taskRoot, 'user'),\n" +
+"            input: inputBuffer,\n" +
+"            maxBuffer: 20 * 1024 * 1024,\n" +
+"            timeout: 8000\n" +
+"        });\n" +
+"\n" +
+"        let headerEndIndex = rawOutput.indexOf('\\r\\n\\r\\n');\n" +
+"        let headerLen = 4;\n" +
+"        if (headerEndIndex === -1) {\n" +
+"            headerEndIndex = rawOutput.indexOf('\\n\\n');\n" +
+"            headerLen = 2;\n" +
+"        }\n" +
+"\n" +
+"        if (headerEndIndex === -1) {\n" +
+"            res.statusCode = 200;\n" +
+"            res.setHeader('content-type', 'text/html; charset=UTF-8');\n" +
+"            return res.end(rawOutput);\n" +
+"        }\n" +
+"\n" +
+"        const headerPart = rawOutput.slice(0, headerEndIndex).toString('utf8');\n" +
+"        const bodyPart = rawOutput.slice(headerEndIndex + headerLen);\n" +
+"\n" +
+"        headerPart.split(/\\r?\\n/).forEach(line => {\n" +
+"            const colonIndex = line.indexOf(':');\n" +
+"            if (colonIndex !== -1) {\n" +
+"                const key = line.slice(0, colonIndex).trim().toLowerCase();\n" +
+"                const val = line.slice(colonIndex + 1).trim();\n" +
+"                if (key === 'status') {\n" +
+"                    res.statusCode = parseInt(val, 10) || 200;\n" +
+"                } else {\n" +
+"                    res.setHeader(key, val);\n" +
+"                }\n" +
+"            }\n" +
+"        });\n" +
+"\n" +
+"        res.end(bodyPart);\n" +
+"    } catch (err) {\n" +
+"        console.error('PHP CGI Error:', err);\n" +
+"        res.statusCode = 500;\n" +
+"        res.setHeader('content-type', 'text/plain');\n" +
+"        res.end('PHP CGI Error: ' + (err.stderr ? err.stderr.toString() : err.message));\n" +
+"    }\n" +
+"};\n";
 
-module.exports = (req, res) => {
-    try {
-        const taskRoot = __dirname;
-        const phpCgiBin = path.join(taskRoot, 'php/php-cgi');
-        const phpIni = path.join(taskRoot, 'php/php.ini');
-        
-        // Use user/api/index.php if it exists, otherwise fallback
-        let scriptFile = path.join(taskRoot, 'user/api/index.php');
-        if (!fs.existsSync(scriptFile)) {
-            scriptFile = path.join(taskRoot, 'user/public/index.php');
-        }
-
-        const reqUrl = req.url || '/';
-        const [reqPath, queryString] = reqUrl.split('?');
-        const method = (req.method || 'GET').toUpperCase();
-
-        if (reqUrl === '/health') {
-            res.statusCode = 200;
-            res.setHeader('content-type', 'text/plain');
-            return res.end('NODE JS IS RUNNING');
-        }
-
-        const env = {
-            ...process.env,
-            GATEWAY_INTERFACE: 'CGI/1.1',
-            SERVER_PROTOCOL: 'HTTP/1.1',
-            REQUEST_METHOD: method,
-            SCRIPT_FILENAME: scriptFile,
-            SCRIPT_NAME: '/index.php',
-            PATH_INFO: reqPath || '/',
-            REQUEST_URI: reqUrl,
-            QUERY_STRING: queryString || '',
-            HTTP_HOST: req.headers.host || req.headers.Host || 'localhost',
-            REDIRECT_STATUS: '200',
-            LD_LIBRARY_PATH: \`\${path.join(taskRoot, 'lib')}:\${process.env.LD_LIBRARY_PATH || ''}\`
-        };
-
-        for (const [key, val] of Object.entries(req.headers || {})) {
-            const headerKey = 'HTTP_' + key.toUpperCase().replace(/-/g, '_');
-            env[headerKey] = val;
-        }
-
-        let inputBuffer = Buffer.alloc(0);
-        if (req.body) {
-            inputBuffer = typeof req.body === 'string' ? Buffer.from(req.body) : req.body;
-            env.CONTENT_LENGTH = String(inputBuffer.length);
-            if (req.headers['content-type']) env.CONTENT_TYPE = req.headers['content-type'];
-        }
-
-        const rawOutput = execFileSync(phpCgiBin, ['-c', phpIni], {
-            env,
-            cwd: path.join(taskRoot, 'user'),
-            input: inputBuffer,
-            maxBuffer: 20 * 1024 * 1024,
-            timeout: 8000
-        });
-
-        let headerEndIndex = rawOutput.indexOf('\\r\\n\\r\\n');
-        let headerLen = 4;
-        if (headerEndIndex === -1) {
-            headerEndIndex = rawOutput.indexOf('\\n\\n');
-            headerLen = 2;
-        }
-
-        if (headerEndIndex === -1) {
-            res.statusCode = 200;
-            res.setHeader('content-type', 'text/html; charset=UTF-8');
-            return res.end(rawOutput);
-        }
-
-        const headerPart = rawOutput.slice(0, headerEndIndex).toString('utf8');
-        const bodyPart = rawOutput.slice(headerEndIndex + headerLen);
-
-        headerPart.split(/\\r?\\n/).forEach(line => {
-            const colonIndex = line.indexOf(':');
-            if (colonIndex !== -1) {
-                const key = line.slice(0, colonIndex).trim().toLowerCase();
-                const val = line.slice(colonIndex + 1).trim();
-                if (key === 'status') {
-                    res.statusCode = parseInt(val, 10) || 200;
-                } else {
-                    res.setHeader(key, val);
-                }
-            }
-        });
-
-        res.end(bodyPart);
-    } catch (err) {
-        console.error('PHP CGI Error:', err);
-        res.statusCode = 500;
-        res.setHeader('content-type', 'text/plain');
-        res.end('PHP CGI Error: ' + (err.stderr ? err.stderr.toString() : err.message));
-    }
-};
-\`;
     fs.writeFileSync(path.join(funcDir, 'index.js'), indexJsContent);
 
     // 5. Create .vc-config.json
