@@ -95,7 +95,7 @@ async function main() {
     // 3. Create index.js wrapper using stateless PHP-CGI runner (no port 3000 server, no hanging)
     console.log('🔧 Creating index.js entrypoint wrapper with PHP-CGI runner...');
     const indexJsContent = `
-const { spawn } = require('child_process');
+const { execFile } = require('child_process');
 const path = require('path');
 const fs = require('fs');
 
@@ -106,11 +106,12 @@ module.exports = async function launcher(event, context) {
         try {
             const taskRoot = process.env.LAMBDA_TASK_ROOT || '/var/task';
             const phpCgiBin = path.join(taskRoot, 'php/php-cgi');
+            const phpIni = path.join(taskRoot, 'php/php.ini');
             const scriptFile = path.join(taskRoot, 'user/api/index.php');
 
             const reqUrl = event.url || event.rawPath || event.path || '/';
             const [reqPath, queryString] = reqUrl.split('?');
-            const method = event.method || event.httpMethod || (event.requestContext && event.requestContext.http && event.requestContext.http.method) || 'GET';
+            const method = (event.method || event.httpMethod || (event.requestContext && event.requestContext.http && event.requestContext.http.method) || 'GET').toUpperCase();
             const headers = event.headers || {};
 
             const env = {
@@ -128,39 +129,40 @@ module.exports = async function launcher(event, context) {
                 LD_LIBRARY_PATH: \`\${path.join(taskRoot, 'lib')}:\${process.env.LD_LIBRARY_PATH || ''}\`
             };
 
-            if (headers['content-type']) env.CONTENT_TYPE = headers['content-type'];
-            if (headers['content-length']) env.CONTENT_LENGTH = headers['content-length'];
-
             for (const [key, val] of Object.entries(headers)) {
                 const headerKey = 'HTTP_' + key.toUpperCase().replace(/-/g, '_');
                 env[headerKey] = val;
             }
 
-            const child = spawn(phpCgiBin, ['-c', path.join(taskRoot, 'php/php.ini')], {
+            let inputBuffer = Buffer.alloc(0);
+            if (event.body) {
+                inputBuffer = event.isBase64Encoded ? Buffer.from(event.body, 'base64') : Buffer.from(event.body);
+                env.CONTENT_LENGTH = String(inputBuffer.length);
+                if (headers['content-type']) env.CONTENT_TYPE = headers['content-type'];
+            }
+
+            const child = execFile(phpCgiBin, ['-c', phpIni], {
                 env,
-                cwd: path.join(taskRoot, 'user')
-            });
+                cwd: path.join(taskRoot, 'user'),
+                maxBuffer: 20 * 1024 * 1024,
+                encoding: 'buffer',
+                timeout: 10000
+            }, (err, stdout, stderr) => {
+                if (stderr && stderr.length > 0) {
+                    console.log('PHP CGI stderr:', stderr.toString('utf8'));
+                }
 
-            const stdoutChunks = [];
-            const stderrChunks = [];
+                if (err && (!stdout || stdout.length === 0)) {
+                    console.error('PHP CGI exec error:', err);
+                    return resolve({
+                        statusCode: 500,
+                        headers: { 'content-type': 'text/plain' },
+                        body: Buffer.from('PHP CGI Error: ' + err.message).toString('base64'),
+                        isBase64Encoded: true
+                    });
+                }
 
-            child.stdout.on('data', chunk => stdoutChunks.push(chunk));
-            child.stderr.on('data', chunk => stderrChunks.push(chunk));
-
-            child.on('error', err => {
-                console.error('PHP CGI spawn error:', err);
-                resolve({
-                    statusCode: 500,
-                    headers: { 'content-type': 'text/plain' },
-                    body: Buffer.from('PHP CGI spawn error: ' + err.message).toString('base64'),
-                    isBase64Encoded: true
-                });
-            });
-
-            child.on('close', code => {
-                const rawOutput = Buffer.concat(stdoutChunks);
-                const stderrStr = Buffer.concat(stderrChunks).toString();
-                if (stderrStr) console.log('PHP CGI stderr:', stderrStr);
+                const rawOutput = stdout || Buffer.alloc(0);
 
                 let headerEndIndex = rawOutput.indexOf('\\r\\n\\r\\n');
                 let headerLen = 4;
@@ -172,13 +174,13 @@ module.exports = async function launcher(event, context) {
                 if (headerEndIndex === -1) {
                     return resolve({
                         statusCode: 200,
-                        headers: { 'content-type': 'text/html' },
+                        headers: { 'content-type': 'text/html; charset=UTF-8' },
                         body: rawOutput.toString('base64'),
                         isBase64Encoded: true
                     });
                 }
 
-                const headerPart = rawOutput.slice(0, headerEndIndex).toString();
+                const headerPart = rawOutput.slice(0, headerEndIndex).toString('utf8');
                 const bodyPart = rawOutput.slice(headerEndIndex + headerLen);
 
                 const responseHeaders = {};
@@ -205,9 +207,8 @@ module.exports = async function launcher(event, context) {
                 });
             });
 
-            if (event.body) {
-                const bodyBuf = event.isBase64Encoded ? Buffer.from(event.body, 'base64') : Buffer.from(event.body);
-                child.stdin.write(bodyBuf);
+            if (inputBuffer.length > 0) {
+                child.stdin.write(inputBuffer);
             }
             child.stdin.end();
         } catch (err) {
