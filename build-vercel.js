@@ -34,6 +34,7 @@ async function main() {
     // 2. Copy libphp binaries (including php-cgi, php, and shared libraries)
     console.log('📦 Writing libphp binaries to .vercel/output...');
     const libphpFiles = await libphp.getFiles();
+    console.log("Libphp files:", Object.keys(libphpFiles));
     for (const [relPath, fileObj] of Object.entries(libphpFiles)) {
         const destPath = path.join(funcDir, relPath);
         fs.mkdirSync(path.dirname(destPath), { recursive: true });
