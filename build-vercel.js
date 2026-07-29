@@ -52,21 +52,16 @@ async function main() {
         if (fileObj.fsPath) {
             if (fs.existsSync(fileObj.fsPath)) {
                 try {
-                    const stat = fs.lstatSync(fileObj.fsPath);
+                    const realPath = fs.realpathSync(fileObj.fsPath);
+                    const stat = fs.statSync(realPath);
                     if (stat.isDirectory()) {
-                        fs.cpSync(fileObj.fsPath, destPath, { recursive: true, dereference: true });
-                    } else if (stat.isSymbolicLink()) {
-                        try {
-                            fs.cpSync(fileObj.fsPath, destPath, { recursive: true, dereference: true });
-                        } catch(e) {
-                            // ignore link failure
-                        }
+                        fs.cpSync(realPath, destPath, { recursive: true, dereference: true });
                     } else {
-                        fs.copyFileSync(fileObj.fsPath, destPath);
+                        fs.copyFileSync(realPath, destPath);
                     }
                 } catch(e) {
                     try {
-                        fs.cpSync(fileObj.fsPath, destPath, { recursive: true, dereference: true });
+                        fs.copyFileSync(fileObj.fsPath, destPath);
                     } catch(err) {}
                 }
             }
@@ -78,7 +73,7 @@ async function main() {
         }
     }
 
-    // 3. Create index.js wrapper to resolve launcher.launcher bug and NaN event bug on Node 20/22/24
+    // 3. Create index.js wrapper to resolve launcher.launcher bug, NaN event bug, and catch startup errors
     console.log('🔧 Creating index.js entrypoint wrapper...');
     const indexJsContent = `
 const dns = require('dns');
@@ -89,12 +84,22 @@ if (!process.env.NOW_ENTRYPOINT) process.env.NOW_ENTRYPOINT = 'api/index.php';
 const { launcher: origLauncher } = require('./launcher.js');
 
 module.exports = async function launcher(event, context) {
-    const normalizedEvent = { ...event };
-    normalizedEvent.path = normalizedEvent.path || normalizedEvent.url || normalizedEvent.rawPath || '/';
-    normalizedEvent.httpMethod = normalizedEvent.httpMethod || normalizedEvent.method || (normalizedEvent.requestContext && normalizedEvent.requestContext.http && normalizedEvent.requestContext.http.method) || 'GET';
-    const headers = normalizedEvent.headers || {};
-    normalizedEvent.host = normalizedEvent.host || headers.host || headers.Host || 'localhost';
-    return await origLauncher(normalizedEvent, context);
+    try {
+        const normalizedEvent = { ...event };
+        normalizedEvent.path = normalizedEvent.path || normalizedEvent.url || normalizedEvent.rawPath || '/';
+        normalizedEvent.httpMethod = normalizedEvent.httpMethod || normalizedEvent.method || (normalizedEvent.requestContext && normalizedEvent.requestContext.http && normalizedEvent.requestContext.http.method) || 'GET';
+        const headers = normalizedEvent.headers || {};
+        normalizedEvent.host = normalizedEvent.host || headers.host || headers.Host || 'localhost';
+        return await origLauncher(normalizedEvent, context);
+    } catch (err) {
+        console.error('PHP Launcher Exception:', err);
+        return {
+            statusCode: 500,
+            headers: { 'content-type': 'text/plain' },
+            body: Buffer.from('Server Error: ' + (err.stack || err)).toString('base64'),
+            encoding: 'base64'
+        };
+    }
 };
 `;
     fs.writeFileSync(path.join(funcDir, 'index.js'), indexJsContent);
