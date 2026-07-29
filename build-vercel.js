@@ -73,38 +73,134 @@ async function main() {
         }
     }
 
-    // 3. Create index.js wrapper to resolve launcher.launcher bug, NaN event bug, and catch startup errors
-    console.log('🔧 Creating index.js entrypoint wrapper...');
+    // 3. Create index.js wrapper using stateless PHP-CGI runner (no port 3000 server, no hanging)
+    console.log('🔧 Creating index.js entrypoint wrapper with PHP-CGI runner...');
     const indexJsContent = `
-const dns = require('dns');
-if (dns.setDefaultResultOrder) dns.setDefaultResultOrder('ipv4first');
-if (!process.env.LAMBDA_TASK_ROOT) process.env.LAMBDA_TASK_ROOT = '/var/task';
-if (!process.env.NOW_ENTRYPOINT) process.env.NOW_ENTRYPOINT = 'api/index.php';
+const { spawn } = require('child_process');
+const path = require('path');
+const fs = require('fs');
 
-const { launcher: origLauncher } = require('./launcher.js');
+if (!process.env.LAMBDA_TASK_ROOT) process.env.LAMBDA_TASK_ROOT = '/var/task';
 
 module.exports = async function launcher(event, context) {
-    try {
-        const normalizedEvent = { ...event };
-        normalizedEvent.path = normalizedEvent.path || normalizedEvent.url || normalizedEvent.rawPath || '/';
-        normalizedEvent.httpMethod = normalizedEvent.httpMethod || normalizedEvent.method || (normalizedEvent.requestContext && normalizedEvent.requestContext.http && normalizedEvent.requestContext.http.method) || 'GET';
-        
-        const headers = { ...(normalizedEvent.headers || {}) };
-        headers['connection'] = 'close';
-        headers['Connection'] = 'close';
-        normalizedEvent.headers = headers;
+    return new Promise((resolve) => {
+        try {
+            const taskRoot = process.env.LAMBDA_TASK_ROOT || '/var/task';
+            const phpCgiBin = path.join(taskRoot, 'php/php-cgi');
+            const scriptFile = path.join(taskRoot, 'user/public/index.php');
 
-        normalizedEvent.host = normalizedEvent.host || headers.host || headers.Host || '127.0.0.1:3000';
-        return await origLauncher(normalizedEvent, context);
-    } catch (err) {
-        console.error('PHP Launcher Exception:', err);
-        return {
-            statusCode: 500,
-            headers: { 'content-type': 'text/plain' },
-            body: Buffer.from('Server Error: ' + (err.stack || err)).toString('base64'),
-            encoding: 'base64'
-        };
-    }
+            const reqUrl = event.url || event.rawPath || event.path || '/';
+            const [reqPath, queryString] = reqUrl.split('?');
+            const method = event.method || event.httpMethod || (event.requestContext && event.requestContext.http && event.requestContext.http.method) || 'GET';
+            const headers = event.headers || {};
+
+            const env = {
+                ...process.env,
+                GATEWAY_INTERFACE: 'CGI/1.1',
+                SERVER_PROTOCOL: 'HTTP/1.1',
+                REQUEST_METHOD: method,
+                SCRIPT_FILENAME: scriptFile,
+                SCRIPT_NAME: '/index.php',
+                PATH_INFO: reqPath || '/',
+                REQUEST_URI: reqUrl,
+                QUERY_STRING: queryString || '',
+                HTTP_HOST: headers.host || headers.Host || 'localhost',
+                REDIRECT_STATUS: '200',
+                LD_LIBRARY_PATH: \`\${path.join(taskRoot, 'lib')}:\${process.env.LD_LIBRARY_PATH || ''}\`
+            };
+
+            if (headers['content-type']) env.CONTENT_TYPE = headers['content-type'];
+            if (headers['content-length']) env.CONTENT_LENGTH = headers['content-length'];
+
+            for (const [key, val] of Object.entries(headers)) {
+                const headerKey = 'HTTP_' + key.toUpperCase().replace(/-/g, '_');
+                env[headerKey] = val;
+            }
+
+            const child = spawn(phpCgiBin, ['-c', path.join(taskRoot, 'php/php.ini')], {
+                env,
+                cwd: path.join(taskRoot, 'user')
+            });
+
+            const stdoutChunks = [];
+            const stderrChunks = [];
+
+            child.stdout.on('data', chunk => stdoutChunks.push(chunk));
+            child.stderr.on('data', chunk => stderrChunks.push(chunk));
+
+            child.on('error', err => {
+                console.error('PHP CGI spawn error:', err);
+                resolve({
+                    statusCode: 500,
+                    headers: { 'content-type': 'text/plain' },
+                    body: Buffer.from('PHP CGI spawn error: ' + err.message).toString('base64'),
+                    isBase64Encoded: true
+                });
+            });
+
+            child.on('close', code => {
+                const rawOutput = Buffer.concat(stdoutChunks);
+                const stderrStr = Buffer.concat(stderrChunks).toString();
+                if (stderrStr) console.log('PHP CGI stderr:', stderrStr);
+
+                let headerEndIndex = rawOutput.indexOf('\\r\\n\\r\\n');
+                let headerLen = 4;
+                if (headerEndIndex === -1) {
+                    headerEndIndex = rawOutput.indexOf('\\n\\n');
+                    headerLen = 2;
+                }
+
+                if (headerEndIndex === -1) {
+                    return resolve({
+                        statusCode: 200,
+                        headers: { 'content-type': 'text/html' },
+                        body: rawOutput.toString('base64'),
+                        isBase64Encoded: true
+                    });
+                }
+
+                const headerPart = rawOutput.slice(0, headerEndIndex).toString();
+                const bodyPart = rawOutput.slice(headerEndIndex + headerLen);
+
+                const responseHeaders = {};
+                let statusCode = 200;
+
+                headerPart.split(/\\r?\\n/).forEach(line => {
+                    const colonIndex = line.indexOf(':');
+                    if (colonIndex !== -1) {
+                        const key = line.slice(0, colonIndex).trim().toLowerCase();
+                        const val = line.slice(colonIndex + 1).trim();
+                        if (key === 'status') {
+                            statusCode = parseInt(val, 10) || 200;
+                        } else {
+                            responseHeaders[key] = val;
+                        }
+                    }
+                });
+
+                resolve({
+                    statusCode,
+                    headers: responseHeaders,
+                    body: bodyPart.toString('base64'),
+                    isBase64Encoded: true
+                });
+            });
+
+            if (event.body) {
+                const bodyBuf = event.isBase64Encoded ? Buffer.from(event.body, 'base64') : Buffer.from(event.body);
+                child.stdin.write(bodyBuf);
+            }
+            child.stdin.end();
+        } catch (err) {
+            console.error('Launcher Exception:', err);
+            resolve({
+                statusCode: 500,
+                headers: { 'content-type': 'text/plain' },
+                body: Buffer.from('Launcher Exception: ' + (err.stack || err)).toString('base64'),
+                isBase64Encoded: true
+            });
+        }
+    });
 };
 `;
     fs.writeFileSync(path.join(funcDir, 'index.js'), indexJsContent);
