@@ -78,9 +78,25 @@ async function main() {
         }
     }
 
-    // 3. Create index.js wrapper to resolve launcher.launcher bug on Node 20/22/24
+    // 3. Create index.js wrapper to resolve launcher.launcher bug and NaN event bug on Node 20/22/24
     console.log('🔧 Creating index.js entrypoint wrapper...');
-    const indexJsContent = `const dns = require('dns');\nif (dns.setDefaultResultOrder) dns.setDefaultResultOrder('ipv4first');\nif (!process.env.LAMBDA_TASK_ROOT) process.env.LAMBDA_TASK_ROOT = '/var/task';\nif (!process.env.NOW_ENTRYPOINT) process.env.NOW_ENTRYPOINT = 'api/index.php';\nconst { launcher } = require('./launcher.js');\nmodule.exports = launcher;\n`;
+    const indexJsContent = `
+const dns = require('dns');
+if (dns.setDefaultResultOrder) dns.setDefaultResultOrder('ipv4first');
+if (!process.env.LAMBDA_TASK_ROOT) process.env.LAMBDA_TASK_ROOT = '/var/task';
+if (!process.env.NOW_ENTRYPOINT) process.env.NOW_ENTRYPOINT = 'api/index.php';
+
+const { launcher: origLauncher } = require('./launcher.js');
+
+module.exports = async function launcher(event, context) {
+    const normalizedEvent = { ...event };
+    normalizedEvent.path = normalizedEvent.path || normalizedEvent.url || normalizedEvent.rawPath || '/';
+    normalizedEvent.httpMethod = normalizedEvent.httpMethod || normalizedEvent.method || (normalizedEvent.requestContext && normalizedEvent.requestContext.http && normalizedEvent.requestContext.http.method) || 'GET';
+    const headers = normalizedEvent.headers || {};
+    normalizedEvent.host = normalizedEvent.host || headers.host || headers.Host || 'localhost';
+    return await origLauncher(normalizedEvent, context);
+};
+`;
     fs.writeFileSync(path.join(funcDir, 'index.js'), indexJsContent);
 
     // 4. Create .vc-config.json
