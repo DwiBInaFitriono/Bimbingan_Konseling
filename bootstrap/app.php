@@ -14,5 +14,8 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->trustProxies(at: '*');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
-        //
+        $exceptions->reportable(function (\Throwable $e) {
+            echo "FATAL ERROR CAUGHT: " . $e->getMessage() . "\n";
+            echo $e->getTraceAsString() . "\n";
+        });
     })->create();
