@@ -23,6 +23,17 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 */
 
+Route::any('/debug', function (\Illuminate\Http\Request $request) {
+    return response()->json([
+        'session_id' => $request->session()->getId(),
+        'session_token' => $request->session()->token(),
+        'input_token' => $request->input('_token'),
+        'header_token' => $request->header('X-CSRF-TOKEN'),
+        'cookie' => $request->cookie('sistem_bk_session'),
+        'all_inputs' => $request->all(),
+    ]);
+});
+
 Route::get('/', function () {
     if (Auth::check()) {
         return Auth::user()->isSiswa()
