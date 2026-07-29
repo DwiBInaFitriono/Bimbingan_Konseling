@@ -31,8 +31,27 @@ async function main() {
     const funcDir = path.join(workPath, '.vercel/output/functions/api/index.func');
     fs.mkdirSync(funcDir, { recursive: true });
 
-    // 2. Copy lambda files
-    console.log('📦 Writing function files to .vercel/output...');
+    // 2. Copy libphp binaries (including php-cgi, php, and shared libraries)
+    console.log('📦 Writing libphp binaries to .vercel/output...');
+    const libphpFiles = await libphp.getFiles();
+    for (const [relPath, fileObj] of Object.entries(libphpFiles)) {
+        const destPath = path.join(funcDir, relPath);
+        fs.mkdirSync(path.dirname(destPath), { recursive: true });
+        if (fileObj.fsPath && fs.existsSync(fileObj.fsPath)) {
+            try {
+                const realPath = fs.realpathSync(fileObj.fsPath);
+                fs.copyFileSync(realPath, destPath);
+            } catch(e) {
+                try { fs.copyFileSync(fileObj.fsPath, destPath); } catch(err) {}
+            }
+        } else if (fileObj.data) {
+            fs.writeFileSync(destPath, fileObj.data);
+        }
+        try { fs.chmodSync(destPath, 0o755); } catch (e) {}
+    }
+
+    // 3. Copy user lambda files
+    console.log('📦 Writing user function files to .vercel/output...');
     const lambdaFiles = result.output.files;
     for (const [relPath, fileObj] of Object.entries(lambdaFiles)) {
         const normalizedPath = relPath.replace(/\\/g, '/');
