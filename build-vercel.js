@@ -113,9 +113,14 @@ async function main() {
         const phpCli = path.join(funcDir, 'php/php');
         const composerCli = path.join(funcDir, 'php/composer');
         const phpIniPath = path.join(funcDir, 'php/php.ini');
+        
+        let phpIniContent = fs.readFileSync(phpIniPath, 'utf8');
+        phpIniContent = phpIniContent.replace('extension_dir=/var/task/php/modules', 'extension_dir=' + path.join(funcDir, 'php/modules'));
+        const buildPhpIniPath = path.join(funcDir, 'php/php-build.ini');
+        fs.writeFileSync(buildPhpIniPath, phpIniContent);
+
         execFileSync(phpCli, [
-            '-c', phpIniPath,
-            '-d', 'extension_dir=' + path.join(funcDir, 'php/modules'),
+            '-c', buildPhpIniPath,
             composerCli,
             'install',
             '--no-dev',
