@@ -88,8 +88,13 @@ module.exports = async function launcher(event, context) {
         const normalizedEvent = { ...event };
         normalizedEvent.path = normalizedEvent.path || normalizedEvent.url || normalizedEvent.rawPath || '/';
         normalizedEvent.httpMethod = normalizedEvent.httpMethod || normalizedEvent.method || (normalizedEvent.requestContext && normalizedEvent.requestContext.http && normalizedEvent.requestContext.http.method) || 'GET';
-        const headers = normalizedEvent.headers || {};
-        normalizedEvent.host = normalizedEvent.host || headers.host || headers.Host || 'localhost';
+        
+        const headers = { ...(normalizedEvent.headers || {}) };
+        headers['connection'] = 'close';
+        headers['Connection'] = 'close';
+        normalizedEvent.headers = headers;
+
+        normalizedEvent.host = normalizedEvent.host || headers.host || headers.Host || '127.0.0.1:3000';
         return await origLauncher(normalizedEvent, context);
     } catch (err) {
         console.error('PHP Launcher Exception:', err);
