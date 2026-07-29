@@ -143,7 +143,7 @@
                                                     <small><i class="bi bi-calendar me-1"></i>{{ $c->requested_date?->format('d/m/Y') }}</small><br>
                                                     <small class="text-muted"><i class="bi bi-clock me-1"></i>{{ \Carbon\Carbon::parse($c->requested_time)->format('H:i') }}</small>
                                                 </td>
-                                                <td><small>{{ Str::limit($c->topic, 25) }}</small></td>
+                                                <td><small>{{ \Illuminate\Support\Str::limit($c->topic ?? '', 25) }}</small></td>
                                                 <td>
                                                     <span class="badge bg-warning text-dark">Menunggu</span>
                                                 </td>
