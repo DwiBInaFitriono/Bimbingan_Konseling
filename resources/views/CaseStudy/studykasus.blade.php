@@ -49,13 +49,10 @@
                                     <thead class="table-light">
                                         <tr>
                                             <th>No</th>
-                                            <th>Nama Siswa</th>
-                                            <th>Kelas & Jurusan</th>
-                                            <th>Pelapor (Guru)</th>
-                                            <th>Jenis Kasus</th>
-                                            <th>Judul Kasus</th>
+                                            <th>Siswa & Kelas</th>
+                                            <th>Kasus & Pelapor</th>
                                             <th>Tanggal</th>
-                                            <th>Status / Sanksi</th>
+                                            <th>Status & Sanksi</th>
                                             <th class="text-center" style="width: 15%;">Aksi</th>
                                         </tr>
                                     </thead>
@@ -65,31 +62,31 @@
                                                 <td>{{ $index + 1 }}</td>
                                                 <td>
                                                     <div class="fw-bold text-dark">{{ $data->student->full_name ?? 'N/A' }}</div>
+                                                    <small class="text-muted"><i class="bi bi-person-badge me-1"></i>{{ $data->student->class?->grade ?? '-' }} - {{ $data->student->class?->school_class_name ?? 'Tanpa Kelas' }}</small>
                                                 </td>
                                                 <td>
-                                                    {{ $data->student->class?->grade ?? '-' }} - {{ $data->student->class?->school_class_name ?? 'Tanpa Kelas' }}
+                                                    <div class="fw-bold text-dark text-truncate" style="max-width: 250px;" title="{{ $data->case_title }}">{{ $data->case_title }}</div>
+                                                    <div class="mt-1">
+                                                        <span class="badge bg-secondary me-1">{{ ucfirst($data->case_type) }}</span>
+                                                        <small class="text-muted"><i class="bi bi-person-workspace me-1"></i>{{ $data->reporter_teacher ?? '-' }}</small>
+                                                    </div>
                                                 </td>
                                                 <td>
-                                                    <span class="text-muted"><i class="bi bi-person-workspace me-1"></i>{{ $data->reporter_teacher ?? '-' }}</span>
+                                                    <small class="text-muted fw-semibold">{{ \Carbon\Carbon::parse($data->case_date)->format('d M Y') }}</small>
                                                 </td>
-                                                <td>
-                                                    <span class="badge bg-secondary">{{ ucfirst($data->case_type) }}</span>
-                                                </td>
-                                                <td>{{ $data->case_title }}</td>
-                                                <td>{{ \Carbon\Carbon::parse($data->case_date)->format('d M Y') }}</td>
                                                 <td>
                                                     @if(strtolower($data->status) == 'selesai')
-                                                        <span class="badge bg-success bg-opacity-10 text-success border border-success px-2 py-1 d-block mb-1"><i class="bi bi-check-all me-1"></i>Selesai</span>
+                                                        <span class="badge bg-success bg-opacity-10 text-success border border-success px-2 py-1 d-inline-block mb-1"><i class="bi bi-check-all me-1"></i>Selesai</span>
                                                     @elseif(strtolower($data->status) == 'tindak_lanjut')
-                                                        <span class="badge bg-warning bg-opacity-10 text-warning border border-warning px-2 py-1 d-block mb-1"><i class="bi bi-arrow-right-circle me-1"></i>Tindak Lanjut</span>
+                                                        <span class="badge bg-warning bg-opacity-10 text-warning border border-warning px-2 py-1 d-inline-block mb-1"><i class="bi bi-arrow-right-circle me-1"></i>Tindak Lanjut</span>
                                                     @else
-                                                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary px-2 py-1 d-block mb-1"><i class="bi bi-clock-history me-1"></i>Proses</span>
+                                                        <span class="badge bg-primary bg-opacity-10 text-primary border border-primary px-2 py-1 d-inline-block mb-1"><i class="bi bi-clock-history me-1"></i>Proses</span>
                                                     @endif
 
                                                     @if($data->points_applied)
-                                                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger px-2 py-1 d-block"><i class="bi bi-exclamation-triangle-fill me-1"></i>+{{ $data->points_sanction }} Poin</span>
+                                                        <span class="badge bg-danger bg-opacity-10 text-danger border border-danger px-2 py-1 d-inline-block"><i class="bi bi-exclamation-triangle-fill me-1"></i>+{{ $data->points_sanction }} Poin</span>
                                                     @else
-                                                        <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary px-2 py-1 d-block"><i class="bi bi-dash-circle me-1"></i>Poin Belum Diproses</span>
+                                                        <span class="badge bg-secondary bg-opacity-10 text-secondary border border-secondary px-2 py-1 d-inline-block"><i class="bi bi-dash-circle me-1"></i>Belum Diproses</span>
                                                     @endif
                                                 </td>
                                                 <td class="text-center">

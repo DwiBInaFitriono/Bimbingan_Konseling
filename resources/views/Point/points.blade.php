@@ -91,13 +91,9 @@
                             <thead class="table-light">
                                 <tr>
                                     <th>No</th>
-                                    <th>Siswa</th>
-                                    <th>Angkatan & Kelas</th>
-                                    <th>Bentuk Pelanggaran</th>
-                                    <th>Bobot Poin</th>
-                                    <th>Total Poin Siswa</th>
-                                    <th>Status Kedisiplinan</th>
-                                    <th>Tanggal</th>
+                                    <th>Siswa & Kelas</th>
+                                    <th>Pelanggaran & Bobot</th>
+                                    <th>Total Poin & Status</th>
                                     <th class="text-center">Aksi</th>
                                 </tr>
                             </thead>
@@ -107,31 +103,29 @@
                                         <td>{{ $loop->iteration }}</td>
                                         <td>
                                             <div class="fw-bold text-dark">{{ $point->student?->full_name ?? 'Siswa Tidak Ditemukan' }}</div>
-                                            <small class="text-muted"><i class="bi bi-person-vcard me-1"></i>NIS: {{ $point->student?->nis ?? '-' }}</small>
+                                            <small class="text-muted"><i class="bi bi-person-badge me-1"></i>NIS: {{ $point->student?->nis ?? '-' }} | Kelas {{ $point->student?->class?->grade ?? '-' }} - {{ $point->student?->class?->school_class_name ?? '-' }}</small>
                                         </td>
                                         <td>
-                                            <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 me-1">Kelas {{ $point->student?->class?->grade ?? '-' }}</span>
-                                            <strong class="text-dark">{{ $point->student?->class?->school_class_name ?? '-' }}</strong>
-                                        </td>
-                                        <td>
-                                            <span class="fw-semibold text-dark">{{ $point->violation }}</span>
+                                            <div class="fw-semibold text-dark text-truncate" style="max-width: 250px;" title="{{ $point->violation }}">{{ $point->violation }}</div>
                                             @if($point->description)
-                                                <br><small class="text-muted">{{ $point->description }}</small>
+                                                <div class="text-muted small text-truncate mb-1" style="max-width: 250px;" title="{{ $point->description }}">{{ $point->description }}</div>
                                             @endif
+                                            <div>
+                                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger px-2 py-1 me-1">+{{ $point->point_number }} Poin</span>
+                                                <small class="text-muted fw-semibold"><i class="bi bi-calendar me-1"></i>{{ $point->violation_date ? \Carbon\Carbon::parse($point->violation_date)->format('d M Y') : $point->created_at?->format('d M Y') }}</small>
+                                            </div>
                                         </td>
-                                        <td><span class="badge bg-danger bg-opacity-10 text-danger border border-danger px-2 py-1">+{{ $point->point_number }} Poin</span></td>
-                                        <td><strong class="fs-6 text-dark">{{ $point->student?->total_points ?? 0 }} Poin</strong></td>
                                         <td>
+                                            <div class="fs-6 text-dark fw-bold mb-1">{{ $point->student?->total_points ?? 0 }} Poin</div>
                                             @php $st = $point->student?->status ?? 'aman'; @endphp
                                             @if($st == 'aman')
-                                                <span class="badge bg-success bg-opacity-10 text-success border border-success px-2 py-1"><i class="bi bi-shield-check me-1"></i>Aman</span>
+                                                <span class="badge bg-success bg-opacity-10 text-success border border-success px-2 py-1 d-inline-block"><i class="bi bi-shield-check me-1"></i>Aman</span>
                                             @elseif($st == 'peringatan')
-                                                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning px-2 py-1"><i class="bi bi-exclamation-triangle me-1"></i>Peringatan</span>
+                                                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning px-2 py-1 d-inline-block"><i class="bi bi-exclamation-triangle me-1"></i>Peringatan</span>
                                             @else
-                                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger px-2 py-1"><i class="bi bi-x-octagon me-1"></i>Bahaya</span>
+                                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger px-2 py-1 d-inline-block"><i class="bi bi-x-octagon me-1"></i>Bahaya</span>
                                             @endif
                                         </td>
-                                        <td><small class="text-muted">{{ $point->violation_date ? \Carbon\Carbon::parse($point->violation_date)->format('d/m/Y') : $point->created_at?->format('d/m/Y') }}</small></td>
                                         <td class="text-center">
                                             <div class="dropdown d-inline-block">
                                                 <button class="btn btn-sm btn-outline-secondary dropdown-toggle px-3" type="button" data-bs-toggle="dropdown" data-bs-boundary="viewport" data-bs-popper-config='{"strategy":"fixed"}' aria-expanded="false">

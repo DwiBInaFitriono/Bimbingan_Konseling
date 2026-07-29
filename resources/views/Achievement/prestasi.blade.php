@@ -44,11 +44,8 @@
                                 <tr>
                                     <th style="width:45px;">No</th>
                                     <th>Nama Siswa</th>
-                                    <th>Nama Prestasi</th>
-                                    <th>Tanggal</th>
-                                    <th class="text-center">Tingkat</th>
-                                    <th>Kategori</th>
-                                    <th class="text-center">Status</th>
+                                    <th>Prestasi & Kategori</th>
+                                    <th>Tanggal & Status</th>
                                     <th class="text-center">Aksi</th>
                                 </tr>
                             </thead>
@@ -58,38 +55,29 @@
                                         <td>{{ $loop->iteration }}</td>
                                         <td class="fw-bold text-dark">{{ $data->student->full_name }}</td>
                                         <td>
-                                            <span class="text-success fw-semibold">
+                                            <div class="fw-bold text-success text-truncate" style="max-width: 250px;" title="{{ $data->achievement_name }}">
                                                 <i class="bi bi-trophy me-1"></i>{{ $data->achievement_name }}
-                                            </span>
+                                            </div>
+                                            <div class="mt-1">
+                                                @php
+                                                    $levelClass = match(strtolower($data->achievement_level ?? '')) {
+                                                        'internasional' => 'bg-danger text-white',
+                                                        'nasional'      => 'bg-primary text-white',
+                                                        'provinsi'      => 'bg-info text-white',
+                                                        'kabupaten', 'kota' => 'bg-warning text-dark',
+                                                        default         => 'bg-secondary text-white',
+                                                    };
+                                                @endphp
+                                                <span class="badge {{ $levelClass }} px-2 py-1">{{ $data->achievement_level }}</span>
+                                                <small class="text-muted ms-1"><i class="bi bi-tag me-1"></i>{{ $data->achievement_category }}</small>
+                                            </div>
                                         </td>
                                         <td>
-                                            <small class="text-muted">
-                                                <i class="bi bi-calendar me-1"></i>
-                                                {{ \Carbon\Carbon::parse($data->achievement_date)->format('d/m/Y') }}
-                                            </small>
-                                        </td>
-                                        <td class="text-center">
-                                            @php
-                                                $levelClass = match(strtolower($data->achievement_level ?? '')) {
-                                                    'internasional' => 'bg-danger text-white',
-                                                    'nasional'      => 'bg-primary text-white',
-                                                    'provinsi'      => 'bg-info text-white',
-                                                    'kabupaten', 'kota' => 'bg-warning text-dark',
-                                                    default         => 'bg-secondary text-white',
-                                                };
-                                            @endphp
-                                            <span class="badge {{ $levelClass }} fw-bold px-2 py-1">{{ $data->achievement_level }}</span>
-                                        </td>
-                                        <td><small class="text-muted">{{ $data->achievement_category }}</small></td>
-                                        <td class="text-center">
+                                            <small class="text-muted d-block fw-semibold mb-1"><i class="bi bi-calendar me-1"></i>{{ \Carbon\Carbon::parse($data->achievement_date)->format('d M Y') }}</small>
                                             @if(strtolower($data->achievement_status ?? '') === 'terverifikasi')
-                                                <span class="badge bg-success text-white">
-                                                    <i class="bi bi-patch-check me-1"></i>Terverifikasi
-                                                </span>
+                                                <span class="badge bg-success bg-opacity-10 text-success border border-success"><i class="bi bi-patch-check me-1"></i>Terverifikasi</span>
                                             @else
-                                                <span class="badge bg-warning text-dark">
-                                                    <i class="bi bi-clock me-1"></i>{{ $data->achievement_status }}
-                                                </span>
+                                                <span class="badge bg-warning bg-opacity-10 text-warning border border-warning"><i class="bi bi-clock me-1"></i>{{ $data->achievement_status }}</span>
                                             @endif
                                         </td>
                                         <td class="text-center">

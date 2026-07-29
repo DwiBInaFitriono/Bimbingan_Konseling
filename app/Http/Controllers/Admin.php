@@ -35,7 +35,6 @@ class Admin extends Controller
         $recentAchievements = Achievement::with('student.class')->latest()->take(5)->get();
         $recentCases = CaseStudy::with('student.class')->latest()->take(5)->get();
         $recentCounseling = CounselingSession::with('student.class')->where('status', 'menunggu')->latest()->take(5)->get();
-        $users = User::latest()->get();
 
         return view('template', compact(
             'currentUser',
@@ -46,8 +45,7 @@ class Admin extends Controller
             'dangerStudents',
             'recentAchievements',
             'recentCases',
-            'recentCounseling',
-            'users'
+            'recentCounseling'
         ));
     }
 

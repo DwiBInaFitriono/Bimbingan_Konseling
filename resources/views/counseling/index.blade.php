@@ -156,11 +156,8 @@
                                     <thead class="table-light">
                                         <tr>
                                             <th>No</th>
-                                            <th>Siswa</th>
-                                            <th>Angkatan & Kelas</th>
-                                            <th>Tanggal & Waktu</th>
-                                            <th>Topik / Alasan</th>
-                                            <th>Tipe</th>
+                                            <th>Siswa & Kelas</th>
+                                            <th>Jadwal & Topik</th>
                                             <th class="text-center text-nowrap">Status</th>
                                             <th class="text-center text-nowrap" style="min-width: 170px;">Aksi</th>
                                         </tr>
@@ -181,24 +178,17 @@
                                                             </div>
                                                         </div>
                                                     @endif
-                                                    <small class="text-muted"><i class="bi bi-person-vcard me-1"></i>NIS: {{ $session->student?->nis ?? '-' }}</small>
+                                                    <small class="text-muted"><i class="bi bi-person-badge me-1"></i>NIS: {{ $session->student?->nis ?? '-' }} | Kelas {{ $session->student?->class?->grade ?? '-' }} - {{ $session->student?->class?->school_class_name ?? '-' }}</small>
                                                 </td>
                                                 <td>
-                                                    <span class="badge bg-info bg-opacity-10 text-info border border-info border-opacity-25 me-1">Kelas {{ $session->student?->class?->grade ?? '-' }}</span>
-                                                    <strong class="text-dark">{{ $session->student?->class?->school_class_name ?? '-' }}</strong>
-                                                </td>
-                                                <td>
-                                                    <div class="fw-semibold text-dark"><i class="bi bi-calendar3 me-1 text-primary"></i>{{ $session->requested_date?->format('d M Y') }}</div>
-                                                    <small class="text-muted"><i class="bi bi-clock me-1"></i>{{ \Carbon\Carbon::parse($session->requested_time)->format('H:i') }} WIB</small>
-                                                </td>
-                                                <td>
-                                                    <span class="fw-semibold text-dark">{{ $session->topic }}</span>
+                                                    <div class="fw-semibold text-dark text-truncate" style="max-width: 250px;" title="{{ $session->topic }}">{{ $session->topic }}</div>
                                                     @if($session->description)
-                                                        <br><small class="text-muted">{{ Str::limit($session->description, 50) }}</small>
+                                                        <div class="text-muted small text-truncate mb-1" style="max-width: 250px;" title="{{ $session->description }}">{{ Str::limit($session->description, 50) }}</div>
                                                     @endif
-                                                </td>
-                                                <td>
-                                                    <span class="badge bg-secondary bg-opacity-10 text-secondary border px-2 py-1">{{ ucfirst($session->type) }}</span>
+                                                    <div>
+                                                        <span class="badge bg-secondary bg-opacity-10 text-secondary border px-2 py-1 me-1">{{ ucfirst($session->type) }}</span>
+                                                        <small class="text-muted fw-semibold"><i class="bi bi-calendar3 me-1 text-primary"></i>{{ $session->requested_date?->format('d M Y') }} - {{ \Carbon\Carbon::parse($session->requested_time)->format('H:i') }} WIB</small>
+                                                    </div>
                                                 </td>
                                                 <td class="text-center text-nowrap">
                                                     @if($session->status == 'menunggu')

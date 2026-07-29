@@ -43,10 +43,8 @@
                             <thead class="table-light">
                                 <tr>
                                     <th style="width:45px;">No</th>
-                                    <th>Kategori Pelanggaran</th>
-                                    <th class="text-center" style="width:110px;">Poin Min</th>
-                                    <th class="text-center" style="width:110px;">Poin Max</th>
-                                    <th>Tindak Lanjut</th>
+                                    <th>Kategori & Tindak Lanjut</th>
+                                    <th class="text-center">Range Poin</th>
                                     <th class="text-center">Aksi</th>
                                 </tr>
                             </thead>
@@ -54,14 +52,17 @@
                                 @forelse ($datakategori as $data)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
-                                        <td class="fw-bold text-dark">{{ $data->category_of_violation }}</td>
+                                        <td>
+                                            <div class="fw-bold text-dark">{{ $data->category_of_violation }}</div>
+                                            <div class="text-muted small text-truncate" style="max-width: 350px;" title="{{ $data->follow_up }}">
+                                                <i class="bi bi-arrow-return-right me-1"></i>{{ $data->follow_up }}
+                                            </div>
+                                        </td>
                                         <td class="text-center">
                                             <span class="badge bg-warning text-dark fw-bold px-2 py-1" style="font-size:0.85em;">{{ $data->category_score_min }}</span>
-                                        </td>
-                                        <td class="text-center">
+                                            <span class="text-muted mx-1">-</span>
                                             <span class="badge bg-danger text-white fw-bold px-2 py-1" style="font-size:0.85em;">{{ $data->category_score_max }}</span>
                                         </td>
-                                        <td><small class="text-muted">{{ $data->follow_up }}</small></td>
                                         <td class="text-center">
                                             <div class="dropdown d-inline-block">
                                                 <button class="btn btn-sm btn-outline-secondary dropdown-toggle px-3" type="button" data-bs-toggle="dropdown" data-bs-boundary="viewport" data-bs-popper-config='{"strategy":"fixed"}' aria-expanded="false">
