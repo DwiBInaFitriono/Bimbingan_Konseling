@@ -119,10 +119,10 @@
                                         <td>
                                             <div class="fw-bold text-dark">{{ $siswa->full_name }}</div>
                                             <small class="text-muted"><i class="bi bi-person-badge me-1"></i>NIS: {{ $siswa->nis }}</small>
-                                            @if (strtolower($siswa->gender) == 'laki-laki')
-                                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 ms-1"><i class="bi bi-gender-male"></i></span>
+                                            @if (in_array(strtolower($siswa->gender), ['l', 'laki-laki']))
+                                                <span class="badge bg-primary bg-opacity-10 text-primary border border-primary border-opacity-25 ms-1" title="Laki-laki"><i class="bi bi-gender-male"></i></span>
                                             @else
-                                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 ms-1"><i class="bi bi-gender-female"></i></span>
+                                                <span class="badge bg-danger bg-opacity-10 text-danger border border-danger border-opacity-25 ms-1" title="Perempuan"><i class="bi bi-gender-female"></i></span>
                                             @endif
                                         </td>
                                         <td>
