@@ -188,9 +188,6 @@
                                 <input class="form-check-input" type="checkbox" id="remember" name="remember">
                                 <label class="form-check-label small" for="remember">Ingat saya</label>
                             </div>
-                            <div id="registerLinkWrap">
-                                <a href="{{ route('register') }}" class="small text-decoration-none fw-semibold">Daftar Guru BK</a>
-                            </div>
                         </div>
 
                         <div class="col-12">
@@ -229,7 +226,6 @@
             let emailLabel = document.getElementById('emailLabel');
             let btnSubmit = document.getElementById('btnSubmit');
             let siswaNotice = document.getElementById('siswaNotice');
-            let registerLinkWrap = document.getElementById('registerLinkWrap');
 
             if (role === 'guru_bk') {
                 tabGuru.className = 'role-tab-btn active-guru';
@@ -238,7 +234,6 @@
                 btnSubmit.className = 'btn btn-primary w-100 py-2 fw-semibold shadow-sm';
                 btnSubmit.innerHTML = '<i class="bi bi-box-arrow-in-right me-1"></i>Login Guru BK';
                 siswaNotice.classList.add('d-none');
-                registerLinkWrap.classList.remove('d-none');
             } else {
                 tabSiswa.className = 'role-tab-btn active-siswa';
                 tabGuru.className = 'role-tab-btn';
@@ -246,7 +241,6 @@
                 btnSubmit.className = 'btn btn-success w-100 py-2 fw-semibold shadow-sm';
                 btnSubmit.innerHTML = '<i class="bi bi-box-arrow-in-right me-1"></i>Login Siswa';
                 siswaNotice.classList.remove('d-none');
-                registerLinkWrap.classList.add('d-none');
             }
         }
 
