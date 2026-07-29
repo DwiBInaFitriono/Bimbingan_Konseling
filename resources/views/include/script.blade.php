@@ -81,5 +81,26 @@
                 sessionStorage.removeItem("scrollPosition_" + window.location.pathname);
             }, 50);
         }
+        // 3. Mencegah Double Submit pada semua Form
+        document.querySelectorAll('form').forEach(function(form) {
+            form.addEventListener('submit', function(e) {
+                if (form.classList.contains('is-submitting')) {
+                    e.preventDefault();
+                    return;
+                }
+                form.classList.add('is-submitting');
+                
+                let submitBtn = form.querySelector('button[type="submit"], input[type="submit"]');
+                if (submitBtn) {
+                    if (submitBtn.tagName === 'BUTTON') {
+                        let originalText = submitBtn.innerHTML;
+                        submitBtn.setAttribute('data-original-text', originalText);
+                        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Proses...';
+                    }
+                    submitBtn.classList.add('disabled');
+                    submitBtn.style.pointerEvents = 'none';
+                }
+            });
+        });
     });
 </script>
