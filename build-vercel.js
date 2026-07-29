@@ -87,7 +87,7 @@ module.exports = async function launcher(event, context) {
         try {
             const taskRoot = process.env.LAMBDA_TASK_ROOT || '/var/task';
             const phpCgiBin = path.join(taskRoot, 'php/php-cgi');
-            const scriptFile = path.join(taskRoot, 'user/public/index.php');
+            const scriptFile = path.join(taskRoot, 'user/api/index.php');
 
             const reqUrl = event.url || event.rawPath || event.path || '/';
             const [reqPath, queryString] = reqUrl.split('?');
