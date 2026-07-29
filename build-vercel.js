@@ -235,8 +235,7 @@ async function main() {
 "                env,\n" +
 "                cwd: path.join(taskRoot, 'user'),\n" +
 "                input: inputBuffer,\n" +
-"                maxBuffer: 20 * 1024 * 1024,\n" +
-"                timeout: 8000\n" +
+"                maxBuffer: 20 * 1024 * 1024\n" +
 "            });\n" +
 "            if (child.stderr && child.stderr.length > 0) {\n" +
 "                console.error('PHP STDERR:', child.stderr.toString());\n" +
