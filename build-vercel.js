@@ -80,7 +80,7 @@ async function main() {
 
     // 3. Create index.js wrapper to resolve launcher.launcher bug on Node 20/22/24
     console.log('🔧 Creating index.js entrypoint wrapper...');
-    const indexJsContent = `if (!process.env.LAMBDA_TASK_ROOT) process.env.LAMBDA_TASK_ROOT = '/var/task';\nif (!process.env.NOW_ENTRYPOINT) process.env.NOW_ENTRYPOINT = 'api/index.php';\nconst { launcher } = require('./launcher.js');\nmodule.exports = launcher;\n`;
+    const indexJsContent = `const dns = require('dns');\nif (dns.setDefaultResultOrder) dns.setDefaultResultOrder('ipv4first');\nif (!process.env.LAMBDA_TASK_ROOT) process.env.LAMBDA_TASK_ROOT = '/var/task';\nif (!process.env.NOW_ENTRYPOINT) process.env.NOW_ENTRYPOINT = 'api/index.php';\nconst { launcher } = require('./launcher.js');\nmodule.exports = launcher;\n`;
     fs.writeFileSync(path.join(funcDir, 'index.js'), indexJsContent);
 
     // 4. Create .vc-config.json
