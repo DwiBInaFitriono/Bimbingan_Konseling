@@ -115,7 +115,14 @@ async function main() {
         const phpIniPath = path.join(funcDir, 'php/php.ini');
         
         let phpIniContent = fs.readFileSync(phpIniPath, 'utf8');
-        phpIniContent = phpIniContent.replace('extension_dir=/var/task/php/modules', 'extension_dir=' + path.join(funcDir, 'php/modules'));
+        const originalExtensionDir = 'extension_dir=/var/task/php/modules';
+        if (phpIniContent.includes(originalExtensionDir)) {
+            console.log('✅ Found extension_dir in php.ini, replacing it...');
+            phpIniContent = phpIniContent.replace(originalExtensionDir, 'extension_dir=' + path.join(funcDir, 'php/modules'));
+        } else {
+            console.log('❌ Could not find extension_dir=/var/task/php/modules in php.ini!');
+            console.log(phpIniContent.substring(0, 500));
+        }
         const buildPhpIniPath = path.join(funcDir, 'php/php-build.ini');
         fs.writeFileSync(buildPhpIniPath, phpIniContent);
 
@@ -127,9 +134,12 @@ async function main() {
             '--optimize-autoloader'
         ], {
             cwd: path.join(funcDir, 'user'),
-            env: Object.assign({}, process.env, {
+            env: {
+                ...process.env,
+                COMPOSER_HOME: path.join(funcDir, 'composer-home'),
+                PHPRC: buildPhpIniPath,
                 LD_LIBRARY_PATH: path.join(funcDir, 'lib') + (process.env.LD_LIBRARY_PATH ? ':' + process.env.LD_LIBRARY_PATH : '')
-            }),
+            },
             stdio: 'inherit'
         });
         console.log('✅ Composer install successful!');
