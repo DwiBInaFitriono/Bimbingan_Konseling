@@ -25,8 +25,13 @@ class CounselingSession extends Model
         'status',
         'notes',
         'student_feedback',
+        'slot_waktu',
+        'waktu_perkiraan',
+        'no_antrian',
+        'status_antrian',
         'approved_at',
         'completed_at',
+        
     ];
 
     protected $casts = [

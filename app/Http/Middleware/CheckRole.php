@@ -28,7 +28,7 @@ class CheckRole
 
         // Jika siswa mencoba akses area guru bk, arahkan ke dashboard siswa
         if ($user->isSiswa()) {
-            return redirect()->route('siswa.dashboard')->with('error', 'Anda tidak memiliki akses ke halaman tersebut.');
+            return redirect()->route('counseling.siswa')->with('error', 'Anda tidak memiliki akses ke halaman tersebut.');
         }
 
         return redirect()->route('dashboard')->with('error', 'Akses ditolak.');

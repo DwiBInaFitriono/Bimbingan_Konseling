@@ -2,17 +2,17 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\CounselingSessionController;
-use App\Http\Controllers\Admin;
-use App\Http\Controllers\Achievement;
-use App\Http\Controllers\CaseReport;
-use App\Http\Controllers\ClassData;
-use App\Http\Controllers\DataClass;
-use App\Http\Controllers\PointCategory;
-use App\Http\Controllers\ParentStudent;
-use App\Http\Controllers\DataPoint;
-use App\Http\Controllers\Student;
-use App\Http\Controllers\Achievements;
+use App\Http\Controllers\Guru_BK\Admin;
+use App\Http\Controllers\Guru_BK\Achievements;
+use App\Http\Controllers\Guru_BK\CaseReport;
+use App\Http\Controllers\Guru_BK\DataClass;
+use App\Http\Controllers\Guru_BK\PointCategory;
+use App\Http\Controllers\Guru_BK\ParentStudent;
+use App\Http\Controllers\Guru_BK\DataPoint;
+use App\Http\Controllers\Guru_BK\CounselingSessionController;
+
+use App\Http\Controllers\Siswa\CounselingSessionController as SiswaCounseling;
+use App\Http\Controllers\Siswa\StudentController as SiswaStudent;
 use App\Http\Middleware\CheckRole;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -26,15 +26,22 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     if (Auth::check()) {
         return Auth::user()->isSiswa()
-            ? redirect()->route('counseling.siswa')
+            ? redirect()->route('dashboard.siswa')
             : redirect()->route('dashboard');
     }
-    return redirect()->route('login');
+    return redirect()->route('login.gurubk');
 });
 
 Route::middleware('guest')->group(function () {
-    Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
-    Route::post('/login', [AuthController::class, 'login'])->name('login.perform');
+    // Route bawaan laravel diarahkan ke gurubk sebagai default
+    Route::get('/login', function() { return redirect()->route('login.gurubk'); })->name('login');
+    
+    // 2 Aplikasi / Pintu Masuk Terpisah
+    Route::get('/login/gurubk', [AuthController::class, 'showLoginGuru'])->name('login.gurubk');
+    Route::get('/login/siswa', [AuthController::class, 'showLoginSiswa'])->name('login.siswa');
+    
+    // Endpoint validasi tetap satu untuk memproses auth
+    Route::post('/login/perform', [AuthController::class, 'login'])->name('login.perform');
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
     Route::post('/register', [AuthController::class, 'register'])->name('register.perform');
 });
@@ -51,12 +58,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/profile/update', [ProfileController::class, 'updateProfile'])->name('profile.update');
     Route::post('/password/update', [ProfileController::class, 'updatePassword'])->name('password.update');
 
-    // Route untuk Siswa & Guru BK
-    Route::middleware(CheckRole::class . ':siswa,guru_bk')->group(function () {
-        Route::get('/konseling-siswa', [CounselingSessionController::class, 'studentIndex'])->name('counseling.siswa');
-        Route::post('/konseling-siswa/simpan', [CounselingSessionController::class, 'store'])->name('counseling.store');
-        Route::post('/konseling-siswa/batalkan/{id}', [CounselingSessionController::class, 'cancel'])->name('counseling.cancel');
-        Route::get('/siswa/cetak-peringatan/{id}', [Admin::class, 'printWarningLetter'])->name('siswa.cetak.peringatan');
+    // Route Khusus Siswa
+    Route::middleware(CheckRole::class . ':siswa')->group(function () {
+        Route::get('/dashboard-siswa', [SiswaStudent::class, 'dashboard'])->name('dashboard.siswa');
+        Route::get('/konseling-siswa', [SiswaCounseling::class, 'studentIndex'])->name('counseling.siswa');
+        Route::post('/konseling-siswa/simpan', [SiswaCounseling::class, 'store'])->name('counseling.store');
+        Route::post('/konseling-siswa/batalkan/{id}', [SiswaCounseling::class, 'cancel'])->name('counseling.cancel');
+        Route::get('/siswa/cetak-peringatan/{id}', [SiswaStudent::class, 'printWarningLetter'])->name('siswa.cetak.peringatan');
     });
 
     // Route khusus Guru BK / Admin
@@ -66,6 +74,7 @@ Route::middleware('auth')->group(function () {
         // Counseling Management & Laporan Rekapan Guru BK
         Route::get('konseling', [CounselingSessionController::class, 'index'])->name('counseling.index');
         Route::get('konseling/laporan', [CounselingSessionController::class, 'report'])->name('counseling.report');
+
         Route::get('konseling/laporan/cetak', [CounselingSessionController::class, 'exportPdf'])->name('counseling.report.pdf');
         Route::post('konseling/setujui/{id}', [CounselingSessionController::class, 'approve'])->name('counseling.approve');
         Route::post('konseling/tolak/{id}', [CounselingSessionController::class, 'reject'])->name('counseling.reject');

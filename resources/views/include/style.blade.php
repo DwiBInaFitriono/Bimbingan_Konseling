@@ -22,5 +22,46 @@
 <!-- Template Main CSS File -->
 <link href="{{ asset('assets/css/style.css') }}" rel="stylesheet">
 
+<!-- Choices.js CSS for beautiful dropdowns -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
+<style>
+    /* Custom Styling for Choices.js to match Bootstrap 5 & theme */
+    .choices__inner {
+        background-color: #fff;
+        border: 1px solid #ced4da;
+        border-radius: 8px;
+        padding: 5px 14px;
+        min-height: 38px;
+        font-size: 0.9rem;
+        color: #495057;
+        box-shadow: none;
+    }
+    .choices.is-focused .choices__inner {
+        border-color: #4154f1;
+        box-shadow: 0 0 0 0.25rem rgba(65, 84, 241, 0.15);
+    }
+    .choices__list--dropdown {
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+        box-shadow: 0 8px 24px rgba(33, 51, 99, 0.15);
+        z-index: 9999; /* Higher than modal */
+    }
+    .choices[data-type*="select-one"]::after {
+        right: 14px;
+    }
+    .choices__list--dropdown .choices__item--selectable.is-highlighted {
+        background-color: #f0f4ff;
+        color: #4154f1;
+    }
+    .choices__list--dropdown .choices__item--selectable {
+        padding-right: 14px;
+    }
+    /* Fix for modal z-index issues */
+    .choices[data-type*="select-one"].is-open::after {
+        border-color: transparent transparent #495057 transparent;
+        margin-top: -7.5px;
+    }
+</style>
+
 <!-- Hotwire Turbo for SPA Navigation -->
 <script type="module" src="https://cdn.skypack.dev/@hotwired/turbo"></script>

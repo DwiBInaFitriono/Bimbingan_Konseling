@@ -31,6 +31,10 @@ class CaseStudy extends Model
         'evidence_file',
     ];
 
+    protected $casts = [
+        'case_date' => 'date',
+    ];
+
     public function student()
     {
         return $this->belongsTo(Student::class, 'student_id');

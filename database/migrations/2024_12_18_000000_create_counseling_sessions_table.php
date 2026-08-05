@@ -25,6 +25,10 @@ return new class extends Migration
             $table->text('student_feedback')->nullable();
             $table->timestamp('approved_at')->nullable();
             $table->timestamp('completed_at')->nullable();
+            $table->string('slot_waktu')->nullable();
+            $table->time('waktu_perkiraan')->nullable();
+            $table->integer('no_antrian')->nullable();
+            $table->enum('status_antrian', ['menunggu', 'sekarang', 'selesai'])->default('menunggu');
             $table->timestamps();
             $table->softDeletes();
         });
