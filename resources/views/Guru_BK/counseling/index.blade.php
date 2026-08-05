@@ -151,6 +151,21 @@
             background-color: #f0f4ff;
             border-left: 4px solid #4154f1;
         }
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+        .form-control:disabled,
+        .form-select:disabled,
+        .choices.is-disabled,
+        .choices.is-disabled .choices__inner,
+        .choices.is-disabled .choices__input,
+        .choices.is-disabled .choices__list,
+        .choices.is-disabled .choices__item {
+            background-color: #e9ecef !important;
+            color: #495057 !important;
+            opacity: 1 !important;
+        }
     </style>
 </head>
 
@@ -170,6 +185,115 @@
         </div>
 
 
+        {{-- Queue Cards --}}
+        <section class="section mb-4">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 shadow-sm overflow-hidden" style="border-radius: 14px;">
+                        <div class="card-body p-0">
+                            <div style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 14px 20px 12px;">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <h6 class="m-0 text-white fw-bold" style="font-size: 0.85rem; letter-spacing: 0.3px;">
+                                        <i class="bi bi-broadcast me-1"></i> SEDANG KONSELING
+                                    </h6>
+                                    @if($currentQueue)
+                                        <span class="badge bg-white bg-opacity-25 text-white" style="font-size: 0.7rem; animation: pulse-glow 2s infinite;">
+                                            <i class="bi bi-circle-fill me-1" style="font-size: 6px; color: #6ee7b7;"></i>Berlangsung
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="p-3" id="currentQueueCardContainer">
+                                @if($currentQueue)
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #059669; font-weight: 800; font-size: 1.25rem;">
+                                            {{ $currentQueue->no_antrian ?? '-' }}
+                                        </div>
+                                        <div class="flex-grow-1 min-width-0">
+                                            <h6 class="fw-bold mb-0 text-dark text-truncate" style="font-size: 0.95rem;">{{ $currentQueue->student->full_name ?? 'Siswa' }}</h6>
+                                            <div class="d-flex align-items-center gap-2 mt-1 flex-wrap">
+                                                @if($currentQueue->student && $currentQueue->student->class)
+                                                    <span class="badge bg-light text-dark border" style="font-size: 0.68rem; font-weight: 600;">
+                                                        {{ $currentQueue->student->class->school_class_name }}
+                                                    </span>
+                                                @endif
+                                                <span class="text-muted" style="font-size: 0.75rem;"><i class="bi bi-chat-dots me-1"></i>{{ Str::limit($currentQueue->topic, 30) }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="text-end flex-shrink-0">
+                                            <div class="d-inline-flex align-items-center gap-1 px-2 py-1" style="background: #ecfdf5; border-radius: 8px; border: 1px solid #a7f3d0;">
+                                                <i class="bi bi-clock" style="font-size: 0.7rem; color: #059669;"></i>
+                                                <span style="font-size: 0.8rem; font-weight: 700; color: #059669;">{{ substr($currentQueue->waktu_perkiraan ?? $currentQueue->requested_time, 0, 5) }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="text-center py-3">
+                                        <div class="d-inline-flex align-items-center justify-content-center mb-2" style="width: 44px; height: 44px; border-radius: 12px; background: #f0fdf4;">
+                                            <i class="bi bi-person-video3 text-success" style="font-size: 1.2rem; opacity: 0.5;"></i>
+                                        </div>
+                                        <p class="text-muted mb-0" style="font-size: 0.82rem;">Tidak ada sesi konseling yang sedang berlangsung.</p>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="card h-100 border-0 shadow-sm overflow-hidden" style="border-radius: 14px;">
+                        <div class="card-body p-0">
+                            <div style="background: linear-gradient(135deg, #3b82f6 0%, #6366f1 100%); padding: 14px 20px 12px;">
+                                <div class="d-flex align-items-center justify-content-between">
+                                    <h6 class="m-0 text-white fw-bold" style="font-size: 0.85rem; letter-spacing: 0.3px;">
+                                        <i class="bi bi-skip-forward-fill me-1"></i> BERIKUTNYA
+                                    </h6>
+                                    @if($nextQueue)
+                                        <span class="badge bg-white bg-opacity-25 text-white" style="font-size: 0.7rem;">
+                                            <i class="bi bi-hourglass-split me-1" style="font-size: 0.6rem;"></i>Menunggu
+                                        </span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="p-3" id="nextQueueCardContainer">
+                                @if($nextQueue)
+                                    <div class="d-flex align-items-center gap-3">
+                                        <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #2563eb; font-weight: 800; font-size: 1.25rem;">
+                                            {{ $nextQueueNumber ?? '-' }}
+                                        </div>
+                                        <div class="flex-grow-1 min-width-0">
+                                            <h6 class="fw-bold mb-0 text-dark text-truncate" style="font-size: 0.95rem;">{{ $nextQueue->student->full_name ?? 'Siswa' }}</h6>
+                                            <div class="d-flex align-items-center gap-2 mt-1 flex-wrap">
+                                                @if($nextQueue->student && $nextQueue->student->class)
+                                                    <span class="badge bg-light text-dark border" style="font-size: 0.68rem; font-weight: 600;">
+                                                        {{ $nextQueue->student->class->school_class_name }}
+                                                    </span>
+                                                @endif
+                                                <span class="text-muted" style="font-size: 0.75rem;"><i class="bi bi-chat-dots me-1"></i>{{ Str::limit($nextQueue->topic, 30) }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="text-end flex-shrink-0">
+                                            <div class="d-inline-flex align-items-center gap-1 px-2 py-1" style="background: #eff6ff; border-radius: 8px; border: 1px solid #bfdbfe;">
+                                                <i class="bi bi-clock" style="font-size: 0.7rem; color: #2563eb;"></i>
+                                                <span style="font-size: 0.8rem; font-weight: 700; color: #2563eb;">{{ substr($nextQueue->waktu_perkiraan ?? $nextQueue->requested_time, 0, 5) }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="text-center py-3">
+                                        <div class="d-inline-flex align-items-center justify-content-center mb-2" style="width: 44px; height: 44px; border-radius: 12px; background: #eff6ff;">
+                                            <i class="bi bi-person-walking text-primary" style="font-size: 1.2rem; opacity: 0.5;"></i>
+                                        </div>
+                                        <p class="text-muted mb-0" style="font-size: 0.82rem;">Belum ada antrian konseling berikutnya hari ini.</p>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         {{-- Stat Cards --}}
         <section class="section">
             <div class="row g-3 mb-4">
@@ -182,7 +306,7 @@
                                     <i class="bi bi-hourglass-split fs-3"></i>
                                 </div>
                                 <div class="ps-3">
-                                    <h3 class="fw-bold mb-0 text-dark">{{ $pendingCount }}</h3>
+                                    <h3 class="fw-bold mb-0 text-dark" id="pendingCountBadge">{{ $pendingCount }}</h3>
                                     <span class="text-muted small">Pengajuan Baru</span>
                                 </div>
                             </div>
@@ -199,7 +323,7 @@
                                     <i class="bi bi-calendar-check fs-3"></i>
                                 </div>
                                 <div class="ps-3">
-                                    <h3 class="fw-bold mb-0 text-dark">{{ $approvedCount }}</h3>
+                                    <h3 class="fw-bold mb-0 text-dark" id="approvedCountBadge">{{ $approvedCount }}</h3>
                                     <span class="text-muted small">Jadwal Aktif</span>
                                 </div>
                             </div>
@@ -216,7 +340,7 @@
                                     <i class="bi bi-check2-circle fs-3"></i>
                                 </div>
                                 <div class="ps-3">
-                                    <h3 class="fw-bold mb-0 text-dark">{{ $completedCount }}</h3>
+                                    <h3 class="fw-bold mb-0 text-dark" id="completedCountBadge">{{ $completedCount }}</h3>
                                     <span class="text-muted small">Konseling Tuntas</span>
                                 </div>
                             </div>
@@ -338,7 +462,7 @@
                                                              @endif
 
                                                              <li>
-                                                                 <a class="dropdown-item d-flex align-items-center py-2 text-danger" href="{{ route('counseling.destroy', $session->id) }}" onclick="return confirm('Yakin ingin menghapus jadwal konseling ini?')">
+                                                                 <a class="dropdown-item d-flex align-items-center py-2 text-danger" href="javascript:void(0)" onclick="swalConfirm('Yakin ingin menghapus jadwal konseling ini?', function(){ window.location='{{ route('counseling.destroy', $session->id) }}'; })">
                                                                      <i class="bi bi-trash me-2"></i> Hapus
                                                                  </a>
                                                              </li>
@@ -452,7 +576,7 @@
     <div class="modal fade konseling-modal" id="modalTambahKonseling" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
         <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
             <div class="modal-content border-0 shadow-lg">
-                <form method="POST" action="{{ route('counseling.store') }}" id="formTambahKonseling" onsubmit="return validateFormTambah()">
+                <form method="POST" action="{{ route('counseling.store.gurubk') }}" id="formTambahKonseling" onsubmit="return validateFormTambah()">
                     @csrf
                     <input type="hidden" name="case_study_id" id="caseStudyIdInput">
                     <div class="modal-header modal-header-custom p-3 px-4">
@@ -558,19 +682,22 @@
                             </div>
                         </div>
 
+                        @php
+                            $namaGuru = strtolower(Auth::user()->name);
+                        @endphp
                         <div class="form-section-label"><i class="bi bi-calendar2-week"></i>Jadwal Pertemuan</div>
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Tanggal Pertemuan <span class="req">*</span></label>
-                                <input type="date" name="requested_date" id="requestedDateInput" class="form-control" min="{{ date('Y-m-d') }}" onchange="checkSelectedDate(this, 'requestedTimeSelect', 'weekendAlert')" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Waktu / Jam Pertemuan <span class="req">*</span></label>
-                                <select name="requested_time" id="requestedTimeSelect" class="form-select" disabled required>
-                                    <option value="">-- Pilih Tanggal Dahulu --</option>
-                                </select>
-                            </div>
-                            <div class="col-12 d-none" id="weekendAlert">
+                        <div class="row g-3 mb-4">
+                                <div class="col-md-6">
+                                    <label class="form-label">Tanggal Pertemuan <span class="req">*</span></label>
+                                    <input type="date" name="requested_date" id="requestedDateInput" class="form-control" min="{{ date('Y-m-d') }}" onchange="checkSelectedDate(this, 'weekendAlert')" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Waktu / Jam Pertemuan <span class="req">*</span></label>
+                                    <select name="slot_waktu" id="slotWaktuSelect" class="form-select" required disabled>
+                                        <option value="">-- Pilih Tanggal Dahulu --</option>
+                                    </select>
+                                </div>
+                                <div class="col-12 d-none" id="weekendAlert">
                                 <div class="alert alert-warning py-2 px-3 mb-0" style="font-size: 0.78rem; border-radius: 8px;">
                                     <i class="bi bi-exclamation-triangle-fill me-1"></i> Maaf, layanan konseling tidak tersedia pada Sabtu/Minggu.
                                 </div>
@@ -619,59 +746,105 @@
     @include('include.script')
 
     <script>
-        const timeSlots = [
-            { value: "07:00", label: "07:00 WIB" },
-            { value: "08:00", label: "08:00 WIB" },
-            { value: "09:00", label: "09:00 WIB" },
-            { value: "10:00", label: "10:00 WIB" },
-            { value: "11:00", label: "11:00 WIB" },
-            { value: "12:00", label: "12:00 WIB" },
-            { value: "13:00", label: "13:00 WIB" },
-            { value: "14:00", label: "14:00 WIB" },
-            { value: "15:00", label: "15:00 WIB" }
-        ];
+        const namaGuruBK = "{{ strtolower(Auth::user()->name) }}";
+        let timeSlots = [];
+        
+        if (namaGuruBK.includes('rio')) {
+            timeSlots.push({ value: "08:00 - 10:00", label: "08:00 - 10:00 WIB", end: "10:00" });
+        } else if (namaGuruBK.includes('ratna')) {
+            timeSlots.push({ value: "12:00 - 15:00", label: "12:00 - 15:00 WIB", end: "15:00" });
+        } else if (namaGuruBK.includes('siti rahma')) {
+            timeSlots.push({ value: "08:00 - 15:00", label: "08:00 - 15:00 WIB", end: "15:00" });
+        } else {
+            timeSlots.push({ value: "08:00 - 10:00", label: "08:00 - 10:00 WIB", end: "10:00" });
+            timeSlots.push({ value: "10:00 - 12:00", label: "10:00 - 12:00 WIB", end: "12:00" });
+            timeSlots.push({ value: "13:00 - 15:00", label: "13:00 - 15:00 WIB", end: "15:00" });
+        }
+
+        function updateSlotWaktuBK() {
+            const dateVal = document.getElementById('requestedDateInput').value;
+            const slotSelect = document.getElementById('slotWaktuSelect');
+            if (!slotSelect) return;
+
+            if (!dateVal) {
+                if (slotSelect.choicesObj) {
+                    slotSelect.choicesObj.clearChoices();
+                    slotSelect.choicesObj.setChoices([{ value: "", label: "-- Pilih Tanggal Dahulu --", selected: true, disabled: true }], 'value', 'label', true);
+                    slotSelect.choicesObj.disable();
+                } else {
+                    slotSelect.innerHTML = '<option value="">-- Pilih Tanggal Dahulu --</option>';
+                    slotSelect.disabled = true;
+                }
+                return;
+            }
+
+            const choicesData = [{ value: "", label: "Pilih waktu pertemuan...", selected: true, disabled: true }];
+
+            const now = new Date();
+            const todayStr = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0');
+            const currentTimeVal = now.getHours() * 60 + now.getMinutes();
+
+            timeSlots.forEach(slot => {
+                const endParts = slot.end.split(':');
+                const endTimeVal = parseInt(endParts[0], 10) * 60 + parseInt(endParts[1], 10);
+                const isPast = (dateVal === todayStr && currentTimeVal >= endTimeVal);
+
+                choicesData.push({
+                    value: slot.value,
+                    label: isPast ? `${slot.label} (Lewat)` : slot.label,
+                    disabled: isPast,
+                    selected: false
+                });
+            });
+
+            if (slotSelect.choicesObj) {
+                slotSelect.choicesObj.clearChoices();
+                slotSelect.choicesObj.setChoices(choicesData, 'value', 'label', true);
+                slotSelect.choicesObj.enable();
+            } else {
+                slotSelect.disabled = false;
+                slotSelect.innerHTML = '';
+                choicesData.forEach(c => {
+                    slotSelect.innerHTML += `<option value="${c.value}" ${c.disabled ? 'disabled' : ''}>${c.label}</option>`;
+                });
+            }
+        }
 
         function validateFormTambah() {
             const studentId = document.getElementById('selectedStudentId').value;
             if (!studentId) {
-                alert('Harap cari dan pilih setidaknya satu siswa terlebih dahulu sebelum menyimpan jadwal.');
+                swalAlert('Harap cari dan pilih setidaknya satu siswa terlebih dahulu sebelum menyimpan jadwal.', 'warning', 'Peringatan');
+                if (typeof event !== 'undefined') {
+                    event.preventDefault();
+                }
+                const form = document.getElementById('formTambahKonseling');
+                if (form && window.restoreSubmitButton) {
+                    window.restoreSubmitButton(form);
+                }
                 return false;
             }
             return true;
         }
 
-        function checkSelectedDate(inputElement, timeSelectId, alertId) {
+        function checkSelectedDate(inputElement, alertId) {
             const dateVal = inputElement.value;
-            const timeSelect = document.getElementById(timeSelectId);
             const alertBox = document.getElementById(alertId);
             
             if (!dateVal) {
-                timeSelect.innerHTML = '<option value="">Pilih Tanggal Dahulu...</option>';
-                timeSelect.disabled = true;
                 if (alertBox) alertBox.classList.add('d-none');
+                updateSlotWaktuBK();
                 return;
             }
 
             const date = new Date(dateVal);
-            const day = date.getDay(); // 0 = Sunday, 6 = Saturday
-
-            if (day === 0 || day === 6) {
-                // It's a weekend
-                timeSelect.innerHTML = '<option value="">Jam Tidak Tersedia (Hari Libur)</option>';
-                timeSelect.disabled = true;
+            // 0 = Minggu, 6 = Sabtu
+            if (date.getDay() === 0 || date.getDay() === 6) {
                 if (alertBox) alertBox.classList.remove('d-none');
-                inputElement.value = ''; // Reset date
+                inputElement.value = '';
+                updateSlotWaktuBK();
             } else {
-                // It's a weekday
-                timeSelect.disabled = false;
                 if (alertBox) alertBox.classList.add('d-none');
-                
-                // Populate options
-                let html = '<option value="">Pilih Jam...</option>';
-                timeSlots.forEach(slot => {
-                    html += `<option value="${slot.value}">${slot.label}</option>`;
-                });
-                timeSelect.innerHTML = html;
+                updateSlotWaktuBK();
             }
         }
 
@@ -922,6 +1095,20 @@
             document.getElementById('modalFilterJurusan').value = '';
             document.getElementById('selectedStudentDisplay').classList.add('d-none');
             
+            // Reset Jam Pertemuan
+            const timeSelect = document.getElementById('requestedTimeSelect');
+            if (timeSelect) {
+                if (timeSelect.choicesObj) {
+                    timeSelect.choicesObj.setChoices([{value: '', label: 'Pilih Tanggal Dahulu...', selected: true}], 'value', 'label', true);
+                    timeSelect.choicesObj.disable();
+                } else {
+                    timeSelect.innerHTML = '<option value="">Pilih Tanggal Dahulu...</option>';
+                    timeSelect.disabled = true;
+                }
+            }
+            const weekendAlert = document.getElementById('weekendAlert');
+            if (weekendAlert) weekendAlert.classList.add('d-none');
+            
             // Reset Tipe Konseling
             document.querySelectorAll('.type-card').forEach(c => c.classList.remove('active'));
             const defaultTypeCard = document.querySelector('.type-card[data-type="individu"]');
@@ -1030,6 +1217,111 @@
                 }, { once: true });
             }
         }
+
+        // ===== Real-time Queue Polling =====
+        function pollQueueData() {
+            fetch(window.location.href, {
+                headers: {
+                    'Accept': 'application/json',
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(res => res.json())
+            .then(data => {
+                // Update badge statistik
+                const pendingBadge = document.getElementById('pendingCountBadge');
+                const approvedBadge = document.getElementById('approvedCountBadge');
+                const completedBadge = document.getElementById('completedCountBadge');
+                
+                if (pendingBadge && pendingBadge.innerText != data.pendingCount) pendingBadge.innerText = data.pendingCount;
+                if (approvedBadge && approvedBadge.innerText != data.approvedCount) approvedBadge.innerText = data.approvedCount;
+                if (completedBadge && completedBadge.innerText != data.completedCount) completedBadge.innerText = data.completedCount;
+
+                // Update Sedang Konseling Card
+                const currentContainer = document.getElementById('currentQueueCardContainer');
+                if (currentContainer) {
+                    const currentSerialized = JSON.stringify(data.currentQueue);
+                    if (currentContainer.getAttribute('data-last-json') !== currentSerialized) {
+                        let html = '';
+                        if (data.currentQueue) {
+                            html = `
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, #d1fae5, #a7f3d0); color: #059669; font-weight: 800; font-size: 1.25rem;">
+                                        ${data.currentQueue.no_antrian}
+                                    </div>
+                                    <div class="flex-grow-1 min-width-0">
+                                        <h6 class="fw-bold mb-0 text-dark text-truncate" style="font-size: 0.95rem;">${data.currentQueue.student_name}</h6>
+                                        <div class="d-flex align-items-center gap-2 mt-1 flex-wrap">
+                                            ${data.currentQueue.class_name ? `<span class="badge bg-light text-dark border" style="font-size: 0.68rem; font-weight: 600;">${data.currentQueue.class_name}</span>` : ''}
+                                            <span class="text-muted" style="font-size: 0.75rem;"><i class="bi bi-chat-dots me-1"></i>${data.currentQueue.topic}</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-end flex-shrink-0">
+                                        <div class="d-inline-flex align-items-center gap-1 px-2 py-1" style="background: #ecfdf5; border-radius: 8px; border: 1px solid #a7f3d0;">
+                                            <i class="bi bi-clock" style="font-size: 0.7rem; color: #059669;"></i>
+                                            <span style="font-size: 0.8rem; font-weight: 700; color: #059669;">${data.currentQueue.waktu_perkiraan}</span>
+                                        </div>
+                                    </div>
+                                </div>`;
+                        } else {
+                            html = `
+                                <div class="text-center py-3">
+                                    <div class="d-inline-flex align-items-center justify-content-center mb-2" style="width: 44px; height: 44px; border-radius: 12px; background: #f0fdf4;">
+                                        <i class="bi bi-person-video3 text-success" style="font-size: 1.2rem; opacity: 0.5;"></i>
+                                    </div>
+                                    <p class="text-muted mb-0" style="font-size: 0.82rem;">Tidak ada sesi konseling yang sedang berlangsung.</p>
+                                </div>`;
+                        }
+                        currentContainer.innerHTML = html;
+                        currentContainer.setAttribute('data-last-json', currentSerialized);
+                    }
+                }
+
+                // Update Berikutnya Card
+                const nextContainer = document.getElementById('nextQueueCardContainer');
+                if (nextContainer) {
+                    const nextSerialized = JSON.stringify(data.nextQueue);
+                    if (nextContainer.getAttribute('data-last-json') !== nextSerialized) {
+                        let html = '';
+                        if (data.nextQueue) {
+                            html = `
+                                <div class="d-flex align-items-center gap-3">
+                                    <div class="d-flex align-items-center justify-content-center flex-shrink-0" style="width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(135deg, #dbeafe, #bfdbfe); color: #2563eb; font-weight: 800; font-size: 1.25rem;">
+                                        ${data.nextQueue.no_antrian}
+                                    </div>
+                                    <div class="flex-grow-1 min-width-0">
+                                        <h6 class="fw-bold mb-0 text-dark text-truncate" style="font-size: 0.95rem;">${data.nextQueue.student_name}</h6>
+                                        <div class="d-flex align-items-center gap-2 mt-1 flex-wrap">
+                                            ${data.nextQueue.class_name ? `<span class="badge bg-light text-dark border" style="font-size: 0.68rem; font-weight: 600;">${data.nextQueue.class_name}</span>` : ''}
+                                            <span class="text-muted" style="font-size: 0.75rem;"><i class="bi bi-chat-dots me-1"></i>${data.nextQueue.topic}</span>
+                                        </div>
+                                    </div>
+                                    <div class="text-end flex-shrink-0">
+                                        <div class="d-inline-flex align-items-center gap-1 px-2 py-1" style="background: #eff6ff; border-radius: 8px; border: 1px solid #bfdbfe;">
+                                            <i class="bi bi-clock" style="font-size: 0.7rem; color: #2563eb;"></i>
+                                            <span style="font-size: 0.8rem; font-weight: 700; color: #2563eb;">${data.nextQueue.waktu_perkiraan}</span>
+                                        </div>
+                                    </div>
+                                </div>`;
+                        } else {
+                            html = `
+                                <div class="text-center py-3">
+                                    <div class="d-inline-flex align-items-center justify-content-center mb-2" style="width: 44px; height: 44px; border-radius: 12px; background: #eff6ff;">
+                                        <i class="bi bi-person-walking text-primary" style="font-size: 1.2rem; opacity: 0.5;"></i>
+                                    </div>
+                                    <p class="text-muted mb-0" style="font-size: 0.82rem;">Belum ada antrian konseling berikutnya hari ini.</p>
+                                </div>`;
+                        }
+                        nextContainer.innerHTML = html;
+                        nextContainer.setAttribute('data-last-json', nextSerialized);
+                    }
+                }
+            })
+            .catch(err => console.error('Real-time polling error:', err));
+        }
+
+        // Jalankan polling setiap 5 detik
+        setInterval(pollQueueData, 5000);
     </script>
 </body>
 

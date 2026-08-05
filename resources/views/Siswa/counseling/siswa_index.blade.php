@@ -158,6 +158,17 @@
             background-color: #f0f4ff;
             border-left: 4px solid #4154f1;
         }
+        .form-control:disabled,
+        .form-select:disabled,
+        .choices.is-disabled,
+        .choices.is-disabled .choices__inner,
+        .choices.is-disabled .choices__input,
+        .choices.is-disabled .choices__list,
+        .choices.is-disabled .choices__item {
+            background-color: #e9ecef !important;
+            color: #495057 !important;
+            opacity: 1 !important;
+        }
     </style>
 </head>
 
@@ -256,10 +267,10 @@
                                                         @endif
                                                     </div>
                                                     
-                                                    @if($s->status == 'disetujui' && $s->waktu_perkiraan)
+                                                    @if($s->status == 'disetujui' || $s->status == 'selesai')
                                                         <div class="mt-2 p-2 bg-light border border-info rounded text-dark small" style="font-size: 0.8rem;">
-                                                            <strong>GILIRAN KE: {{ $s->no_antrian }}</strong><br>
-                                                            Perkiraan Dipanggil: <span class="text-primary fw-bold">{{ $s->waktu_perkiraan }} WIB</span>
+                                                            <strong>GILIRAN KE: {{ $s->no_antrian ?? '-' }}</strong><br>
+                                                            Perkiraan Dipanggil: <span class="text-primary fw-bold">{{ $s->waktu_perkiraan ? $s->waktu_perkiraan . ' WIB' : 'Menunggu' }}</span>
                                                         </div>
                                                     @endif
                                                 </td>
@@ -352,8 +363,13 @@
                                     guruSelect.value = '';
                                     
                                     if(slotSelect) {
-                                        slotSelect.disabled = true;
-                                        slotSelect.innerHTML = '<option value="">Pilih Guru BK Dahulu...</option>';
+                                        if (slotSelect.choicesObj) {
+                                            slotSelect.choicesObj.setChoices([{value: '', label: 'Pilih Guru BK Dahulu...', selected: true}], 'value', 'label', true);
+                                            slotSelect.choicesObj.disable();
+                                        } else {
+                                            slotSelect.innerHTML = '<option value="">Pilih Guru BK Dahulu...</option>';
+                                            slotSelect.disabled = true;
+                                        }
                                     }
                                 } else {
                                     alertBox.classList.add('d-none');
@@ -373,17 +389,16 @@
                                 const selectedOption = guruSelect.options[guruSelect.selectedIndex];
                                 const selectedDate = dateInput.value;
                                 
-                                slotSelect.innerHTML = '<option value="">Pilih waktu pertemuan...</option>';
-                                
                                 if (!selectedOption.value) {
-                                    slotSelect.disabled = true;
-                                    slotSelect.innerHTML = '<option value="">Pilih Guru BK Dahulu...</option>';
+                                    if (slotSelect.choicesObj) {
+                                        slotSelect.choicesObj.setChoices([{value: '', label: 'Pilih Guru BK Dahulu...', selected: true}], 'value', 'label', true);
+                                        slotSelect.choicesObj.disable();
+                                    } else {
+                                        slotSelect.innerHTML = '<option value="">Pilih Guru BK Dahulu...</option>';
+                                        slotSelect.disabled = true;
+                                    }
                                     return;
                                 }
-
-                                // Unlock slot select
-                                slotSelect.disabled = false;
-                                slotSelect.innerHTML = '<option value="">Pilih waktu pertemuan...</option>';
 
                                 const namaGuru = (selectedOption.getAttribute('data-nama') || '').toLowerCase();
                                 let availableSlots = [];
@@ -414,6 +429,9 @@
                                 const currentMinute = now.getMinutes();
                                 const currentTimeVal = currentHour * 60 + currentMinute;
                                 
+                                let choicesData = [{value: '', label: 'Pilih waktu pertemuan...', selected: true, disabled: true}];
+                                let html = '<option value="">Pilih waktu pertemuan...</option>';
+                                
                                 availableSlots.forEach(slot => {
                                     const endParts = slot.end.split(':');
                                     const endHour = parseInt(endParts[0], 10);
@@ -422,11 +440,21 @@
                                     
                                     const isPast = (selectedDate === todayStr && currentTimeVal >= endTimeVal);
                                     if (isPast) {
-                                        slotSelect.innerHTML += `<option value="${slot.val}" disabled>${slot.val} WIB (Lewat)</option>`;
+                                        choicesData.push({value: slot.val, label: `${slot.val} WIB (Lewat)`, disabled: true});
+                                        html += `<option value="${slot.val}" disabled>${slot.val} WIB (Lewat)</option>`;
                                     } else {
-                                        slotSelect.innerHTML += `<option value="${slot.val}">${slot.val} WIB</option>`;
+                                        choicesData.push({value: slot.val, label: `${slot.val} WIB`});
+                                        html += `<option value="${slot.val}">${slot.val} WIB</option>`;
                                     }
                                 });
+                                
+                                if (slotSelect.choicesObj) {
+                                    slotSelect.choicesObj.setChoices(choicesData, 'value', 'label', true);
+                                    slotSelect.choicesObj.enable();
+                                } else {
+                                    slotSelect.innerHTML = html;
+                                    slotSelect.disabled = false;
+                                }
                             }
                         </script>
                         {{-- Section: Tipe --}}
@@ -537,8 +565,13 @@
                     
                     const slotSelect = document.getElementById('slotWaktuSelect');
                     if(slotSelect) {
-                        slotSelect.disabled = true;
-                        slotSelect.innerHTML = '<option value="">Pilih Guru BK Dahulu...</option>';
+                        if (slotSelect.choicesObj) {
+                            slotSelect.choicesObj.setChoices([{value: '', label: 'Pilih Guru BK Dahulu...', selected: true}], 'value', 'label', true);
+                            slotSelect.choicesObj.disable();
+                        } else {
+                            slotSelect.innerHTML = '<option value="">Pilih Guru BK Dahulu...</option>';
+                            slotSelect.disabled = true;
+                        }
                     }
                     
                     document.getElementById('weekendAlertSiswa').classList.add('d-none');

@@ -31,6 +31,8 @@ class CounselingSession extends Model
         'status_antrian',
         'approved_at',
         'completed_at',
+        'available_time_start',
+        'available_time_end',
         
     ];
 

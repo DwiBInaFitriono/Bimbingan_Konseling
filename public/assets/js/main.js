@@ -320,16 +320,7 @@
 
   }; // end initApp
 
-  // Run initialization on DOM load (first visit) and on Turbo load (subsequent visits)
+  // Run initialization on DOM load
   initApp();
-  document.addEventListener('turbo:load', function() {
-      // Remove lingering modal backdrops from Bootstrap if any
-      document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
-      document.body.classList.remove('modal-open');
-      document.body.style.overflow = '';
-      document.body.style.paddingRight = '';
-      
-      initApp();
-  });
 
 })();

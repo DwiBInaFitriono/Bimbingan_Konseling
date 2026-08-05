@@ -184,7 +184,7 @@
                                                     </li>
                                                     @endif
                                                     <li>
-                                                        <a class="dropdown-item d-flex align-items-center py-2 text-danger" href="{{ url('hapuspoint/' . $point->id) }}" onclick="return confirm('Yakin ingin menghapus data pelanggaran ini?')">
+                                                        <a class="dropdown-item d-flex align-items-center py-2 text-danger" href="javascript:void(0)" onclick="swalConfirm('Yakin ingin menghapus data pelanggaran ini?', function(){ window.location='{{ url('hapuspoint/' . $point->id) }}'; })">
                                                             <i class="bi bi-trash me-2"></i> Hapus
                                                         </a>
                                                     </li>

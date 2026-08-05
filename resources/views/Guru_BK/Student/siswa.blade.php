@@ -279,7 +279,7 @@
                                                         </a>
                                                     </li>
                                                     <li>
-                                                        <a class="dropdown-item d-flex align-items-center py-2 text-danger" href="{{ url('hapus/' . $siswa->id) }}" onclick="return confirm('Yakin ingin menghapus siswa ini?')">
+                                                        <a class="dropdown-item d-flex align-items-center py-2 text-danger" href="javascript:void(0)" onclick="swalConfirm('Yakin ingin menghapus siswa ini?', function(){ window.location='{{ url('hapus/' . $siswa->id) }}'; })">
                                                             <i class="bi bi-trash me-2"></i> Hapus
                                                         </a>
                                                     </li>
@@ -504,24 +504,45 @@
         function filterAddClasses() {
             const grade = document.getElementById('addGrade').value;
             const sel = document.getElementById('addClassId');
-            sel.innerHTML = '<option value="" disabled selected>-- Pilih Kelas --</option>';
+            
+            let choicesData = [{value: '', label: '-- Pilih Kelas --', selected: true, disabled: true}];
+            let html = '<option value="" disabled selected>-- Pilih Kelas --</option>';
+            
             classesData.forEach(c => {
                 if (c.grade == grade) {
-                    sel.innerHTML += `<option value="${c.id}">${c.school_class_name} (${c.school_class_major})</option>`;
+                    choicesData.push({value: c.id, label: `${c.school_class_name} (${c.school_class_major})`});
+                    html += `<option value="${c.id}">${c.school_class_name} (${c.school_class_major})</option>`;
                 }
             });
+            
+            if (sel.choicesObj) {
+                sel.choicesObj.setChoices(choicesData, 'value', 'label', true);
+            } else {
+                sel.innerHTML = html;
+            }
         }
 
         function filterEditClasses(preselect) {
             const grade = document.getElementById('editGrade').value;
             const sel = document.getElementById('editClassId');
-            sel.innerHTML = '<option value="" disabled>-- Pilih Kelas --</option>';
+            
+            let choicesData = [{value: '', label: '-- Pilih Kelas --', selected: !preselect, disabled: true}];
+            let html = '<option value="" disabled>-- Pilih Kelas --</option>';
+            
             classesData.forEach(c => {
                 if (c.grade == grade) {
-                    const selected = (preselect && c.id == preselect) ? 'selected' : '';
-                    sel.innerHTML += `<option value="${c.id}" ${selected}>${c.school_class_name} (${c.school_class_major})</option>`;
+                    const isSelected = (preselect && c.id == preselect) ? true : false;
+                    choicesData.push({value: c.id, label: `${c.school_class_name} (${c.school_class_major})`, selected: isSelected});
+                    const selectedAttr = isSelected ? 'selected' : '';
+                    html += `<option value="${c.id}" ${selectedAttr}>${c.school_class_name} (${c.school_class_major})</option>`;
                 }
             });
+            
+            if (sel.choicesObj) {
+                sel.choicesObj.setChoices(choicesData, 'value', 'label', true);
+            } else {
+                sel.innerHTML = html;
+            }
         }
 
         function openEditModal(id, name, nis, grade, classId, gender, dob, phone, email, address, parentName, parentRel, parentPhone) {

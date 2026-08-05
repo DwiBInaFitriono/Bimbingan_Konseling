@@ -194,8 +194,7 @@
     </main>
 
     @include('include.footer')
-    <script src="{{ asset('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('assets/js/main.js') }}"></script>
+    @include('include.script')
     <script>
         const classesData = @json($datakelas);
         const currentClassId = "{{ $datasiswa->class_id }}";
@@ -204,29 +203,29 @@
             const grade = document.getElementById('grade').value;
             const classSelect = document.getElementById('class_id');
             
-            // Kosongkan opsi sebelumnya
-            classSelect.innerHTML = '<option value="" disabled>-- Pilih Kelas --</option>';
+            let choicesData = [{value: '', label: '-- Pilih Kelas --', selected: !currentClassId, disabled: true}];
+            let html = '<option value="" disabled>-- Pilih Kelas --</option>';
             
-            // Filter dan tambahkan opsi sesuai tingkat kelas
             classesData.forEach(function(item) {
                 if (item.grade == grade) {
-                    const opt = document.createElement('option');
-                    opt.value = item.id;
-                    opt.textContent = item.school_class_name + ' (' + item.school_class_major + ')';
+                    const isSelected = (item.id == currentClassId) ? true : false;
+                    choicesData.push({value: item.id, label: `${item.school_class_name} (${item.school_class_major})`, selected: isSelected});
                     
-                    if (item.id == currentClassId) {
-                        opt.selected = true;
-                    }
-                    
-                    classSelect.appendChild(opt);
+                    const selectedAttr = isSelected ? 'selected' : '';
+                    html += `<option value="${item.id}" ${selectedAttr}>${item.school_class_name} (${item.school_class_major})</option>`;
                 }
             });
+            
+            if (classSelect.choicesObj) {
+                classSelect.choicesObj.clearChoices();
+                classSelect.choicesObj.setChoices(choicesData, 'value', 'label', true);
+            } else {
+                classSelect.innerHTML = html;
+            }
         }
         
         // Panggil fungsi saat halaman pertama kali dimuat
         document.addEventListener('DOMContentLoaded', filterClasses);
-        // Dukungan untuk Turbo Drive
-        document.addEventListener('turbo:load', filterClasses);
         
         // Juga panggil sekali jika script dirender via ajax (tanpa reload penuh)
         if(document.getElementById('grade').value) {
