@@ -22,6 +22,10 @@ class PointData extends Model
         'recorded_by',
     ];
 
+    protected $casts = [
+        'violation_date' => 'date',
+    ];
+
     public function student()
     {
         return $this->belongsTo(Student::class, 'student_id');

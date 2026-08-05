@@ -11,7 +11,7 @@ use Illuminate\View\View;
 
 class AuthController extends Controller
 {
-    public function showLogin(): View|RedirectResponse
+    public function showLoginGuru(): View|RedirectResponse
     {
         if (Auth::check()) {
             return Auth::user()->isSiswa()
@@ -19,7 +19,18 @@ class AuthController extends Controller
                 : redirect()->route('dashboard');
         }
 
-        return view('auth.login');
+        return view('auth.login_guru');
+    }
+
+    public function showLoginSiswa(): View|RedirectResponse
+    {
+        if (Auth::check()) {
+            return Auth::user()->isSiswa()
+                ? redirect()->route('counseling.siswa')
+                : redirect()->route('dashboard');
+        }
+
+        return view('auth.login_siswa');
     }
 
     public function login(Request $request): RedirectResponse
@@ -27,9 +38,17 @@ class AuthController extends Controller
         $credentials = $request->validate([
             'email'    => ['required', 'email'],
             'password' => ['required'],
+            'role'     => ['required', 'in:guru_bk,siswa']
         ]);
 
-        if (Auth::attempt($credentials, $request->boolean('remember'))) {
+        // Melakukan validasi Auth lengkap dengan role-nya agar siswa tak bisa login di form guru
+        $attemptData = [
+            'email' => $credentials['email'],
+            'password' => $credentials['password'],
+            'role' => $credentials['role']
+        ];
+
+        if (Auth::attempt($attemptData, $request->boolean('remember'))) {
             $request->session()->regenerate();
             $user = Auth::user();
 

@@ -10,6 +10,13 @@
             <li class="nav-heading">LAYANAN SISWA</li>
 
             <li class="nav-item">
+                <a class="nav-link {{ request()->routeIs('dashboard.siswa') ? '' : 'collapsed' }}" href="{{ route('dashboard.siswa') }}">
+                    <i class="bi bi-grid"></i>
+                    <span>Dashboard</span>
+                </a>
+            </li>
+
+            <li class="nav-item">
                 <a class="nav-link {{ request()->routeIs('counseling.siswa') ? '' : 'collapsed' }}" href="{{ route('counseling.siswa') }}">
                     <i class="bi bi-calendar-check"></i>
                     <span>Ajukan Konseling</span>

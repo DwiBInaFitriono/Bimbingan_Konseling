@@ -24,6 +24,10 @@ class Achievement extends Model
         'recorded_by',
     ];
 
+    protected $casts = [
+        'achievement_date' => 'date',
+    ];
+
     public function student()
     {
         return $this->belongsTo(Student::class, 'student_id');
