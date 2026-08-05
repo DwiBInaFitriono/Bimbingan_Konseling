@@ -277,28 +277,74 @@ class DatabaseSeeder extends Seeder
             'recorded_by' => $guru1->id,
         ]);
 
-        // 9. Seed Pengajuan Konseling
+        // 9. Seed Pengajuan Konseling (antrean hari ini untuk demo queue cards)
         CounselingSession::create([
             'student_id' => $siswa1->id,
             'guru_bk_id' => $guru1->id,
-            'requested_date' => now()->addDays(2)->format('Y-m-d'),
-            'requested_time' => '10:00:00',
+            'requested_date' => now()->format('Y-m-d'),
+            'requested_time' => '08:00',
+            'slot_waktu' => '08:00 - 10:00',
+            'available_time_start' => '08:00',
+            'available_time_end' => '10:00',
             'topic' => 'Konsultasi Perencanaan Karir & Kuliah RPL',
             'description' => 'Ingin diskusi persiapan masuk perguruan tinggi negeri jurusan Teknik Informatika.',
             'type' => 'individu',
             'status' => 'disetujui',
+            'status_antrian' => 'sekarang',
+            'no_antrian' => 1,
+            'waktu_perkiraan' => '08:03',
             'notes' => 'Silakan datang ke ruang BK pada jam istirahat pertama.',
             'approved_at' => now(),
         ]);
 
         CounselingSession::create([
             'student_id' => $siswa2->id,
-            'guru_bk_id' => null,
-            'requested_date' => now()->addDays(3)->format('Y-m-d'),
-            'requested_time' => '13:00:00',
+            'guru_bk_id' => $guru1->id,
+            'requested_date' => now()->format('Y-m-d'),
+            'requested_time' => '08:00',
+            'slot_waktu' => '08:00 - 10:00',
+            'available_time_start' => '08:00',
+            'available_time_end' => '10:00',
             'topic' => 'Konsultasi Masalah Belajar & Manajemen Waktu',
             'description' => 'Kesulitan membagi waktu belajar dan bermain.',
             'type' => 'individu',
+            'status' => 'disetujui',
+            'status_antrian' => 'menunggu',
+            'no_antrian' => 2,
+            'waktu_perkiraan' => '08:32',
+            'notes' => 'Mohon menunggu giliran.',
+            'approved_at' => now(),
+        ]);
+
+        CounselingSession::create([
+            'student_id' => $siswa3->id,
+            'guru_bk_id' => $guru1->id,
+            'requested_date' => now()->format('Y-m-d'),
+            'requested_time' => '08:00',
+            'slot_waktu' => '08:00 - 10:00',
+            'available_time_start' => '08:00',
+            'available_time_end' => '10:00',
+            'topic' => 'Bimbingan Akademik Semester Genap',
+            'description' => 'Membahas strategi belajar untuk ujian akhir.',
+            'type' => 'individu',
+            'status' => 'disetujui',
+            'status_antrian' => 'menunggu',
+            'no_antrian' => 3,
+            'waktu_perkiraan' => '09:01',
+            'notes' => 'Mohon menunggu giliran.',
+            'approved_at' => now(),
+        ]);
+
+        // Satu pengajuan masih menunggu persetujuan
+        CounselingSession::create([
+            'student_id' => $siswa2->id,
+            'guru_bk_id' => null,
+            'requested_date' => now()->addDays(1)->format('Y-m-d'),
+            'requested_time' => '13:00',
+            'slot_waktu' => '12:00 - 15:00',
+            'topic' => 'Konseling Kelompok Motivasi Belajar',
+            'description' => 'Butuh motivasi dan sharing bersama teman.',
+            'type' => 'kelompok',
             'status' => 'menunggu',
         ]);
     }

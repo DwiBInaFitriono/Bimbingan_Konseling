@@ -158,7 +158,7 @@
                                                         </a>
                                                     </li>
                                                     <li>
-                                                        <a class="dropdown-item d-flex align-items-center py-2 text-danger" href="{{ url('/hapusprestasi/' . $data->id) }}" onclick="return confirm('Yakin ingin menghapus data prestasi ini?')">
+                                                        <a class="dropdown-item d-flex align-items-center py-2 text-danger" href="javascript:void(0)" onclick="swalConfirm('Yakin ingin menghapus data prestasi ini?', function(){ window.location='{{ url('/hapusprestasi/' . $data->id) }}'; })">
                                                             <i class="bi bi-trash me-2"></i> Hapus
                                                         </a>
                                                     </li>

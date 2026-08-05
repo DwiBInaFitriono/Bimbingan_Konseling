@@ -23,7 +23,7 @@
         selects.forEach(function(select) {
             // Prevent double initialization
             if (!select.classList.contains('choices-initialized')) {
-                new Choices(select, {
+                select.choicesObj = new Choices(select, {
                     searchEnabled: false,
                     itemSelectText: '',
                     shouldSort: false,
@@ -34,9 +34,8 @@
         });
     }
 
-    // Initialize on both normal DOM load and Turbo load
+    // Initialize on normal DOM load
     document.addEventListener('DOMContentLoaded', initChoices);
-    document.addEventListener('turbo:load', initChoices);
     
     // Fallback mutation observer for dynamically added selects (e.g. inside dynamically loaded modals)
     const observer = new MutationObserver((mutations) => {

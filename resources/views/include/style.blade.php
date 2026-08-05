@@ -63,5 +63,3 @@
     }
 </style>
 
-<!-- Hotwire Turbo for SPA Navigation -->
-<script type="module" src="https://cdn.skypack.dev/@hotwired/turbo"></script>

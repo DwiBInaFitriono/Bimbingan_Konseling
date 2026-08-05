@@ -445,7 +445,7 @@
                                                                 </a>
                                                             </li>
                                                             <li>
-                                                                <a class="dropdown-item d-flex align-items-center py-2 text-danger" href="{{ url('hapusstudykasus/' . $data->id) }}" onclick="return confirm('Yakin ingin menghapus catatan pelanggaran ini?')">
+                                                                <a class="dropdown-item d-flex align-items-center py-2 text-danger" href="javascript:void(0)" onclick="swalConfirm('Yakin ingin menghapus catatan pelanggaran ini?', function(){ window.location='{{ url('hapusstudykasus/' . $data->id) }}'; })">
                                                                     <i class="bi bi-trash me-2"></i> Hapus
                                                                 </a>
                                                             </li>

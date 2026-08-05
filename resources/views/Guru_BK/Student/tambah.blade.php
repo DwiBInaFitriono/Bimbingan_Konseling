@@ -195,27 +195,34 @@
     </main>
 
     @include('include.footer')
-    <script src="{{ asset('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('assets/js/main.js') }}"></script>
+    @include('include.script')
     <script>
         const classesData = @json($datakelas);
+        
         function filterClasses() {
             const grade = document.getElementById('grade').value;
             const classSelect = document.getElementById('class_id');
             
-            // Kosongkan opsi sebelumnya
-            classSelect.innerHTML = '<option value="" disabled selected>-- Pilih Kelas --</option>';
+            let choicesData = [{value: '', label: '-- Pilih Kelas --', selected: true, disabled: true}];
+            let html = '<option value="" disabled selected>-- Pilih Kelas --</option>';
             
-            // Filter dan tambahkan opsi sesuai tingkat kelas
             classesData.forEach(function(item) {
                 if (item.grade == grade) {
-                    const opt = document.createElement('option');
-                    opt.value = item.id;
-                    opt.textContent = item.school_class_name + ' (' + item.school_class_major + ')';
-                    classSelect.appendChild(opt);
+                    choicesData.push({value: item.id, label: `${item.school_class_name} (${item.school_class_major})`});
+                    html += `<option value="${item.id}">${item.school_class_name} (${item.school_class_major})</option>`;
                 }
             });
+            
+            if (classSelect.choicesObj) {
+                classSelect.choicesObj.clearChoices();
+                classSelect.choicesObj.setChoices(choicesData, 'value', 'label', true);
+            } else {
+                classSelect.innerHTML = html;
+            }
         }
+
+        // Panggil fungsi saat halaman pertama kali dimuat
+        document.addEventListener('DOMContentLoaded', filterClasses);
     </script>
 </body>
 

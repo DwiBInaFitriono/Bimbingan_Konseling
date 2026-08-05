@@ -32,25 +32,63 @@ class CounselingSessionController extends Controller
         $completedCount = CounselingSession::where('status', 'selesai')->count();
         $today = date('Y-m-d');
 
-        $nextQueue = CounselingSession::with(['student.class', 'guruBk'])
+        $currentQueue = CounselingSession::with(['student.class', 'guruBk'])
             ->whereDate('requested_date', $today)
-            ->where('status', 'menunggu')
-            ->orderBy('id', 'asc')
+            ->where('status_antrian', 'sekarang')
+            ->orderBy('id', 'desc')
             ->first();
 
-            $nextQueueNumber = null; 
-            if ($nextQueue) {
-                $nextQueueNumber = CounselingSession::where('guru_bk_id', $nextQueue->guru_bk_id)
-                    ->whereDate('requested_date', $today)
-                    ->where('slot_waktu', $nextQueue->slot_waktu)
-                    ->whereIn('status', ['disetujui', 'selesai'])
-                    ->where('id', '<', $nextQueue->id)
-                    ->count();
-            }
+        $nextQueue = CounselingSession::with(['student.class', 'guruBk'])
+            ->whereDate('requested_date', $today)
+            ->where('status', 'disetujui')
+            ->where('status_antrian', 'menunggu')
+            ->orderBy('no_antrian', 'asc')
+            ->first();
+
+        // Jika tidak ada antrean berjalan hari ini, promosikan antrean pertama yang menunggu
+        if (!$currentQueue && $nextQueue) {
+            $nextQueue->update(['status_antrian' => 'sekarang']);
+            $currentQueue = $nextQueue;
+            
+            // Ambil ulang antrean berikutnya
+            $nextQueue = CounselingSession::with(['student.class', 'guruBk'])
+                ->whereDate('requested_date', $today)
+                ->where('status', 'disetujui')
+                ->where('status_antrian', 'menunggu')
+                ->orderBy('no_antrian', 'asc')
+                ->first();
+        }
+
+        $nextQueueNumber = null; 
+        if ($nextQueue) {
+            $nextQueueNumber = $nextQueue->no_antrian;
+        }
+
+        if ($request->wantsJson()) {
+            return response()->json([
+                'currentQueue' => $currentQueue ? [
+                    'no_antrian' => $currentQueue->no_antrian,
+                    'student_name' => $currentQueue->student->full_name ?? 'Siswa',
+                    'class_name' => $currentQueue->student->class->school_class_name ?? null,
+                    'topic' => \Illuminate\Support\Str::limit($currentQueue->topic, 30),
+                    'waktu_perkiraan' => substr($currentQueue->waktu_perkiraan ?? $currentQueue->requested_time, 0, 5),
+                ] : null,
+                'nextQueue' => $nextQueue ? [
+                    'no_antrian' => $nextQueueNumber,
+                    'student_name' => $nextQueue->student->full_name ?? 'Siswa',
+                    'class_name' => $nextQueue->student->class->school_class_name ?? null,
+                    'topic' => \Illuminate\Support\Str::limit($nextQueue->topic, 30),
+                    'waktu_perkiraan' => substr($nextQueue->waktu_perkiraan ?? $nextQueue->requested_time, 0, 5),
+                ] : null,
+                'pendingCount' => $pendingCount,
+                'approvedCount' => $approvedCount,
+                'completedCount' => $completedCount,
+            ]);
+        }
 
         return view('Guru_BK.counseling.index', compact(
             'sessions', 'pendingCount', 'approvedCount', 'completedCount',
-            'nextQueue', 'nextQueueNumber'
+            'nextQueue', 'nextQueueNumber', 'currentQueue'
         ));
     }
 
@@ -146,6 +184,13 @@ class CounselingSessionController extends Controller
      */
     public function store(Request $request)
     {
+        // Gabungkan slot_waktu jika dari form Guru BK (menggunakan jam tersedia)
+        if ($request->has('available_time_start') && $request->has('available_time_end')) {
+            $request->merge([
+                'slot_waktu' => $request->available_time_start . ' - ' . $request->available_time_end
+            ]);
+        }
+
         $request->validate([
             'requested_date' => 'required|date',
             'slot_waktu'     => 'required',
@@ -173,7 +218,9 @@ class CounselingSessionController extends Controller
             }
         }
 
-        $jam_awal = explode(' - ', $request->slot_waktu)[0];
+        $parts = explode(' - ', $request->slot_waktu);
+        $jam_awal = $parts[0] ?? null;
+        $jam_akhir = $parts[1] ?? null;
 
         $session = CounselingSession::create([
             'student_id'     => $studentId,
@@ -182,6 +229,8 @@ class CounselingSessionController extends Controller
             'guru_bk_id'     => $user->isGuruBk() ? $user->id : $request->guru_bk_id,
             'requested_date' => $request->requested_date,
             'slot_waktu'     => $request->slot_waktu,
+            'available_time_start' => $jam_awal,
+            'available_time_end' => $jam_akhir,
             'requested_time' => $jam_awal,
             'topic'          => $request->topic,
             'description'    => $request->description,
@@ -190,6 +239,54 @@ class CounselingSessionController extends Controller
             'status_antrian' => 'menunggu',
             'approved_at'    => $user->isGuruBk() ? now() : null,
         ]);
+
+        // Jika Guru BK yang membuat, karena auto disetujui, langsung buatkan nomor antrian dan waktu perkiraan
+        if ($user->isGuruBk()) {
+            $antrian_sebelumnya = CounselingSession::where('requested_date', $session->requested_date)
+                ->where('slot_waktu', $session->slot_waktu)
+                ->where('guru_bk_id', $session->guru_bk_id)
+                ->whereIn('status', ['disetujui', 'selesai'])
+                ->where('id', '!=', $session->id) // kecualikan data ini sendiri
+                ->count();
+            
+            $no_antrian_baru = $antrian_sebelumnya + 1;
+
+            $waktu_perkiraan_str = null;
+            if ($session->slot_waktu) {
+                $parts = explode(' - ', $session->slot_waktu);
+                $jam_awal = $parts[0];
+                $jam_akhir = $parts[1] ?? null;
+                $waktu_awal_obj = \Carbon\Carbon::parse($jam_awal);
+                
+                $sesi_terakhir = CounselingSession::where('requested_date', $session->requested_date)
+                    ->where('slot_waktu', $session->slot_waktu)
+                    ->where('guru_bk_id', $session->guru_bk_id)
+                    ->whereIn('status', ['disetujui', 'selesai'])
+                    ->where('id', '!=', $session->id)
+                    ->orderBy('no_antrian', 'desc')
+                    ->first();
+
+                if ($sesi_terakhir && $sesi_terakhir->waktu_perkiraan) {
+                    $waktu_perkiraan = \Carbon\Carbon::parse($sesi_terakhir->waktu_perkiraan)
+                        ->addMinutes(rand(25, 35));
+                } else {
+                    $waktu_perkiraan = $waktu_awal_obj->addMinutes(rand(0, 5));
+                }
+
+                // Cek apakah melebihi batas jam akhir
+                if ($jam_akhir && $waktu_perkiraan->greaterThan(\Carbon\Carbon::parse($jam_akhir))) {
+                    $session->forceDelete();
+                    return back()->with('error', 'Maaf, kuota antrean untuk jadwal tersebut sudah penuh (melebihi jam ketersediaan guru).');
+                }
+                
+                $waktu_perkiraan_str = $waktu_perkiraan->format('H:i');
+            }
+            
+            $session->update([
+                'no_antrian' => $no_antrian_baru,
+                'waktu_perkiraan' => $waktu_perkiraan_str
+            ]);
+        }
 
         // Automate CaseStudy status to 'proses'
         if ($request->case_study_id) {
@@ -224,10 +321,11 @@ class CounselingSessionController extends Controller
         
         $no_antrian_baru = $antrian_sebelumnya + 1;
 
-        // 2. Hitung perkiraan jam secara dinamis/acak agar lebih realistis (mirip antrian RS)
-        $waktu_perkiraan = null;
+        $waktu_perkiraan_str = null;
         if ($session->slot_waktu) {
-            $jam_awal = explode(' - ', $session->slot_waktu)[0];
+            $parts = explode(' - ', $session->slot_waktu);
+            $jam_awal = $parts[0];
+            $jam_akhir = $parts[1] ?? null;
             $waktu_awal_obj = \Carbon\Carbon::parse($jam_awal);
             
             // Cari sesi terakhir yang disetujui pada slot yang sama untuk meneruskan jamnya
@@ -239,14 +337,20 @@ class CounselingSessionController extends Controller
                 ->first();
 
             if ($sesi_terakhir && $sesi_terakhir->waktu_perkiraan) {
-                // Tambahkan waktu acak (misal 11 s.d 19 menit) dari jam orang sebelumnya
+                // Tambahkan waktu acak sekitar 30 menit (25 s.d 35) dari jam orang sebelumnya
                 $waktu_perkiraan = \Carbon\Carbon::parse($sesi_terakhir->waktu_perkiraan)
-                    ->addMinutes(rand(11, 19))
-                    ->format('H:i');
+                    ->addMinutes(rand(25, 35));
             } else {
-                // Jika ini antrian pertama, jam awal + sedikit delay acak (0 s.d 4 menit)
-                $waktu_perkiraan = $waktu_awal_obj->addMinutes(rand(0, 4))->format('H:i');
+                // Jika ini antrian pertama, jam awal + sedikit delay acak (0 s.d 5 menit)
+                $waktu_perkiraan = $waktu_awal_obj->addMinutes(rand(0, 5));
             }
+
+            // Cek apakah melebihi batas jam akhir ketersediaan guru
+            if ($jam_akhir && $waktu_perkiraan->greaterThan(\Carbon\Carbon::parse($jam_akhir))) {
+                return back()->with('error', 'Maaf, kuota antrean untuk jadwal tersebut sudah penuh (melebihi jam ketersediaan guru). Mohon tolak atau atur ulang jadwal.');
+            }
+
+            $waktu_perkiraan_str = $waktu_perkiraan->format('H:i');
         }
 
         // 3. Update status & antrian
@@ -255,7 +359,7 @@ class CounselingSessionController extends Controller
             'guru_bk_id'      => Auth::id(),
             'notes'           => $request->notes ?? $session->notes,
             'no_antrian'      => $no_antrian_baru,
-            'waktu_perkiraan' => $waktu_perkiraan,
+            'waktu_perkiraan' => $waktu_perkiraan_str,
             'status_antrian'  => 'menunggu',
             'approved_at'     => now(),
         ]);
@@ -296,10 +400,23 @@ class CounselingSessionController extends Controller
     {
         $session = CounselingSession::findOrFail($id);
         $session->update([
-            'status'       => 'selesai',
-            'notes'        => $request->notes,
-            'completed_at' => now(),
+            'status'         => 'selesai',
+            'status_antrian' => 'selesai',
+            'notes'          => $request->notes,
+            'completed_at'   => now(),
         ]);
+
+        // Cari antrean berikutnya hari ini untuk guru tersebut yang berstatus menunggu
+        $next = CounselingSession::whereDate('requested_date', $session->requested_date)
+            ->where('guru_bk_id', $session->guru_bk_id)
+            ->where('status', 'disetujui')
+            ->where('status_antrian', 'menunggu')
+            ->orderBy('no_antrian', 'asc')
+            ->first();
+            
+        if ($next) {
+            $next->update(['status_antrian' => 'sekarang']);
+        }
 
         // Automate CaseStudy status to 'selesai'
         if ($session->case_study_id) {
@@ -323,8 +440,21 @@ class CounselingSessionController extends Controller
     {
         $session = CounselingSession::findOrFail($id);
         $session->update([
-            'status' => 'dibatalkan',
+            'status'         => 'dibatalkan',
+            'status_antrian' => 'selesai',
         ]);
+
+        // Cari antrean berikutnya hari ini untuk guru tersebut yang berstatus menunggu
+        $next = CounselingSession::whereDate('requested_date', $session->requested_date)
+            ->where('guru_bk_id', $session->guru_bk_id)
+            ->where('status', 'disetujui')
+            ->where('status_antrian', 'menunggu')
+            ->orderBy('no_antrian', 'asc')
+            ->first();
+            
+        if ($next) {
+            $next->update(['status_antrian' => 'sekarang']);
+        }
 
         if (Auth::user()->isGuruBk()) {
             return redirect()->route('counseling.index')->with('success', 'Pengajuan konseling berhasil dibatalkan.');

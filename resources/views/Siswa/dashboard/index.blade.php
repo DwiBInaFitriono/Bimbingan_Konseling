@@ -421,6 +421,17 @@
         .student-list-scroll::-webkit-scrollbar-track { background: #f5f6fa; }
         .student-list-scroll::-webkit-scrollbar-thumb { background: #cfd5e5; border-radius: 3px; }
         .student-list-scroll::-webkit-scrollbar-thumb:hover { background: #b0b8d0; }
+        .form-control:disabled,
+        .form-select:disabled,
+        .choices.is-disabled,
+        .choices.is-disabled .choices__inner,
+        .choices.is-disabled .choices__input,
+        .choices.is-disabled .choices__list,
+        .choices.is-disabled .choices__item {
+            background-color: #e9ecef !important;
+            color: #495057 !important;
+            opacity: 1 !important;
+        }
     </style>
 </head>
 
@@ -555,6 +566,12 @@
                                                 <div class="riwayat-title">{{ $r->topic }}</div>
                                                 <div class="riwayat-meta">
                                                     {{ $r->requested_date?->format('d M Y') }} &middot; {{ $r->guruBk?->name ?? 'Guru BK' }}
+                                                    @if($r->status == 'disetujui' || $r->status == 'selesai')
+                                                        <br>
+                                                        <span class="text-primary fw-bold" style="font-size: 0.75rem;">Antrian: {{ $r->no_antrian ?? '-' }}</span> 
+                                                        &middot; 
+                                                        <span class="text-info fw-bold" style="font-size: 0.75rem;">Perkiraan: {{ $r->waktu_perkiraan ? $r->waktu_perkiraan . ' WIB' : '-' }}</span>
+                                                    @endif
                                                 </div>
                                             </div>
                                             @if($r->status == 'menunggu')
@@ -656,9 +673,7 @@
         </section>
     </main>
 
-    <script src="{{ asset('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('assets/js/main.js') }}"></script>
-
+    @include('include.script')
     {{-- Modal Pengajuan Konseling --}}
     <div class="modal fade konseling-modal" id="modalAjukanKonseling" tabindex="-1">
         <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">

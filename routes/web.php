@@ -76,6 +76,7 @@ Route::middleware('auth')->group(function () {
         Route::get('konseling/laporan', [CounselingSessionController::class, 'report'])->name('counseling.report');
 
         Route::get('konseling/laporan/cetak', [CounselingSessionController::class, 'exportPdf'])->name('counseling.report.pdf');
+        Route::post('konseling/simpan', [CounselingSessionController::class, 'store'])->name('counseling.store.gurubk');
         Route::post('konseling/setujui/{id}', [CounselingSessionController::class, 'approve'])->name('counseling.approve');
         Route::post('konseling/tolak/{id}', [CounselingSessionController::class, 'reject'])->name('counseling.reject');
         Route::post('konseling/selesai/{id}', [CounselingSessionController::class, 'complete'])->name('counseling.complete');
