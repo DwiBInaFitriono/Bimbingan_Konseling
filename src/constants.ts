@@ -1,0 +1,7 @@
+export const P   = '#4F46E5'
+export const PD  = '#4338CA'
+export const V   = '#7C3AED'
+export const T   = '#10B981'
+export const AM  = '#F59E0B'
+export const RD  = '#EF4444'
+export const IND = '#6366F1'
