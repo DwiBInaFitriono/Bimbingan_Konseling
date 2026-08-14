@@ -1,4 +1,4 @@
-.tsimport { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 
 type Screen =
   | 'login'
