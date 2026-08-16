@@ -1,6 +1,5 @@
-// URL base API. Jika di lokal dengan Vercel, biasanya http://localhost:3000
-// Saat sudah di-deploy, ganti dengan domain Vercel Anda (misal: https://your-laravel-vercel-app.vercel.app)
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
+// URL base API. Gunakan path relatif agar bekerja di Vercel secara otomatis
+const API_BASE = import.meta.env.VITE_API_URL || '/api/v1';
 
 export const ApiService = {
   async login(nis: string, password: string) {
