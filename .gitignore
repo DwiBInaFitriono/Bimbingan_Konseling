@@ -20,3 +20,5 @@ yarn-error.log
 /.agents
 AGENT_DIRECTIVES.md
 .cursorrules
+AGENTS.md
+CLAUDE.md
