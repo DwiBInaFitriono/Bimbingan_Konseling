@@ -1,0 +1,24 @@
+{
+  "version": 2,
+  "framework": null,
+  "regions": ["sin1"],
+
+  "env": {
+    "APP_NAME": "Sistem BK",
+    "APP_ENV": "production",
+    "APP_KEY": "base64:+Qcwp/FKLglL0KxMs2gScVj8drIYrGkgQwx0oRGBk9Q=",
+    "APP_DEBUG": "false",
+    "LOG_CHANNEL": "stderr",
+    "DB_CONNECTION": "mysql",
+    "DB_HOST": "gateway01.ap-southeast-1.prod.aws.tidbcloud.com",
+    "DB_PORT": "4000",
+    "DB_DATABASE": "test",
+    "DB_USERNAME": "29hkS1jfx2jKirT.root",
+    "DB_PASSWORD": "Uv24c1b0gb2XrzuQ",
+    "MYSQL_ATTR_SSL_CA": "tidb-ca.pem",
+    "MYSQL_ATTR_SSL_VERIFY_SERVER_CERT": "false",
+    "VIEW_COMPILED_PATH": "/tmp",
+    "CACHE_STORE": "array",
+    "SESSION_DRIVER": "database"
+  }
+}
