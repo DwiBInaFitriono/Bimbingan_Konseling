@@ -1,6 +1,25 @@
-// URL base API. Jika di lokal dengan Vercel, biasanya http://localhost:3000
-// Saat sudah di-deploy, ganti dengan domain Vercel Anda (misal: https://your-laravel-vercel-app.vercel.app)
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:3000/api/v1';
+// URL base API. Gunakan path relatif agar bekerja di Vercel secara otomatis
+const API_BASE = import.meta.env.VITE_API_URL || '/api/v1';
+
+// Helper function to handle API responses
+async function handleResponse(res: Response) {
+  const contentType = res.headers.get('content-type');
+  
+  // Check if response is JSON
+  if (!contentType || !contentType.includes('application/json')) {
+    const text = await res.text();
+    throw new Error(text || 'Server mengembalikan respons non-JSON');
+  }
+  
+  const data = await res.json();
+  
+  // If response is not OK, throw error with message from server
+  if (!res.ok) {
+    throw new Error(data.message || data.error || `HTTP error ${res.status}`);
+  }
+  
+  return data;
+}
 
 export const ApiService = {
   async login(nis: string, password: string) {
@@ -9,16 +28,25 @@ export const ApiService = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ nis, password }),
     });
-    return res.json();
+    return handleResponse(res);
   },
 
   async getJadwal(studentId: number) {
     const res = await fetch(`${API_BASE}/jadwal?student_id=${studentId}`);
-    return res.json();
+    return handleResponse(res);
+  },
+
+  async postJadwal(data: { student_id: number, type: string, schedule_date: string, schedule_time: string, note: string }) {
+    const res = await fetch(`${API_BASE}/jadwal`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    return handleResponse(res);
   },
 
   async getRiwayat(studentId: number, type: 'konseling' | 'pelanggaran' | 'kasus' | 'prestasi') {
     const res = await fetch(`${API_BASE}/riwayat?student_id=${studentId}&type=${type}`);
-    return res.json();
+    return handleResponse(res);
   }
 };
