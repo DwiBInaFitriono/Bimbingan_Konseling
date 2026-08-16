@@ -17,16 +17,22 @@ export function JadwalScreen({ navigate }: { navigate: (s: Screen) => void }) {
   const [desc, setDesc] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [toast, setToast] = useState<{ msg: string; ok: boolean } | null>(null)
+
+  const showToast = (msg: string, ok = false) => {
+    setToast({ msg, ok })
+    setTimeout(() => setToast(null), 3500)
+  }
 
   const sesiOptions = ['07:00 – 08:00', '08:00 – 09:00', '09:00 – 10:00', '10:00 – 11:00', '13:00 – 14:00']
 
   const handleSubmit = async () => {
-    if (!tanggal || !guru || !sesi || !topik) return
+    if (!tanggal || !sesi || !topik) return
     setSubmitting(true)
 
     const dataStr = localStorage.getItem('student_data');
     if (!dataStr) {
-      alert("Sesi login tidak ditemukan. Silakan login kembali.");
+      showToast('Sesi login tidak ditemukan. Silakan login kembali.');
       setSubmitting(false);
       return;
     }
@@ -36,19 +42,20 @@ export function JadwalScreen({ navigate }: { navigate: (s: Screen) => void }) {
       const res = await ApiService.postJadwal({
         student_id: student.id,
         type: tipe,
-        schedule_date: tanggal,
-        schedule_time: sesi.split(' ')[0], // Ambil waktu mulai saja misal "07:00"
-        note: topik + (desc ? ` - ${desc}` : '')
+        requested_date: tanggal,
+        requested_time: sesi.split(' ')[0],
+        topic: topik,
+        description: desc || undefined,
       });
 
       if (res.success) {
         setSubmitted(true)
         setTimeout(() => { navigate('dashboard'); setSubmitted(false) }, 2200)
       } else {
-        alert("Gagal mengajukan jadwal: " + res.message);
+        showToast('Gagal mengajukan jadwal: ' + res.message);
       }
     } catch (err: any) {
-      alert("Error: " + err.message);
+      showToast('Error: ' + err.message);
     } finally {
       setSubmitting(false)
     }
@@ -75,6 +82,17 @@ export function JadwalScreen({ navigate }: { navigate: (s: Screen) => void }) {
 
   return (
     <>
+      {/* Toast Notification */}
+      {toast && (
+        <div style={{ position: 'fixed', top: 16, left: '50%', transform: 'translateX(-50%)', zIndex: 9999, maxWidth: 320, width: 'calc(100% - 32px)', padding: '12px 16px', borderRadius: 14, background: toast.ok ? '#ECFDF5' : '#FFF1F2', border: `1.5px solid ${toast.ok ? '#6EE7B7' : '#FCA5A5'}`, boxShadow: '0 8px 24px rgba(0,0,0,0.12)', display: 'flex', alignItems: 'center', gap: 10, animation: 'fadeUp 0.3s ease both' }}>
+          <div style={{ width: 28, height: 28, borderRadius: 8, background: toast.ok ? '#10B981' : '#EF4444', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round">
+              {toast.ok ? <path d="M20 6L9 17l-5-5"/> : <><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>}
+            </svg>
+          </div>
+          <p style={{ margin: 0, fontSize: 13, color: toast.ok ? '#065F46' : '#9B1C1C', fontFamily: 'Inter', lineHeight: 1.5 }}>{toast.msg}</p>
+        </div>
+      )}
       <SubHeader title="Pengajuan Jadwal" sub="Konseling BK · Rahasia dijamin" onBack={() => navigate('dashboard')} />
       <div style={{ flex: 1, overflowY: 'auto', background: '#F1F5F9', padding: '16px 16px 24px', display: 'flex', flexDirection: 'column', gap: 14 }}>
 
@@ -99,32 +117,16 @@ export function JadwalScreen({ navigate }: { navigate: (s: Screen) => void }) {
                   style={{ width: '100%', padding: '12px 14px', borderRadius: 12, fontSize: 14, color: '#1E293B', fontFamily: 'Inter', background: '#F8FAFC', border: `1.5px solid ${tanggal ? P : '#E2E8F0'}`, outline: 'none', boxSizing: 'border-box' }}
                 />
               </div>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-                <div>
-                  <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B', display: 'block', marginBottom: 6 }}>Guru BK <span style={{ color: RD }}>*</span></label>
-                  <select
-                    value={guru}
-                    onChange={e => { setGuru(e.target.value); setSesi('') }}
-                    style={{ width: '100%', padding: '12px 10px', borderRadius: 12, fontSize: 13, color: guru ? '#1E293B' : '#94A3B8', fontFamily: 'Inter', background: '#F8FAFC', border: `1.5px solid ${guru ? P : '#E2E8F0'}`, outline: 'none', appearance: 'none', boxSizing: 'border-box' }}
-                  >
-                    <option value="">-- Pilih Guru --</option>
-                    <option value="rio">Rio S.Pd</option>
-                    <option value="ani">Ani M.Pd</option>
-                    <option value="budi">Budi S.Pd</option>
-                  </select>
-                </div>
-                <div>
-                  <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B', display: 'block', marginBottom: 6 }}>Sesi Waktu <span style={{ color: RD }}>*</span></label>
-                  <select
-                    value={sesi}
-                    onChange={e => setSesi(e.target.value)}
-                    disabled={!guru}
-                    style={{ width: '100%', padding: '12px 10px', borderRadius: 12, fontSize: 13, color: sesi ? '#1E293B' : '#94A3B8', fontFamily: 'Inter', background: guru ? '#F8FAFC' : '#F1F5F9', border: `1.5px solid ${sesi ? P : '#E2E8F0'}`, outline: 'none', appearance: 'none', boxSizing: 'border-box', cursor: guru ? 'auto' : 'not-allowed' }}
-                  >
-                    <option value="">{guru ? 'Pilih sesi' : 'Pilih guru dulu'}</option>
-                    {guru && sesiOptions.map(s => <option key={s} value={s}>{s}</option>)}
-                  </select>
-                </div>
+              <div>
+                <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B', display: 'block', marginBottom: 6 }}>Sesi Waktu <span style={{ color: RD }}>*</span></label>
+                <select
+                  value={sesi}
+                  onChange={e => setSesi(e.target.value)}
+                  style={{ width: '100%', padding: '12px 10px', borderRadius: 12, fontSize: 13, color: sesi ? '#1E293B' : '#94A3B8', fontFamily: 'Inter', background: '#F8FAFC', border: `1.5px solid ${sesi ? P : '#E2E8F0'}`, outline: 'none', appearance: 'none', boxSizing: 'border-box' }}
+                >
+                  <option value="">-- Pilih Sesi --</option>
+                  {sesiOptions.map(s => <option key={s} value={s}>{s}</option>)}
+                </select>
               </div>
             </div>
           </div>
@@ -209,15 +211,15 @@ export function JadwalScreen({ navigate }: { navigate: (s: Screen) => void }) {
         <FU d={220}>
           <button
             onClick={handleSubmit}
-            disabled={submitting || !tanggal || !guru || !sesi || !topik}
+            disabled={submitting || !tanggal || !sesi || !topik}
             style={{
               width: '100%',
               padding: '16px',
               borderRadius: 18,
               border: 'none',
-              cursor: (submitting || !tanggal || !guru || !sesi || !topik) ? 'not-allowed' : 'pointer',
-              background: (submitting || !tanggal || !guru || !sesi || !topik) ? '#CBD5E1' : `linear-gradient(135deg, ${P} 0%, ${V} 100%)`,
-              boxShadow: (!submitting && tanggal && guru && sesi && topik) ? `0 10px 28px rgba(79,70,229,0.4)` : 'none',
+              cursor: (submitting || !tanggal || !sesi || !topik) ? 'not-allowed' : 'pointer',
+              background: (submitting || !tanggal || !sesi || !topik) ? '#CBD5E1' : `linear-gradient(135deg, ${P} 0%, ${V} 100%)`,
+              boxShadow: (!submitting && tanggal && sesi && topik) ? `0 10px 28px rgba(79,70,229,0.4)` : 'none',
               color: '#fff',
               fontWeight: 900,
               fontSize: 16,
