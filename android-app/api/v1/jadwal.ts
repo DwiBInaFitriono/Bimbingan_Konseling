@@ -19,7 +19,7 @@ export default async function handler(req: any, res: any) {
       `;
       const results = await db.execute(query, [student_id]);
       
-      return res.status(200).json({ success: true, data: results.rows });
+      return res.status(200).json({ success: true, data: results });
     } catch (error: any) {
       return res.status(500).json({ success: false, error: error.message });
     }
