@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Download Flutter SistemBK</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 50%, #0F172A 100%);
+    }
+    .card {
+      background: white;
+      border-radius: 24px;
+      padding: 40px 36px;
+      max-width: 420px;
+      width: 90%;
+      box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+      text-align: center;
+    }
+    .icon {
+      width: 72px; height: 72px;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #4F46E5, #7C3AED);
+      display: flex; align-items: center; justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 32px;
+    }
+    h1 { font-size: 22px; font-weight: 900; color: #1E293B; margin-bottom: 8px; }
+    p { font-size: 14px; color: #64748B; line-height: 1.6; margin-bottom: 28px; }
+    .btn {
+      display: inline-flex; align-items: center; gap: 10px;
+      background: linear-gradient(135deg, #4F46E5, #7C3AED);
+      color: white; font-weight: 800; font-size: 16px;
+      padding: 15px 32px; border-radius: 16px; text-decoration: none;
+      box-shadow: 0 10px 28px rgba(79,70,229,0.45);
+      transition: transform 0.15s;
+    }
+    .btn:hover { transform: scale(0.97); }
+    .meta {
+      margin-top: 20px; font-size: 12px; color: #CBD5E1;
+    }
+    .steps {
+      margin-top: 28px; background: #F8FAFC; border-radius: 14px;
+      padding: 16px 20px; text-align: left;
+    }
+    .steps p { margin-bottom: 0; color: #475569; font-size: 13px; }
+    .steps code {
+      display: block; background: #1E293B; color: #7DD3FC;
+      border-radius: 8px; padding: 10px 14px; margin-top: 10px;
+      font-size: 12px; line-height: 1.7; font-family: monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="icon">📱</div>
+    <h1>Flutter SistemBK</h1>
+    <p>Kode Flutter lengkap dengan semua screen dan animasi. Siap di-run di emulator atau HP Android/iOS.</p>
+
+    <a class="btn" href="/flutter_sistembk.zip" download="flutter_sistembk.zip">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
+        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/>
+        <line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      Download ZIP (32 KB)
+    </a>
+
+    <p class="meta">14 file · Flutter 3.x · Dart 3.x</p>
+
+    <div class="steps">
+      <p><strong>Cara pakai setelah download:</strong></p>
+      <code>
+unzip flutter_sistembk.zip<br>
+cd flutter_sistembk<br>
+flutter pub get<br>
+flutter run
+      </code>
+    </div>
+  </div>
+</body>
+</html>
