@@ -1,4 +1,5 @@
 import { db } from './db.js';
+import bcrypt from 'bcryptjs';
 
 export default async function handler(req: any, res: any) {
   if (req.method === 'POST') {
@@ -23,7 +24,8 @@ export default async function handler(req: any, res: any) {
           
           // Verify password - compare with plain text for now
           // TODO: In production, use bcrypt.compare(password, user.password)
-          if (user.password === password) {
+          const isValid = await bcrypt.compare(password, user.password);
+          if (isValid) {
             return res.status(200).json({
               success: true,
               message: 'Login berhasil',
