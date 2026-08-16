@@ -37,7 +37,7 @@ export default async function handler(req: any, res: any) {
       return res.status(401).json({ success: false, message: 'NIS atau Password salah' });
     } catch (error: any) {
       console.error('Login error:', error);
-      return res.status(500).json({ success: false, message: 'Terjadi kesalahan server', error: error.message });
+      return res.status(500).json({ success: false, message: 'Terjadi kesalahan server: ' + (error.message || error.toString()), error: error.stack });
     }
   }
   return res.status(405).json({ success: false, message: 'Method Not Allowed' });
