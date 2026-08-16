@@ -1,0 +1,24 @@
+{
+  "version": 2,
+  "framework": null,
+  "regions": ["sin1"],
+
+  "env": {
+    "APP_NAME": "Sistem BK",
+    "APP_ENV": "production",
+    "APP_KEY": "base64:REDACTED_APP_KEY_SECRET_PLACEHOLDER_KEY=",
+    "APP_DEBUG": "false",
+    "LOG_CHANNEL": "stderr",
+    "DB_CONNECTION": "mysql",
+    "DB_HOST": "database_host.internal",
+    "DB_PORT": "4000",
+    "DB_DATABASE": "test",
+    "DB_USERNAME": "app_user",
+    "DB_PASSWORD": "REDACTED_PASSWORD",
+    "MYSQL_ATTR_SSL_CA": "tidb-ca.pem",
+    "MYSQL_ATTR_SSL_VERIFY_SERVER_CERT": "false",
+    "VIEW_COMPILED_PATH": "/tmp",
+    "CACHE_STORE": "array",
+    "SESSION_DRIVER": "database"
+  }
+}

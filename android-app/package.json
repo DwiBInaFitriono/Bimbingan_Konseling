@@ -1,28 +1,22 @@
 {
-  "name": "figma-make-app",
-  "private": true,
-  "version": "1.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite --host 0.0.0.0",
-    "build": "vite build",
-    "preview": "vite preview",
-    "format": "oxfmt"
-  },
-  "dependencies": {
-    "@tidbcloud/serverless": "^0.3.0",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
-  },
-  "devDependencies": {
-    "@tailwindcss/vite": "^4.0.0",
-    "@types/node": "^22.0.0",
-    "@types/react": "^19.0.0",
-    "@types/react-dom": "^19.0.0",
-    "@vitejs/plugin-react": "^6.0.0",
-    "oxfmt": "^0.2.0",
-    "tailwindcss": "^4.0.0",
-    "typescript": "^5.7.0",
-    "vite": "^8.0.0"
-  }
+    "private": true,
+    "engines": {
+        "node": "24.x"
+    },
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build && node build-vercel.js"
+    },
+    "devDependencies": {
+        "axios": "^1.1.2",
+        "laravel-vite-plugin": "^0.7.2",
+        "vite": "^4.0.0"
+    },
+    "dependencies": {
+        "@fwdmo/percel": "^0.7.2",
+        "@libphp/almalinux-9-v85": "^0.0.3",
+        "@vercel/build-utils": "^13.36.0",
+        "vercel-php": "^0.9.0",
+        "vercel-php-laravel": "^0.6.2"
+    }
 }
