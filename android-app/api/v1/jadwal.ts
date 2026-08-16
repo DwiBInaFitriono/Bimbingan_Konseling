@@ -27,7 +27,7 @@ export default async function handler(req: any, res: any) {
       }
       const query = `
         INSERT INTO counseling_sessions (student_id, type, requested_date, requested_time, topic, description, status, created_at, updated_at) 
-        VALUES (?, ?, ?, ?, ?, ?, 'pending', NOW(), NOW())
+        VALUES (?, ?, ?, ?, ?, ?, 'menunggu', NOW(), NOW())
       `;
       const result = await db.execute(query, [student_id, type, requested_date, requested_time, topic, description || '']);
       return res.status(200).json({ success: true, message: 'Pengajuan berhasil dikirim', result });
