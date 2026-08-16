@@ -38,8 +38,8 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
     try {
       const res = await ApiService.login(nis, pass);
       if (res.success) {
-        // Simpan data user jika diperlukan nantinya
-        // localStorage.setItem('student_data', JSON.stringify(res.student));
+        // Simpan data user
+        localStorage.setItem('student_data', JSON.stringify(res.student));
         onLogin();
       } else {
         setError(res.message || 'Login gagal');

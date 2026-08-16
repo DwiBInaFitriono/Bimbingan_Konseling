@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { ApiService } from '../services/api';
 import { Screen, HistTab } from '../types';
 import { P, V, T, AM, RD, IND } from '../constants';
 import { FU, SIR } from '../components/Animations';
@@ -9,14 +10,33 @@ import { SubHeader } from '../components/SubHeader';
 
 export function DashboardScreen({ navigate }: { navigate: (s: Screen) => void }) {
   const [histTab, setHistTab] = useState<HistTab>('konseling')
+  const [student, setStudent] = useState<any>(null)
+  const [konseling, setKonseling] = useState<any[]>([])
+  const [prestasi, setPrestasi] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
 
-  const konseling = [
-    { id: 1, title: 'Konsultasi Perencanaan Karir & Kuliah RPL', date: '07 Agu 2026', guru: 'Rio S.Pd (Guru BK)', status: 'Disetujui', antrian: 3, perkiraan: '09:30' },
-    { id: 2, title: 'Masalah Adaptasi Lingkungan Baru di Sekolah', date: '02 Agu 2026', guru: 'Rio S.Pd (Guru BK)', status: 'Selesai', antrian: null, perkiraan: null },
-  ]
-  const prestasi = [
-    { id: 1, title: 'Juara 1 Lomba Web Design SMK', date: '15 Jul 2026', level: 'Sekolah', poin: 25 },
-  ]
+  useEffect(() => {
+    const data = localStorage.getItem('student_data');
+    if (data) {
+      const parsed = JSON.parse(data);
+      setStudent(parsed);
+      
+      // Fetch dynamic data
+      Promise.all([
+        ApiService.getRiwayat(parsed.id, 'konseling'),
+        ApiService.getRiwayat(parsed.id, 'prestasi')
+      ]).then(([resK, resP]) => {
+        if (resK.success) setKonseling(resK.data || []);
+        if (resP.success) setPrestasi(resP.data || []);
+        setLoading(false);
+      }).catch(err => {
+        console.error(err);
+        setLoading(false);
+      });
+    } else {
+      setLoading(false);
+    }
+  }, [])
 
   const statusColor = (s: string) => s === 'Disetujui' ? { bg: '#EEF2FF', c: P } : s === 'Selesai' ? { bg: '#F0FDF4', c: T } : { bg: '#FFFBEB', c: AM }
 
@@ -32,8 +52,8 @@ export function DashboardScreen({ navigate }: { navigate: (s: Screen) => void })
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 16 }}>
             <div>
               <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 13, margin: 0, fontWeight: 500 }}>Selamat datang kembali 👋</p>
-              <h1 style={{ color: '#fff', fontWeight: 900, fontSize: 22, fontFamily: 'Nunito', margin: '4px 0 2px', letterSpacing: -0.5 }}>Ahmad Rizky</h1>
-              <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 12, margin: 0 }}>Kelas X RPL 1 · Rekayasa Perangkat Lunak · NIS: 2024001</p>
+              <h1 style={{ color: '#fff', fontWeight: 900, fontSize: 22, fontFamily: 'Nunito', margin: '4px 0 2px', letterSpacing: -0.5 }}>{student?.name || 'Siswa'}</h1>
+              <p style={{ color: 'rgba(255,255,255,0.55)', fontSize: 12, margin: 0 }}>NIS: {student?.nis || '-'}</p>
             </div>
             <button
               style={{ width: 40, height: 40, borderRadius: 14, background: 'rgba(255,255,255,0.15)', border: '1px solid rgba(255,255,255,0.2)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative', flexShrink: 0 }}
@@ -89,8 +109,8 @@ export function DashboardScreen({ navigate }: { navigate: (s: Screen) => void })
                 </div>
                 <span style={{ color: '#64748B', fontSize: 11, fontWeight: 700 }}>Total Konseling</span>
               </div>
-              <div style={{ color: '#1E293B', fontWeight: 900, fontSize: 28, fontFamily: 'Nunito', lineHeight: 1 }}>1</div>
-              <div style={{ marginTop: 4, fontSize: 11, color: '#94A3B8' }}>0 selesai · <span style={{ color: P, fontWeight: 700 }}>1 aktif</span></div>
+              <div style={{ color: '#1E293B', fontWeight: 900, fontSize: 28, fontFamily: 'Nunito', lineHeight: 1 }}>{konseling.length}</div>
+              <div style={{ marginTop: 4, fontSize: 11, color: '#94A3B8' }}><span style={{ color: P, fontWeight: 700 }}>Total sesi</span></div>
             </div>
           </FU>
 
@@ -117,8 +137,8 @@ export function DashboardScreen({ navigate }: { navigate: (s: Screen) => void })
                 </div>
                 <span style={{ color: '#64748B', fontSize: 11, fontWeight: 700 }}>Prestasi</span>
               </div>
-              <div style={{ color: '#1E293B', fontWeight: 900, fontSize: 28, fontFamily: 'Nunito', lineHeight: 1 }}>1</div>
-              <div style={{ marginTop: 4, fontSize: 11, color: '#94A3B8' }}>Juara tingkat sekolah</div>
+              <div style={{ color: '#1E293B', fontWeight: 900, fontSize: 28, fontFamily: 'Nunito', lineHeight: 1 }}>{prestasi.length}</div>
+              <div style={{ marginTop: 4, fontSize: 11, color: '#94A3B8' }}>Prestasi tercatat</div>
             </div>
           </FU>
         </div>
@@ -164,25 +184,24 @@ export function DashboardScreen({ navigate }: { navigate: (s: Screen) => void })
         {/* History list */}
         {histTab === 'konseling' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, animation: 'fadeUp 0.3s ease both' }}>
-            {konseling.map((item, i) => {
-              const sc = statusColor(item.status)
+            {konseling.length === 0 ? (
+              <p style={{ textAlign: 'center', fontSize: 12, color: '#94A3B8', margin: '20px 0' }}>Tidak ada riwayat konseling</p>
+            ) : konseling.map((item, i) => {
+              const statusStr = item.status === 'pending' ? 'Menunggu' : item.status === 'approved' ? 'Disetujui' : item.status === 'completed' ? 'Selesai' : 'Batal';
+              const sc = statusColor(statusStr)
               return (
-                <div key={item.id} style={{ background: '#fff', borderRadius: 18, padding: 16, boxShadow: '0 2px 10px rgba(0,0,0,0.05)', animation: `fadeUp 0.35s ease ${i * 60}ms both` }}>
+                <div key={item.id || i} style={{ background: '#fff', borderRadius: 18, padding: 16, boxShadow: '0 2px 10px rgba(0,0,0,0.05)', animation: `fadeUp 0.35s ease ${i * 60}ms both` }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                        <div style={{ width: 8, height: 8, borderRadius: '50%', background: P, marginTop: 5, flexShrink: 0, animation: item.status === 'Disetujui' ? 'pulseDot 1.5s ease-in-out infinite' : 'none' }} />
-                        <p style={{ fontFamily: 'Nunito', fontWeight: 800, fontSize: 13, color: '#1E293B', margin: 0, lineHeight: 1.4 }}>{item.title}</p>
+                        <div style={{ width: 8, height: 8, borderRadius: '50%', background: P, marginTop: 5, flexShrink: 0, animation: statusStr === 'Disetujui' ? 'pulseDot 1.5s ease-in-out infinite' : 'none' }} />
+                        <p style={{ fontFamily: 'Nunito', fontWeight: 800, fontSize: 13, color: '#1E293B', margin: 0, lineHeight: 1.4 }}>{item.note || item.type || 'Sesi Konseling'}</p>
                       </div>
-                      <p style={{ fontSize: 11, color: '#94A3B8', margin: '6px 0 0 16px' }}>{item.date} · {item.guru}</p>
-                      {item.antrian && (
-                        <div style={{ display: 'flex', gap: 16, marginTop: 8, marginLeft: 16 }}>
-                          <span style={{ fontSize: 11, color: '#64748B' }}>Antrian: <strong style={{ color: '#1E293B' }}>#{item.antrian}</strong></span>
-                          <span style={{ fontSize: 11, color: '#64748B' }}>Perkiraan: <strong style={{ color: P }}>{item.perkiraan}</strong></span>
-                        </div>
-                      )}
+                      <p style={{ fontSize: 11, color: '#94A3B8', margin: '6px 0 0 16px' }}>
+                        {item.schedule_date} {item.schedule_time} {item.counselor_name ? `· ${item.counselor_name}` : ''}
+                      </p>
                     </div>
-                    <span style={{ flexShrink: 0, fontSize: 11, fontWeight: 800, padding: '4px 10px', borderRadius: 8, background: sc.bg, color: sc.c, fontFamily: 'Nunito' }}>{item.status}</span>
+                    <span style={{ flexShrink: 0, fontSize: 11, fontWeight: 800, padding: '4px 10px', borderRadius: 8, background: sc.bg, color: sc.c, fontFamily: 'Nunito' }}>{statusStr}</span>
                   </div>
                 </div>
               )
@@ -192,16 +211,18 @@ export function DashboardScreen({ navigate }: { navigate: (s: Screen) => void })
 
         {histTab === 'prestasi' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10, animation: 'fadeUp 0.3s ease both' }}>
-            {prestasi.map((item, i) => (
-              <div key={item.id} style={{ background: '#fff', borderRadius: 18, padding: 16, boxShadow: '0 2px 10px rgba(0,0,0,0.05)', animation: `fadeUp 0.35s ease ${i * 60}ms both` }}>
+            {prestasi.length === 0 ? (
+              <p style={{ textAlign: 'center', fontSize: 12, color: '#94A3B8', margin: '20px 0' }}>Tidak ada riwayat prestasi</p>
+            ) : prestasi.map((item, i) => (
+              <div key={item.id || i} style={{ background: '#fff', borderRadius: 18, padding: 16, boxShadow: '0 2px 10px rgba(0,0,0,0.05)', animation: `fadeUp 0.35s ease ${i * 60}ms both` }}>
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
                   <div style={{ width: 44, height: 44, borderRadius: 14, background: `linear-gradient(135deg, ${AM} 0%, #D97706 100%)`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><path d="M8 21h8M12 17v4M17 3H7l-2 9h12L17 3zM5 12a7 7 0 0014 0"/></svg>
                   </div>
                   <div>
-                    <p style={{ fontFamily: 'Nunito', fontWeight: 800, fontSize: 13, color: '#1E293B', margin: 0 }}>{item.title}</p>
-                    <p style={{ fontSize: 11, color: '#94A3B8', margin: '4px 0 8px' }}>{item.date} · Tingkat {item.level}</p>
-                    <span style={{ fontSize: 11, fontWeight: 800, padding: '3px 8px', borderRadius: 8, background: '#FEF3C7', color: '#D97706' }}>+{item.poin} poin prestasi</span>
+                    <p style={{ fontFamily: 'Nunito', fontWeight: 800, fontSize: 13, color: '#1E293B', margin: 0 }}>{item.achievement_name}</p>
+                    <p style={{ fontSize: 11, color: '#94A3B8', margin: '4px 0 8px' }}>{item.date} · {item.level}</p>
+                    <span style={{ fontSize: 11, fontWeight: 800, padding: '3px 8px', borderRadius: 8, background: '#FEF3C7', color: '#D97706' }}>+{item.point || 0} poin prestasi</span>
                   </div>
                 </div>
               </div>

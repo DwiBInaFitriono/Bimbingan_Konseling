@@ -17,6 +17,15 @@ export const ApiService = {
     return res.json();
   },
 
+  async postJadwal(data: { student_id: number, type: string, schedule_date: string, schedule_time: string, note: string }) {
+    const res = await fetch(`${API_BASE}/jadwal`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    return res.json();
+  },
+
   async getRiwayat(studentId: number, type: 'konseling' | 'pelanggaran' | 'kasus' | 'prestasi') {
     const res = await fetch(`${API_BASE}/riwayat?student_id=${studentId}&type=${type}`);
     return res.json();

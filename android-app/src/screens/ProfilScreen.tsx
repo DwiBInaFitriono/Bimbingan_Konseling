@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Screen, HistTab } from '../types';
 import { P, V, T, AM, RD, IND } from '../constants';
 import { FU, SIR } from '../components/Animations';
@@ -8,6 +8,19 @@ import { SubHeader } from '../components/SubHeader';
 
 
 export function ProfilScreen({ navigate }: { navigate: (s: Screen) => void }) {
+  const [student, setStudent] = useState<any>(null)
+
+  useEffect(() => {
+    const data = localStorage.getItem('student_data');
+    if (data) {
+      setStudent(JSON.parse(data));
+    }
+  }, [])
+  
+  const handleLogout = () => {
+    localStorage.removeItem('student_data');
+    navigate('login');
+  }
   const menus: { icon: React.ReactNode; label: string; sub: string; screen: Screen; c: string; bg: string; danger?: boolean }[] = [
     {
       icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>,
@@ -27,7 +40,7 @@ export function ProfilScreen({ navigate }: { navigate: (s: Screen) => void }) {
     },
     {
       icon: <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>,
-      label: 'Keluar', sub: 'Logout dari akun ini', screen: 'login', c: RD, bg: '#FFF1F2', danger: true,
+      label: 'Keluar', sub: 'Logout dari akun ini', screen: 'login', c: RD, bg: '#FFF1F2', danger: true, action: handleLogout,
     },
   ]
 
@@ -41,14 +54,14 @@ export function ProfilScreen({ navigate }: { navigate: (s: Screen) => void }) {
           <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', paddingTop: 8 }}>
             <div style={{ position: 'relative', marginBottom: 12 }}>
               <div style={{ width: 82, height: 82, borderRadius: '50%', background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(10px)', border: '2.5px solid rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, fontWeight: 900, color: '#fff', fontFamily: 'Nunito' }}>
-                AR
+                {student?.name ? student.name.substring(0,2).toUpperCase() : 'US'}
               </div>
               <div style={{ position: 'absolute', bottom: -2, right: -2, width: 24, height: 24, borderRadius: '50%', background: T, border: '2px solid rgba(91,33,182)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><path d="M20 6L9 17l-5-5"/></svg>
               </div>
             </div>
-            <h1 style={{ color: '#fff', fontWeight: 900, fontSize: 20, fontFamily: 'Nunito', margin: '0 0 4px', letterSpacing: -0.5 }}>Ahmad Rizky</h1>
-            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 13, margin: '0 0 10px' }}>Kelas X RPL 1 · NIS: 2024001</p>
+            <h1 style={{ color: '#fff', fontWeight: 900, fontSize: 20, fontFamily: 'Nunito', margin: '0 0 4px', letterSpacing: -0.5 }}>{student?.name || 'Siswa'}</h1>
+            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 13, margin: '0 0 10px' }}>NIS: {student?.nis || '-'}</p>
             <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 14px', borderRadius: 20, background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.3)' }}>
               <div style={{ width: 7, height: 7, borderRadius: '50%', background: T, animation: 'pulseDot 1.5s ease-in-out infinite' }} />
               <span style={{ fontSize: 12, fontWeight: 700, color: '#6EE7B7', fontFamily: 'Nunito' }}>Akun Aktif</span>
@@ -72,7 +85,7 @@ export function ProfilScreen({ navigate }: { navigate: (s: Screen) => void }) {
         {menus.map((m, i) => (
           <FU key={i} d={i * 50}>
             <button
-              onClick={() => navigate(m.screen)}
+              onClick={() => m.action ? m.action() : navigate(m.screen)}
               style={{
                 width: '100%',
                 background: '#fff',
