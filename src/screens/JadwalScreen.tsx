@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { ApiService } from '../services/api';
 import { Screen, HistTab } from '../types';
 import { P, V, T, AM, RD, IND } from '../constants';
 import { FU, SIR } from '../components/Animations';
@@ -19,14 +20,38 @@ export function JadwalScreen({ navigate }: { navigate: (s: Screen) => void }) {
 
   const sesiOptions = ['07:00 – 08:00', '08:00 – 09:00', '09:00 – 10:00', '10:00 – 11:00', '13:00 – 14:00']
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!tanggal || !guru || !sesi || !topik) return
     setSubmitting(true)
-    setTimeout(() => {
+
+    const dataStr = localStorage.getItem('student_data');
+    if (!dataStr) {
+      alert("Sesi login tidak ditemukan. Silakan login kembali.");
+      setSubmitting(false);
+      return;
+    }
+    const student = JSON.parse(dataStr);
+
+    try {
+      const res = await ApiService.postJadwal({
+        student_id: student.id,
+        type: tipe,
+        schedule_date: tanggal,
+        schedule_time: sesi.split(' ')[0], // Ambil waktu mulai saja misal "07:00"
+        note: topik + (desc ? ` - ${desc}` : '')
+      });
+
+      if (res.success) {
+        setSubmitted(true)
+        setTimeout(() => { navigate('dashboard'); setSubmitted(false) }, 2200)
+      } else {
+        alert("Gagal mengajukan jadwal: " + res.message);
+      }
+    } catch (err: any) {
+      alert("Error: " + err.message);
+    } finally {
       setSubmitting(false)
-      setSubmitted(true)
-      setTimeout(() => { navigate('dashboard'); setSubmitted(false) }, 2200)
-    }, 1800)
+    }
   }
 
   if (submitted) {
