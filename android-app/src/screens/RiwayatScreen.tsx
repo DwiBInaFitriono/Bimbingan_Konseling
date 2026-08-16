@@ -108,7 +108,7 @@ export function RiwayatScreen() {
       {/* Content */}
       <div style={{ flex: 1, overflowY: 'auto', background: '#F1F5F9', padding: '14px 16px 24px', display: 'flex', flexDirection: 'column', gap: 10 }}>
         {histTab === 'konseling' && data.konseling.map((item, i) => {
-          const statusStr = item.status === 'pending' ? 'Menunggu' : item.status === 'approved' ? 'Disetujui' : item.status === 'completed' ? 'Selesai' : 'Dibatalkan';
+          const statusStr = item.status === 'menunggu' ? 'Menunggu' : item.status === 'disetujui' ? 'Disetujui' : item.status === 'ditolak' ? 'Ditolak' : item.status === 'selesai' ? 'Selesai' : item.status === 'dibatalkan' ? 'Dibatalkan' : item.status;
           const sc = statusColor(statusStr)
           return (
             <div key={item.id} style={{ background: '#fff', borderRadius: 18, padding: 16, boxShadow: '0 2px 10px rgba(0,0,0,0.05)', animation: `fadeUp 0.35s ease ${i * 60}ms both` }}>
