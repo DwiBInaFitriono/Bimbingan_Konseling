@@ -39,7 +39,7 @@ export function RiwayatScreen() {
   return (
     <>
       {/* Header */}
-      <div style={{ background: `linear-gradient(135deg, #5B21B6 0%, ${P} 55%, ${IND} 100%)`, padding: '4px 20px 20px', position: 'relative', overflow: 'hidden', flexShrink: 0 }}>
+      <div style={{ background: `linear-gradient(135deg, #5B21B6 0%, ${P} 55%, ${IND} 100%)`, padding: '16px 20px 20px', position: 'relative', overflow: 'hidden', flexShrink: 0 }}>
         <div style={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, border: '1px solid rgba(255,255,255,0.07)', borderRadius: '50%', pointerEvents: 'none' }} />
         <FU d={0}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
