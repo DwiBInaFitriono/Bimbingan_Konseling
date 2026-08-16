@@ -115,3 +115,14 @@ body {
 .animate-spin {
   animation: spinSlow 1s linear infinite;
 }
+
+@keyframes toastIn {
+  0%   { transform: translateX(120%); opacity: 0; }
+  60%  { transform: translateX(-8px); opacity: 1; }
+  100% { transform: translateX(0);    opacity: 1; }
+}
+
+@keyframes toastOut {
+  0%   { transform: translateX(0);    opacity: 1; }
+  100% { transform: translateX(120%); opacity: 0; }
+}

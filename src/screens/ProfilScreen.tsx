@@ -34,7 +34,7 @@ export function ProfilScreen({ navigate }: { navigate: (s: Screen) => void }) {
   return (
     <div style={{ flex: 1, overflowY: 'auto', background: '#F1F5F9' }}>
       {/* Header */}
-      <div style={{ background: `linear-gradient(135deg, #5B21B6 0%, ${P} 55%, ${IND} 100%)`, padding: '4px 20px 32px', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ background: `linear-gradient(135deg, #5B21B6 0%, ${P} 55%, ${IND} 100%)`, padding: '16px 20px 32px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, border: '1px solid rgba(255,255,255,0.07)', borderRadius: '50%', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', bottom: 0, left: -40, width: 120, height: 120, background: 'rgba(255,255,255,0.04)', borderRadius: '50%', pointerEvents: 'none' }} />
         <FU d={0}>

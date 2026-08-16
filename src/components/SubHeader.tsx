@@ -5,7 +5,7 @@ export function SubHeader({ title, sub, onBack }: { title: string; sub: string; 
   return (
     <div
       className="flex-shrink-0 px-4 pb-4"
-      style={{ background: `linear-gradient(135deg, #5B21B6 0%, ${P} 60%, ${IND} 100%)`, paddingTop: 4, position: 'relative', overflow: 'hidden' }}
+      style={{ background: `linear-gradient(135deg, #5B21B6 0%, ${P} 60%, ${IND} 100%)`, paddingTop: 16, position: 'relative', overflow: 'hidden' }}
     >
       <div style={{ position: 'absolute', top: -40, right: -40, width: 160, height: 160, border: '1px solid rgba(255,255,255,0.08)', borderRadius: '50%', pointerEvents: 'none' }} />
       <div style={{ position: 'absolute', top: 10, right: 20, width: 80, height: 80, border: '1px solid rgba(255,255,255,0.06)', borderRadius: '50%', pointerEvents: 'none' }} />
