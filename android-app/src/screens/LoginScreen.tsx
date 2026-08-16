@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { ApiService } from '../services/api';
 import { Screen, HistTab } from '../types';
 import { P, V, T, AM, RD, IND } from '../constants';
 import { FU, SIR } from '../components/Animations';
@@ -29,11 +30,25 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
     return () => clearTimeout(hideTimer)
   }, [error])
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!nis || !pass) { setError('Lengkapi semua field terlebih dahulu'); return }
     setError('')
     setLoading(true)
-    setTimeout(() => { setLoading(false); onLogin() }, 1800)
+    
+    try {
+      const res = await ApiService.login(nis, pass);
+      if (res.success) {
+        // Simpan data user jika diperlukan nantinya
+        // localStorage.setItem('student_data', JSON.stringify(res.student));
+        onLogin();
+      } else {
+        setError(res.message || 'Login gagal');
+      }
+    } catch (err: any) {
+      setError(err.message || 'Terjadi kesalahan jaringan');
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -216,41 +231,7 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
             )}
           </button>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '16px 0 0' }}>
-            <div style={{ flex: 1, height: 1, background: '#F1F5F9' }} />
-            <span style={{ fontSize: 12, color: '#CBD5E1', fontWeight: 600, whiteSpace: 'nowrap' }}>atau coba tanpa akun</span>
-            <div style={{ flex: 1, height: 1, background: '#F1F5F9' }} />
-          </div>
 
-          <button
-            onClick={onLogin}
-            style={{
-              width: '100%',
-              marginTop: 12,
-              padding: '13px',
-              borderRadius: 18,
-              border: `1.5px dashed ${P}`,
-              cursor: 'pointer',
-              background: '#F8FAFF',
-              color: P,
-              fontWeight: 800,
-              fontSize: 14,
-              fontFamily: 'Nunito',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              transition: 'all 0.2s',
-            }}
-            onMouseDown={e => (e.currentTarget.style.background = '#EEF2FF')}
-            onMouseUp={e => (e.currentTarget.style.background = '#F8FAFF')}
-            onMouseLeave={e => (e.currentTarget.style.background = '#F8FAFF')}
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-              <polygon points="5 3 19 12 5 21 5 3" fill={P} stroke={P}/>
-            </svg>
-            Masuk sebagai Demo
-          </button>
 
           <p style={{ textAlign: 'center', fontSize: 11, color: '#CBD5E1', marginTop: 10, marginBottom: 0, fontWeight: 500 }}>
             Butuh bantuan? Hubungi admin sekolah
