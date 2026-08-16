@@ -9,7 +9,7 @@ export default async function handler(req: any, res: any) {
       const studentResult = await db.execute('SELECT * FROM students WHERE nis = ?', [nis]);
       
       if (studentResult && studentResult.length > 0) {
-        const student = studentResult[0];
+        const student: any = studentResult[0];
         
         // Find the associated user account to verify password
         // In a real app, you would verify the hashed password using bcrypt. 
@@ -17,7 +17,7 @@ export default async function handler(req: any, res: any) {
         const userResult = await db.execute('SELECT * FROM users WHERE id = ?', [student.user_id]);
         
         if (userResult && userResult.length > 0) {
-          const user = userResult[0];
+          const user: any = userResult[0];
           
           return res.status(200).json({ 
             success: true, 
