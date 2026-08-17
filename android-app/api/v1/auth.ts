@@ -1,7 +1,7 @@
 import { db } from './db.js';
 import bcrypt from 'bcryptjs';
-import { signToken } from './_authToken';
-import { checkRateLimit, getClientIp } from './_rateLimit';
+import { signToken } from './_authToken.js';
+import { checkRateLimit, getClientIp } from './_rateLimit.js';
 export default async function handler(req: any, res: any) {
   if (req.method === 'POST') {
     try {

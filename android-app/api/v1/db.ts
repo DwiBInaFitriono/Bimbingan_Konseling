@@ -1,6 +1,6 @@
 import { connect } from '@tidbcloud/serverless';
 
-let connectionString = process.env.DATABASE_URL || 'mysql://app_user:app_password@database_host:4000/sistem_bk';
+const connectionString = process.env.DATABASE_URL;
 
 // DATABASE_URL wajib disetel lewat environment variable (mis. Vercel Project Settings).
 // Jangan pernah menaruh kredensial database langsung di source code.

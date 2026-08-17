@@ -1,5 +1,5 @@
 import { db } from './db.js';
-import { getAuthenticatedStudentId } from './_authToken';
+import { getAuthenticatedStudentId } from './_authToken.js';
 
 export default async function handler(req: any, res: any) {
   // Wajib login: student_id diambil dari token yang sudah diverifikasi,
