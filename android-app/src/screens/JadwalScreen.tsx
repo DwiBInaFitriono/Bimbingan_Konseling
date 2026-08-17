@@ -30,11 +30,9 @@ export function JadwalScreen({ navigate }: { navigate: (s: Screen) => void }) {
       setSubmitting(false);
       return;
     }
-    const student = JSON.parse(dataStr);
 
     try {
       const res = await ApiService.postJadwal({
-        student_id: student.id,
         type: tipe,
         schedule_date: tanggal,
         schedule_time: sesi.split(' ')[0], // Ambil waktu mulai saja misal "07:00"

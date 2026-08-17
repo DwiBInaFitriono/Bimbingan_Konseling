@@ -161,26 +161,7 @@ class CounselingSessionController extends Controller
     }
 
     /**
-     * Tampilan pengajuan konseling untuk Siswa
-     */
-    public function studentIndex()
-    {
-        $user = Auth::user();
-        $student = $user->student;
-
-        if (!$student) {
-            $student = Student::where('full_name', $user->name)->first();
-        }
-
-        $mySessions = $student
-            ? CounselingSession::with('guruBk')->where('student_id', $student->id)->latest()->get()
-            : collect();
-
-        return view('Guru_BK.counseling.siswa_index', compact('student', 'mySessions'));
-    }
-
-    /**
-     * Simpan pengajuan konseling baru (Siswa / Guru BK)
+     * Simpan pengajuan konseling baru (Guru BK)
      */
     public function store(Request $request)
     {
@@ -205,17 +186,9 @@ class CounselingSessionController extends Controller
 
         $user = Auth::user();
 
-        if ($user->isSiswa()) {
-            $student = $user->student;
-            if (!$student) {
-                return back()->with('error', 'Data profil siswa Anda tidak ditemukan.');
-            }
-            $studentId = $student->id;
-        } else {
-            $studentId = $request->student_id;
-            if (!$studentId) {
-                return back()->with('error', 'Silakan pilih siswa terlebih dahulu.');
-            }
+        $studentId = $request->student_id;
+        if (!$studentId) {
+            return back()->with('error', 'Silakan pilih siswa terlebih dahulu.');
         }
 
         $parts = explode(' - ', $request->slot_waktu);
@@ -226,7 +199,7 @@ class CounselingSessionController extends Controller
             'student_id'     => $studentId,
             'additional_student_ids' => $request->type === 'kelompok' ? $request->additional_student_ids : null,
             'case_study_id'  => $request->case_study_id,
-            'guru_bk_id'     => $user->isGuruBk() ? $user->id : $request->guru_bk_id,
+            'guru_bk_id'     => $user->id,
             'requested_date' => $request->requested_date,
             'slot_waktu'     => $request->slot_waktu,
             'available_time_start' => $jam_awal,
@@ -235,13 +208,13 @@ class CounselingSessionController extends Controller
             'topic'          => $request->topic,
             'description'    => $request->description,
             'type'           => $request->type,
-            'status'         => $user->isGuruBk() ? 'disetujui' : 'menunggu',
+            'status'         => 'disetujui',
             'status_antrian' => 'menunggu',
-            'approved_at'    => $user->isGuruBk() ? now() : null,
+            'approved_at'    => now(),
         ]);
 
-        // Jika Guru BK yang membuat, karena auto disetujui, langsung buatkan nomor antrian dan waktu perkiraan
-        if ($user->isGuruBk()) {
+        // Karena auto disetujui, langsung buatkan nomor antrian dan waktu perkiraan
+        {
             $antrian_sebelumnya = CounselingSession::where('requested_date', $session->requested_date)
                 ->where('slot_waktu', $session->slot_waktu)
                 ->where('guru_bk_id', $session->guru_bk_id)
@@ -294,15 +267,12 @@ class CounselingSessionController extends Controller
             if ($caseStudy) {
                 $caseStudy->update([
                     'status' => 'proses',
-                    'handled_by' => $user->isGuruBk() ? $user->id : null,
+                    'handled_by' => $user->id,
                 ]);
             }
         }
 
-        if ($user->isGuruBk()) {
-            return redirect()->route('counseling.index')->with('success', 'Pengajuan jadwal konseling berhasil disimpan.');
-        }
-        return redirect()->route('counseling.siswa')->with('success', 'Pengajuan jadwal konseling berhasil disimpan.');
+        return redirect()->route('counseling.index')->with('success', 'Pengajuan jadwal konseling berhasil disimpan.');
     }
 
     /**
@@ -456,10 +426,7 @@ class CounselingSessionController extends Controller
             $next->update(['status_antrian' => 'sekarang']);
         }
 
-        if (Auth::user()->isGuruBk()) {
-            return redirect()->route('counseling.index')->with('success', 'Pengajuan konseling berhasil dibatalkan.');
-        }
-        return redirect()->route('counseling.siswa')->with('success', 'Pengajuan konseling berhasil dibatalkan.');
+        return redirect()->route('counseling.index')->with('success', 'Pengajuan konseling berhasil dibatalkan.');
     }
 
     /**

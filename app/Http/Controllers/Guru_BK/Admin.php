@@ -20,14 +20,7 @@ class Admin extends Controller
 {
     public function index()
     {
-        $user = Auth::user();
-
-        // Redirect jika role adalah siswa
-        if ($user->isSiswa()) {
-            return redirect()->route('counseling.siswa');
-        }
-
-        $currentUser = $user;
+        $currentUser = Auth::user();
         $totalStudents = Student::count();
         $totalClass = ClassData::count();
         $reportsToday = CaseStudy::whereDate('created_at', Carbon::today())->count();
@@ -191,18 +184,6 @@ class Admin extends Controller
     // Cetak Surat Peringatan / SP Siswa (Poin Pelanggaran)
     public function printWarningLetter(Request $request, $id)
     {
-        $user = Auth::user();
-        if ($user->isSiswa()) {
-            // Siswa hanya boleh melihat/mencetak surat peringatan milik sendiri
-            $studentModel = $user->student;
-            if (!$studentModel) {
-                $studentModel = Student::where('full_name', $user->name)->first();
-            }
-            if (!$studentModel || $studentModel->id != $id) {
-                abort(403, 'Akses ditolak. Anda hanya dapat melihat surat peringatan milik akun Anda sendiri.');
-            }
-        }
-
         $student = Student::with(['class', 'parent', 'pointDatas' => function ($query) {
             $query->orderBy('violation_date', 'asc');
         }])->findOrFail($id);

@@ -21,13 +21,12 @@ export function RiwayatScreen() {
   useEffect(() => {
     const studentData = localStorage.getItem('student_data');
     if (!studentData) return;
-    const studentId = JSON.parse(studentData).id;
 
     Promise.all([
-      ApiService.getRiwayat(studentId, 'konseling'),
-      ApiService.getRiwayat(studentId, 'pelanggaran'),
-      ApiService.getRiwayat(studentId, 'kasus'),
-      ApiService.getRiwayat(studentId, 'prestasi'),
+      ApiService.getRiwayat('konseling'),
+      ApiService.getRiwayat('pelanggaran'),
+      ApiService.getRiwayat('kasus'),
+      ApiService.getRiwayat('prestasi'),
     ]).then(([resK, resP, resKa, resPr]) => {
       setData({
         konseling: resK.success ? resK.data : [],

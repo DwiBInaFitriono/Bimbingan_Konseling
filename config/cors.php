@@ -19,7 +19,11 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['*'],
+    // Sebelumnya '*' (menerima request dari domain manapun). Sekarang dibatasi
+    // lewat env var CORS_ALLOWED_ORIGINS (pisahkan dengan koma), default ke
+    // "tidak ada origin" jika belum diset supaya aman secara default.
+    // Contoh di .env: CORS_ALLOWED_ORIGINS=https://app-android-kamu.vercel.app,https://domain-utama.com
+    'allowed_origins' => array_filter(explode(',', env('CORS_ALLOWED_ORIGINS', ''))),
 
     'allowed_origins_patterns' => [],
 
