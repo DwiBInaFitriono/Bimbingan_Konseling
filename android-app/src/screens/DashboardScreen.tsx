@@ -20,11 +20,11 @@ export function DashboardScreen({ navigate }: { navigate: (s: Screen) => void })
     if (data) {
       const parsed = JSON.parse(data);
       setStudent(parsed);
-      
+
       // Fetch dynamic data
       Promise.all([
-        ApiService.getRiwayat(parsed.id, 'konseling'),
-        ApiService.getRiwayat(parsed.id, 'prestasi')
+        ApiService.getRiwayat('konseling'),
+        ApiService.getRiwayat('prestasi')
       ]).then(([resK, resP]) => {
         if (resK.success) setKonseling(resK.data || []);
         if (resP.success) setPrestasi(resP.data || []);

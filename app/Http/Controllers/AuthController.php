@@ -14,23 +14,10 @@ class AuthController extends Controller
     public function showLoginGuru(): View|RedirectResponse
     {
         if (Auth::check()) {
-            return Auth::user()->isSiswa()
-                ? redirect()->route('counseling.siswa')
-                : redirect()->route('dashboard');
+            return redirect()->route('dashboard');
         }
 
         return view('auth.login_guru');
-    }
-
-    public function showLoginSiswa(): View|RedirectResponse
-    {
-        if (Auth::check()) {
-            return Auth::user()->isSiswa()
-                ? redirect()->route('counseling.siswa')
-                : redirect()->route('dashboard');
-        }
-
-        return view('auth.login_siswa');
     }
 
     public function login(Request $request): RedirectResponse
@@ -50,11 +37,6 @@ class AuthController extends Controller
 
         if (Auth::attempt($attemptData, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            $user = Auth::user();
-
-            if ($user->isSiswa()) {
-                return redirect()->route('counseling.siswa')->with('success', 'Selamat datang di Layanan Konseling Siswa.');
-            }
 
             return redirect()->route('dashboard')->with('success', 'Login berhasil. Selamat bertugas!');
         }
@@ -67,9 +49,7 @@ class AuthController extends Controller
     public function showRegister(): View|RedirectResponse
     {
         if (Auth::check()) {
-            return Auth::user()->isSiswa()
-                ? redirect()->route('counseling.siswa')
-                : redirect()->route('dashboard');
+            return redirect()->route('dashboard');
         }
 
         return view('auth.register');

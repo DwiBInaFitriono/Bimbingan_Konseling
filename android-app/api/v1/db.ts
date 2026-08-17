@@ -1,15 +1,19 @@
 import { connect } from '@tidbcloud/serverless';
 
-let connectionString = process.env.DATABASE_URL;
+const connectionString = process.env.DATABASE_URL;
 
-// Validate that process.env.DATABASE_URL is a valid mysql connection string
+// DATABASE_URL wajib disetel lewat environment variable (mis. Vercel Project Settings).
+// Jangan pernah menaruh kredensial database langsung di source code.
 if (!connectionString || !connectionString.startsWith('mysql://')) {
-  connectionString = 'mysql://app_user:app_password@database_host:4000/sistem_bk';
+  throw new Error(
+    'DATABASE_URL tidak ditemukan atau tidak valid. Set environment variable DATABASE_URL ' +
+    'dengan connection string mysql:// yang valid sebelum menjalankan aplikasi.'
+  );
 }
 
-// Ensure SSL parameters are appended
-if (!connectionString.includes('ssl=')) {
-  connectionString += connectionString.includes('?') ? '&ssl={"rejectUnauthorized":true}' : '?ssl={"rejectUnauthorized":true}';
-}
+// Pastikan parameter SSL ikut disertakan
+const finalConnectionString = connectionString.includes('ssl=')
+  ? connectionString
+  : connectionString + (connectionString.includes('?') ? '&ssl={"rejectUnauthorized":true}' : '?ssl={"rejectUnauthorized":true}');
 
-export const db = connect({ url: connectionString });
+export const db = connect({ url: finalConnectionString });

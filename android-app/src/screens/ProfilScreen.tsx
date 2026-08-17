@@ -5,6 +5,7 @@ import { FU, SIR } from '../components/Animations';
 import { StatusBar } from '../components/StatusBar';
 import { BottomNav } from '../components/BottomNav';
 import { SubHeader } from '../components/SubHeader';
+import { ApiService } from '../services/api';
 
 
 export function ProfilScreen({ navigate }: { navigate: (s: Screen) => void }) {
@@ -16,9 +17,9 @@ export function ProfilScreen({ navigate }: { navigate: (s: Screen) => void }) {
       setStudent(JSON.parse(data));
     }
   }, [])
-  
+
   const handleLogout = () => {
-    localStorage.removeItem('student_data');
+    ApiService.logout();
     navigate('login');
   }
   const menus: { icon: React.ReactNode; label: string; sub: string; screen: Screen; c: string; bg: string; danger?: boolean; action?: () => void }[] = [

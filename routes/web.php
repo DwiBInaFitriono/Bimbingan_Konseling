@@ -11,8 +11,6 @@ use App\Http\Controllers\Guru_BK\ParentStudent;
 use App\Http\Controllers\Guru_BK\DataPoint;
 use App\Http\Controllers\Guru_BK\CounselingSessionController;
 
-use App\Http\Controllers\Siswa\CounselingSessionController as SiswaCounseling;
-use App\Http\Controllers\Siswa\StudentController as SiswaStudent;
 use App\Http\Middleware\CheckRole;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -25,9 +23,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     if (Auth::check()) {
-        return Auth::user()->isSiswa()
-            ? redirect()->route('dashboard.siswa')
-            : redirect()->route('dashboard');
+        return redirect()->route('dashboard');
     }
     return redirect()->route('login.gurubk');
 });
@@ -36,14 +32,18 @@ Route::middleware('guest')->group(function () {
     // Route bawaan laravel diarahkan ke gurubk sebagai default
     Route::get('/login', function() { return redirect()->route('login.gurubk'); })->name('login');
     
-    // 2 Aplikasi / Pintu Masuk Terpisah
+    // Pintu masuk Guru BK / Admin
     Route::get('/login/gurubk', [AuthController::class, 'showLoginGuru'])->name('login.gurubk');
-    Route::get('/login/siswa', [AuthController::class, 'showLoginSiswa'])->name('login.siswa');
     
-    // Endpoint validasi tetap satu untuk memproses auth
-    Route::post('/login/perform', [AuthController::class, 'login'])->name('login.perform');
+    // Endpoint validasi tetap satu untuk memproses auth.
+    // Rate limit 5 percobaan/menit per kombinasi IP+email untuk mencegah brute-force.
+    Route::post('/login/perform', [AuthController::class, 'login'])
+        ->middleware('throttle:5,1')
+        ->name('login.perform');
     Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
-    Route::post('/register', [AuthController::class, 'register'])->name('register.perform');
+    Route::post('/register', [AuthController::class, 'register'])
+        ->middleware('throttle:5,1')
+        ->name('register.perform');
 });
 
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->name('logout');
@@ -57,15 +57,6 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/profile/update', [ProfileController::class, 'updateProfile'])->name('profile.update');
     Route::post('/password/update', [ProfileController::class, 'updatePassword'])->name('password.update');
-
-    // Route Khusus Siswa
-    Route::middleware(CheckRole::class . ':siswa')->group(function () {
-        Route::get('/dashboard-siswa', [SiswaStudent::class, 'dashboard'])->name('dashboard.siswa');
-        Route::get('/konseling-siswa', [SiswaCounseling::class, 'studentIndex'])->name('counseling.siswa');
-        Route::post('/konseling-siswa/simpan', [SiswaCounseling::class, 'store'])->name('counseling.store');
-        Route::post('/konseling-siswa/batalkan/{id}', [SiswaCounseling::class, 'cancel'])->name('counseling.cancel');
-        Route::get('/siswa/cetak-peringatan/{id}', [SiswaStudent::class, 'printWarningLetter'])->name('siswa.cetak.peringatan');
-    });
 
     // Route khusus Guru BK / Admin
     Route::middleware(CheckRole::class . ':guru_bk')->group(function () {
