@@ -15,6 +15,7 @@
     "MYSQL_ATTR_SSL_CA": "tidb-ca.pem",
     "MYSQL_ATTR_SSL_VERIFY_SERVER_CERT": "false",
     "VIEW_COMPILED_PATH": "/tmp",
+    "CACHE_DRIVER": "array",
     "CACHE_STORE": "array",
     "SESSION_DRIVER": "database"
   }
