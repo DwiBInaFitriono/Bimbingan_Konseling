@@ -22,3 +22,6 @@ AGENT_DIRECTIVES.md
 .cursorrules
 AGENTS.md
 CLAUDE.md
+
+.vercel
+.env*

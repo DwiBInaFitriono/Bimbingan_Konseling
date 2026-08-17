@@ -1,6 +1,21 @@
 {
   "version": 2,
   "framework": null,
-  "regions": ["sin1"]
+  "regions": [
+    "sin1"
+  ],
+  "env": {
+    "APP_NAME": "Sistem BK",
+    "APP_ENV": "production",
+    "APP_DEBUG": "false",
+    "LOG_CHANNEL": "stderr",
+    "DB_CONNECTION": "mysql",
+    "DB_PORT": "4000",
+    "MYSQL_ATTR_SSL_CA": "tidb-ca.pem",
+    "MYSQL_ATTR_SSL_VERIFY_SERVER_CERT": "false",
+    "VIEW_COMPILED_PATH": "/tmp",
+    "CACHE_DRIVER": "array",
+    "CACHE_STORE": "array",
+    "SESSION_DRIVER": "database"
+  }
 }
-
