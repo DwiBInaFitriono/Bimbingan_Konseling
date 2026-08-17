@@ -41,7 +41,10 @@ export default async function handler(req: any, res: any) {
               success: true,
               message: 'Login berhasil',
               token,
-              student: student,
+              student: {
+                ...student,
+                name: student.nama || student.nama_lengkap || student.name || user.name
+              },
               user: { id: user.id, name: user.name, email: user.email, role: user.role }
             });
           }
