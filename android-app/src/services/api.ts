@@ -14,7 +14,6 @@ function authHeaders(): Record<string, string> {
 // Helper function to handle API responses
 async function handleResponse(res: Response) {
   const contentType = res.headers.get('content-type');
-
   // Sesi habis/tidak valid -> paksa balik ke halaman login
   if (res.status === 401) {
     localStorage.removeItem('auth_token');
@@ -26,14 +25,12 @@ async function handleResponse(res: Response) {
     const text = await res.text();
     throw new Error(text || 'Server mengembalikan respons non-JSON');
   }
-
   const data = await res.json();
 
   // If response is not OK, throw error with message from server
   if (!res.ok) {
     throw new Error(data.message || data.error || `HTTP error ${res.status}`);
   }
-
   return data;
 }
 
@@ -58,7 +55,7 @@ export const ApiService = {
     return handleResponse(res);
   },
 
-  async postJadwal(data: { type: string, schedule_date: string, schedule_time: string, note: string }) {
+  async postJadwal(data: { type: string, requested_date: string, requested_time: string, topic: string, description?: string }) {
     const res = await fetch(`${API_BASE}/jadwal`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', ...authHeaders() },
@@ -70,6 +67,31 @@ export const ApiService = {
   async getRiwayat(type: 'konseling' | 'pelanggaran' | 'kasus' | 'prestasi') {
     const res = await fetch(`${API_BASE}/riwayat?type=${type}`, {
       headers: { ...authHeaders() },
+    });
+    return handleResponse(res);
+  },
+
+  async getProfil() {
+    const res = await fetch(`${API_BASE}/profil`, {
+      headers: { ...authHeaders() },
+    });
+    return handleResponse(res);
+  },
+
+  async updateProfil(data: { email?: string; phone_number?: string; address?: string }) {
+    const res = await fetch(`${API_BASE}/profil`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', ...authHeaders() },
+      body: JSON.stringify(data),
+    });
+    return handleResponse(res);
+  },
+
+  async ubahPassword(old_password: string, new_password: string) {
+    const res = await fetch(`${API_BASE}/profil`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', ...authHeaders() },
+      body: JSON.stringify({ old_password, new_password }),
     });
     return handleResponse(res);
   },

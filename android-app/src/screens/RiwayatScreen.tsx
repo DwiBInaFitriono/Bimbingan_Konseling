@@ -107,7 +107,7 @@ export function RiwayatScreen() {
       {/* Content */}
       <div style={{ flex: 1, overflowY: 'auto', background: '#F1F5F9', padding: '14px 16px 24px', display: 'flex', flexDirection: 'column', gap: 10 }}>
         {histTab === 'konseling' && data.konseling.map((item, i) => {
-          const statusStr = item.status === 'pending' ? 'Menunggu' : item.status === 'approved' ? 'Disetujui' : item.status === 'completed' ? 'Selesai' : 'Batal';
+          const statusStr = item.status === 'menunggu' ? 'Menunggu' : item.status === 'disetujui' ? 'Disetujui' : item.status === 'ditolak' ? 'Ditolak' : item.status === 'selesai' ? 'Selesai' : item.status === 'dibatalkan' ? 'Dibatalkan' : item.status;
           const sc = statusColor(statusStr)
           return (
             <div key={item.id} style={{ background: '#fff', borderRadius: 18, padding: 16, boxShadow: '0 2px 10px rgba(0,0,0,0.05)', animation: `fadeUp 0.35s ease ${i * 60}ms both` }}>
@@ -115,9 +115,10 @@ export function RiwayatScreen() {
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
                     <div style={{ width: 8, height: 8, borderRadius: '50%', background: P, marginTop: 5, flexShrink: 0, animation: statusStr === 'Disetujui' ? 'pulseDot 1.5s ease-in-out infinite' : 'none' }} />
-                    <p style={{ fontFamily: 'Nunito', fontWeight: 800, fontSize: 13, color: '#1E293B', margin: 0, lineHeight: 1.4 }}>{item.note || item.type || 'Sesi Konseling'}</p>
+                    <p style={{ fontFamily: 'Nunito', fontWeight: 800, fontSize: 13, color: '#1E293B', margin: 0, lineHeight: 1.4 }}>{item.topic || item.type || 'Sesi Konseling'}</p>
                   </div>
-                  <p style={{ fontSize: 11, color: '#94A3B8', margin: '6px 0 0 16px' }}>{item.schedule_date} {item.schedule_time} {item.counselor_name ? `· ${item.counselor_name}` : ''}</p>
+                  <p style={{ fontSize: 11, color: '#94A3B8', margin: '6px 0 0 16px' }}>{item.requested_date} {item.requested_time ? `· ${item.requested_time}` : ''} {item.counselor_name ? `· ${item.counselor_name}` : ''}</p>
+                  {item.description && <p style={{ fontSize: 12, color: '#64748B', margin: '4px 0 0 16px', lineHeight: 1.5 }}>{item.description}</p>}
                 </div>
                 <span style={{ flexShrink: 0, fontSize: 11, fontWeight: 800, padding: '4px 10px', borderRadius: 8, background: sc.bg, color: sc.c, fontFamily: 'Nunito' }}>{statusStr}</span>
               </div>
@@ -133,10 +134,10 @@ export function RiwayatScreen() {
               </div>
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <p style={{ fontFamily: 'Nunito', fontWeight: 800, fontSize: 13, color: '#1E293B', margin: 0 }}>{item.category_name || 'Pelanggaran'}</p>
-                  <span style={{ fontSize: 11, fontWeight: 900, padding: '3px 8px', borderRadius: 8, background: '#FFF1F2', color: RD, flexShrink: 0, marginLeft: 8 }}>-{item.category_point || 0} poin</span>
+                  <p style={{ fontFamily: 'Nunito', fontWeight: 800, fontSize: 13, color: '#1E293B', margin: 0 }}>{item.violation || item.category_name || 'Pelanggaran'}</p>
+                  <span style={{ fontSize: 11, fontWeight: 900, padding: '3px 8px', borderRadius: 8, background: '#FFF1F2', color: RD, flexShrink: 0, marginLeft: 8 }}>+{item.point_number || 0} poin</span>
                 </div>
-                <p style={{ fontSize: 11, color: '#94A3B8', margin: '4px 0 6px' }}>{item.created_at?.split('T')[0]}</p>
+                <p style={{ fontSize: 11, color: '#94A3B8', margin: '4px 0 6px' }}>{item.violation_date || item.created_at?.split('T')[0]}</p>
                 <p style={{ fontSize: 12, color: '#64748B', margin: 0, lineHeight: 1.5 }}>{item.description}</p>
               </div>
             </div>
@@ -167,9 +168,10 @@ export function RiwayatScreen() {
               <div style={{ flex: 1 }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                   <p style={{ fontFamily: 'Nunito', fontWeight: 800, fontSize: 13, color: '#1E293B', margin: 0 }}>{item.achievement_name}</p>
-                  <span style={{ fontSize: 11, fontWeight: 900, padding: '3px 8px', borderRadius: 8, background: '#FEF3C7', color: '#D97706', flexShrink: 0, marginLeft: 8 }}>+{item.point || 0} poin</span>
+                  <span style={{ fontSize: 10, fontWeight: 900, padding: '3px 8px', borderRadius: 8, background: '#EEF2FF', color: P, flexShrink: 0, marginLeft: 8, textTransform: 'capitalize' }}>{item.achievement_status || 'Aktif'}</span>
                 </div>
-                <p style={{ fontSize: 11, color: '#94A3B8', margin: '4px 0 6px' }}>{item.date} · Tingkat {item.level}</p>
+                <p style={{ fontSize: 11, color: '#94A3B8', margin: '4px 0 6px' }}>{item.achievement_date} {item.achievement_level ? `· Tingkat ${item.achievement_level}` : ''}</p>
+                {item.description && <p style={{ fontSize: 12, color: '#64748B', margin: 0, lineHeight: 1.5 }}>{item.description}</p>}
               </div>
             </div>
           </div>

@@ -1,8 +1,7 @@
+import { db } from './db.js';
 import bcrypt from 'bcryptjs';
-import { db } from './db';
 import { signToken } from './_authToken';
 import { checkRateLimit, getClientIp } from './_rateLimit';
-
 export default async function handler(req: any, res: any) {
   if (req.method === 'POST') {
     try {
@@ -30,7 +29,6 @@ export default async function handler(req: any, res: any) {
 
         if (userResult && userResult.length > 0) {
           const user: any = userResult[0];
-
           // Verifikasi password menggunakan bcrypt. Hash yang dibuat oleh
           // Laravel (Hash::make, prefix $2y$) tetap kompatibel dengan bcryptjs.
           const isPasswordValid = typeof user.password === 'string' && user.password.startsWith('$2')
@@ -53,7 +51,7 @@ export default async function handler(req: any, res: any) {
       return res.status(401).json({ success: false, message: 'NIS atau Password salah' });
     } catch (error: any) {
       console.error('Login error:', error);
-      return res.status(500).json({ success: false, message: 'Terjadi kesalahan server' });
+      return res.status(500).json({ success: false, message: 'Terjadi kesalahan server: ' + (error.message || error.toString()), error: error.stack });
     }
   }
   return res.status(405).json({ success: false, message: 'Method Not Allowed' });
