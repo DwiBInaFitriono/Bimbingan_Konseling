@@ -26,7 +26,7 @@
                 <div class="card-body pt-4">
                     {{-- Filter Form --}}
                     <form method="GET" action="{{ route('counseling.report') }}" class="row g-3 mb-4 p-3 bg-light rounded-3 border">
-                        <div class="col-md-4">
+                        <div class="col-md-2">
                             <label class="form-label fw-bold">Pilih Bulan</label>
                             <select name="month" class="form-select">
                                 @for($m = 1; $m <= 12; $m++)
@@ -36,7 +36,7 @@
                                 @endfor
                             </select>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-2">
                             <label class="form-label fw-bold">Pilih Tahun</label>
                             <select name="year" class="form-select">
                                 @for($y = date('Y') - 5; $y <= date('Y'); $y++)
@@ -46,12 +46,33 @@
                                 @endfor
                             </select>
                         </div>
-                        <div class="col-md-4 d-flex align-items-end gap-2">
-                            <button type="submit" class="btn btn-primary fw-semibold w-50">
-                                <i class="bi bi-filter"></i> Tampilkan
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Pilih Siswa</label>
+                            <select name="student_id" class="form-select">
+                                <option value="">Semua Siswa</option>
+                                @foreach($students as $s)
+                                    <option value="{{ $s->id }}" {{ $studentId == $s->id ? 'selected' : '' }}>
+                                        {{ $s->full_name }} ({{ $s->class?->school_class_name ?? 'Tanpa Kelas' }})
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label fw-bold">Status</label>
+                            <select name="status" class="form-select">
+                                <option value="all" {{ $status == 'all' ? 'selected' : '' }}>Semua Status</option>
+                                <option value="menunggu" {{ $status == 'menunggu' ? 'selected' : '' }}>Menunggu</option>
+                                <option value="disetujui" {{ $status == 'disetujui' ? 'selected' : '' }}>Disetujui</option>
+                                <option value="selesai" {{ $status == 'selesai' ? 'selected' : '' }}>Selesai</option>
+                                <option value="ditolak" {{ $status == 'ditolak' ? 'selected' : '' }}>Ditolak</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end gap-2">
+                            <button type="submit" class="btn btn-primary fw-semibold w-100" title="Terapkan Filter">
+                                <i class="bi bi-search"></i>
                             </button>
-                            <a href="{{ route('counseling.report.pdf', ['month' => $month, 'year' => $year]) }}" class="btn btn-danger fw-semibold w-50" target="_blank">
-                                <i class="bi bi-file-earmark-pdf"></i> Cetak PDF
+                            <a href="{{ route('counseling.report.pdf', ['month' => $month, 'year' => $year, 'student_id' => $studentId, 'status' => $status]) }}" class="btn btn-danger fw-semibold w-100" target="_blank" title="Cetak PDF">
+                                <i class="bi bi-printer"></i>
                             </a>
                         </div>
                     </form>
@@ -73,7 +94,7 @@
                                 @forelse ($reports as $c)
                                     <tr>
                                         <td class="text-center">{{ $loop->iteration }}</td>
-                                        <td class="text-center">{{ \Carbon\Carbon::parse($c->requested_date)->format('d M Y') }}</td>
+                                        <td class="text-center">{{ $c->requested_date ? \Carbon\Carbon::parse($c->requested_date)->format('d M Y') : '-' }}</td>
                                         <td>
                                             <strong>{{ $c->student?->full_name ?? 'Siswa Terhapus' }}</strong><br>
                                             @if($c->type === 'kelompok' && $c->additionalStudents()->isNotEmpty())

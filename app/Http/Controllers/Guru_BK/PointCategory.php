@@ -31,6 +31,13 @@ class PointCategory extends Controller
      */
     public function storePointCategory(Request $request)
     {
+        $request->validate([
+            'category_of_violation' => 'required|string',
+            'category_score_min' => 'required|integer',
+            'category_score_max' => 'required|integer',
+            'follow_up' => 'required|string',
+        ]);
+
         DataPointCategory::create([
             'category_of_violation' => $request->category_of_violation,
             'category_score_min' => $request->category_score_min,
@@ -54,7 +61,8 @@ class PointCategory extends Controller
      */
     public function editPointCategory($id)
     {
-        $data = DataPointCategory::find($id);
+        $id = (int) $id;
+        $data = DataPointCategory::findOrFail($id);
         return view('Guru_BK.PointCategory.edit', compact('data'));
     }
 
@@ -63,7 +71,15 @@ class PointCategory extends Controller
      */
     public function updatePointCategory(Request $request, $id)
     {
-        $data = DataPointCategory::find($id);
+        $id = (int) $id;
+        $request->validate([
+            'category_of_violation' => 'required|string',
+            'category_score_min' => 'required|integer',
+            'category_score_max' => 'required|integer',
+            'follow_up' => 'required|string',
+        ]);
+
+        $data = DataPointCategory::findOrFail($id);
         $data->category_of_violation = $request->category_of_violation;
         $data->category_score_min = $request->category_score_min;
         $data->category_score_max = $request->category_score_max;
@@ -79,7 +95,8 @@ class PointCategory extends Controller
      */
     public function destroyPointCategory($id)
     {
-        $data = DataPointCategory::find($id);
+        $id = (int) $id;
+        $data = DataPointCategory::findOrFail($id);
 
         $data->delete();
 

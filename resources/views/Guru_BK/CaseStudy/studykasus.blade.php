@@ -373,8 +373,8 @@
                                             <tr>
                                                 <td>{{ $index + 1 }}</td>
                                                 <td>
-                                                    <div class="fw-bold text-dark">{{ $data->student->full_name ?? 'N/A' }}</div>
-                                                    <small class="text-muted"><i class="bi bi-person-badge me-1"></i>{{ $data->student->class?->grade ?? '-' }} - {{ $data->student->class?->school_class_name ?? 'Tanpa Kelas' }}</small>
+                                                    <div class="fw-bold text-dark">{{ $data->student?->full_name ?? 'N/A' }}</div>
+                                                    <small class="text-muted"><i class="bi bi-person-badge me-1"></i>{{ $data->student?->class?->grade ?? '-' }} - {{ $data->student?->class?->school_class_name ?? 'Tanpa Kelas' }}</small>
                                                 </td>
                                                 <td>
                                                     <div class="fw-bold text-dark text-truncate" style="max-width: 250px;" title="{{ $data->case_title }}">{{ $data->case_title }}</div>
@@ -445,7 +445,11 @@
                                                                 </a>
                                                             </li>
                                                             <li>
-                                                                <a class="dropdown-item d-flex align-items-center py-2 text-danger" href="javascript:void(0)" onclick="swalConfirm('Yakin ingin menghapus catatan pelanggaran ini?', function(){ window.location='{{ url('hapusstudykasus/' . $data->id) }}'; })">
+                                                                <form id="delete-form-kasus-{{ $data->id }}" action="{{ url('hapusstudykasus/' . $data->id) }}" method="POST" class="d-none">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                </form>
+                                                                <a class="dropdown-item d-flex align-items-center py-2 text-danger" href="javascript:void(0)" onclick="swalConfirm('Yakin ingin menghapus catatan pelanggaran ini?', function(){ document.getElementById('delete-form-kasus-{{ $data->id }}').submit(); })">
                                                                     <i class="bi bi-trash me-2"></i> Hapus
                                                                 </a>
                                                             </li>
@@ -488,9 +492,9 @@
                             <div class="row g-3 mb-4">
                                 <div class="col-md-6 border-end">
                                     <small class="text-muted d-block text-uppercase fw-bold mb-1">Informasi Siswa</small>
-                                    <h6 class="fw-bold text-dark mb-0">{{ $data->student->full_name ?? '-' }}</h6>
-                                    <small class="text-muted d-block">NIS: {{ $data->student->nis ?? '-' }}</small>
-                                    <small class="text-muted d-block mb-2">Kelas: {{ $data->student->class?->grade ?? '-' }} - {{ $data->student->class?->school_class_name ?? 'Tanpa Kelas' }}</small>
+                                    <h6 class="fw-bold text-dark mb-0">{{ $data->student?->full_name ?? '-' }}</h6>
+                                    <small class="text-muted d-block">NIS: {{ $data->student?->nis ?? '-' }}</small>
+                                    <small class="text-muted d-block mb-2">Kelas: {{ $data->student?->class?->grade ?? '-' }} - {{ $data->student?->class?->school_class_name ?? 'Tanpa Kelas' }}</small>
                                 </div>
                                 <div class="col-md-6">
                                     <small class="text-muted d-block text-uppercase fw-bold mb-1">Detail Laporan</small>
@@ -567,7 +571,7 @@
                             </div>
                             <div class="modal-body p-4">
                                 <div class="alert alert-info py-2 px-3 mb-3">
-                                    Anda akan mengubah status kasus <strong>"{{ $data->case_title }}"</strong> yang dialami oleh <strong>{{ $data->student->full_name ?? '-' }}</strong> menjadi <strong>Selesai</strong>.
+                                    Anda akan mengubah status kasus <strong>"{{ $data->case_title }}"</strong> yang dialami oleh <strong>{{ $data->student?->full_name ?? '-' }}</strong> menjadi <strong>Selesai</strong>.
                                 </div>
                                 
                                 <div class="mb-3">
@@ -603,7 +607,7 @@
                             </div>
                             <div class="modal-body p-4">
                                 <div class="alert alert-warning py-2 px-3 mb-3">
-                                    Anda akan memproses sanksi poin pelanggaran atas laporan kasus <strong>"{{ $data->case_title }}"</strong> siswa <strong>{{ $data->student->full_name ?? '-' }}</strong>.
+                                    Anda akan memproses sanksi poin pelanggaran atas laporan kasus <strong>"{{ $data->case_title }}"</strong> siswa <strong>{{ $data->student?->full_name ?? '-' }}</strong>.
                                 </div>
                                 
                                 <div class="mb-3">

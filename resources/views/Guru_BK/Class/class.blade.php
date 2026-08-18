@@ -199,7 +199,11 @@
                                                         </a>
                                                     </li>
                                                     <li>
-                                                        <a class="dropdown-item d-flex align-items-center py-2 text-danger" href="javascript:void(0)" onclick="swalConfirm('Yakin ingin menghapus kelas ini?', function(){ window.location='{{ url('hapuskelas/' . $kelas->id) }}'; })">
+                                                        <form id="delete-form-kelas-{{ $kelas->id }}" action="{{ url('hapuskelas/' . $kelas->id) }}" method="POST" class="d-none">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                        </form>
+                                                        <a class="dropdown-item d-flex align-items-center py-2 text-danger" href="javascript:void(0)" onclick="swalConfirm('Yakin ingin menghapus kelas ini?', function(){ document.getElementById('delete-form-kelas-{{ $kelas->id }}').submit(); })">
                                                             <i class="bi bi-trash me-2"></i> Hapus
                                                         </a>
                                                     </li>

@@ -140,8 +140,8 @@
                                                     <small class="text-muted">{{ $c->student?->class?->school_class_name }}</small>
                                                 </td>
                                                 <td>
-                                                    <small><i class="bi bi-calendar me-1"></i>{{ $c->requested_date?->format('d/m/Y') }}</small><br>
-                                                    <small class="text-muted"><i class="bi bi-clock me-1"></i>{{ \Carbon\Carbon::parse($c->requested_time)->format('H:i') }}</small>
+                                                    <small><i class="bi bi-calendar me-1"></i>{{ $c->requested_date ? \Carbon\Carbon::parse($c->requested_date)->format('d/m/Y') : '-' }}</small><br>
+                                                    <small class="text-muted"><i class="bi bi-clock me-1"></i>{{ $c->requested_time ? \Carbon\Carbon::parse($c->requested_time)->format('H:i') : '-' }}</small>
                                                 </td>
                                                 <td><small>{{ \Illuminate\Support\Str::limit($c->topic ?? '', 25) }}</small></td>
                                                 <td>

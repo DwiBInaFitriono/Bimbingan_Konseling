@@ -184,7 +184,11 @@
                                                     </li>
                                                     @endif
                                                     <li>
-                                                        <a class="dropdown-item d-flex align-items-center py-2 text-danger" href="javascript:void(0)" onclick="swalConfirm('Yakin ingin menghapus data pelanggaran ini?', function(){ window.location='{{ url('hapuspoint/' . $point->id) }}'; })">
+                                                        <form id="delete-form-point-{{ $point->id }}" action="{{ url('hapuspoint/' . $point->id) }}" method="POST" class="d-none">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                        </form>
+                                                        <a class="dropdown-item d-flex align-items-center py-2 text-danger" href="javascript:void(0)" onclick="swalConfirm('Yakin ingin menghapus data pelanggaran ini?', function(){ document.getElementById('delete-form-point-{{ $point->id }}').submit(); })">
                                                             <i class="bi bi-trash me-2"></i> Hapus
                                                         </a>
                                                     </li>

@@ -233,7 +233,11 @@
                                                         </a>
                                                     </li>
                                                     <li>
-                                                        <a class="dropdown-item d-flex align-items-center py-2 text-danger" href="javascript:void(0)" onclick="swalConfirm('Yakin ingin menghapus data orang tua ini?', function(){ window.location='{{ url('/hapusparent/' . $parent->id) }}'; })">
+                                                        <form id="delete-form-parent-{{ $parent->id }}" action="{{ url('/hapusparent/' . $parent->id) }}" method="POST" class="d-none">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                        </form>
+                                                        <a class="dropdown-item d-flex align-items-center py-2 text-danger" href="javascript:void(0)" onclick="swalConfirm('Yakin ingin menghapus data orang tua ini?', function(){ document.getElementById('delete-form-parent-{{ $parent->id }}').submit(); })">
                                                             <i class="bi bi-trash me-2"></i> Hapus
                                                         </a>
                                                     </li>

@@ -21,7 +21,7 @@
     </div><!-- End Logo -->
 
     <div class="search-bar">
-        <form class="search-form d-flex align-items-center" method="POST" action="#">
+        <form class="search-form d-flex align-items-center" method="GET" action="#">
             <input type="text" name="query" placeholder="Cari..." title="Masukkan kata kunci pencarian">
             <button type="submit" title="Cari"><i class="bi bi-search"></i></button>
         </form>
@@ -39,15 +39,23 @@
             <li class="nav-item dropdown pe-3">
 
                 <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-                    <span class="profile-avatar rounded-circle d-inline-flex align-items-center justify-content-center">
-                        {{ $profileInitials ?: 'P' }}
-                    </span>
+                    @if($profileUser?->photo)
+                        <img src="{{ asset('storage/' . $profileUser->photo) }}" alt="Profile" class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover;">
+                    @else
+                        <span class="profile-avatar rounded-circle d-inline-flex align-items-center justify-content-center">
+                            {{ $profileInitials ?: 'P' }}
+                        </span>
+                    @endif
                     <span class="d-none d-md-block dropdown-toggle ps-2">{{ $profileUser?->name ?? 'Pengguna' }}</span>
                 </a><!-- End Profile Iamge Icon -->
 
                 <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
                     <li class="dropdown-header">
-                        <img src="{{ asset('assets/img/profile-img.jpg') }}" alt="Foto Profil" class="profile-dropdown-photo rounded-circle mb-3">
+                        @if($profileUser?->photo)
+                            <img src="{{ asset('storage/' . $profileUser->photo) }}" alt="Foto Profil" class="profile-dropdown-photo rounded-circle mb-3" style="width: 72px; height: 72px; object-fit: cover;">
+                        @else
+                            <img src="{{ asset('assets/img/profile-img.jpg') }}" alt="Foto Profil" class="profile-dropdown-photo rounded-circle mb-3" style="width: 72px; height: 72px; object-fit: cover;">
+                        @endif
                         <h6>{{ $profileUser?->name ?? 'Pengguna' }}</h6>
                         <span>{{ $profileUser?->email ?? 'Email tidak tersedia' }}</span>
                     </li>
@@ -57,23 +65,14 @@
 
                     <li>
                         <a class="dropdown-item d-flex align-items-center" href="{{ route('profile.show') }}">
-                            <i class="bi bi-person"></i>
-                            <span>Profil Saya</span>
-                        </a>
-                    </li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
-
-                    <li>
-                        <a class="dropdown-item d-flex align-items-center" href="{{ route('settings.index') }}">
-                            <i class="bi bi-gear"></i>
+                            <i class="bi bi-person-gear"></i>
                             <span>Pengaturan Akun</span>
                         </a>
                     </li>
                     <li>
                         <hr class="dropdown-divider">
                     </li>
+
 
                     <li>
                         <a class="dropdown-item d-flex align-items-center" href="{{ route('help.center') }}">

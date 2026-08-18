@@ -33,6 +33,15 @@ class Achievements extends Controller
      */
     public function storeAchievement(Request $request)
     {
+        $request->validate([
+            'student_id' => 'required|exists:students,id',
+            'achievement_name' => 'required|string',
+            'achievement_date' => 'required|date',
+            'achievement_level' => 'required|string',
+            'achievement_category' => 'required|string',
+            'achievement_status' => 'required|string',
+        ]);
+
         Achievement::create([
             'student_id' => $request->student_id,
             'achievement_name' => $request->achievement_name,
@@ -58,7 +67,8 @@ class Achievements extends Controller
      */
     public function editAchievement($id)
     {
-        $dataprestasi = Achievement::find($id);
+        $id = (int) $id;
+        $dataprestasi = Achievement::findOrFail($id);
         $datasiswa = Student::all();
         return view('Guru_BK.Achievement.edit', compact('dataprestasi', 'datasiswa'));
     }
@@ -68,7 +78,17 @@ class Achievements extends Controller
      */
     public function updateAchievement(Request $request, $id)
     {
-        $dataprestasi = Achievement::find($id);
+        $id = (int) $id;
+        $request->validate([
+            'student_id' => 'required|exists:students,id',
+            'achievement_name' => 'required|string',
+            'achievement_date' => 'required|date',
+            'achievement_level' => 'required|string',
+            'achievement_category' => 'required|string',
+            'achievement_status' => 'required|string',
+        ]);
+
+        $dataprestasi = Achievement::findOrFail($id);
         $dataprestasi->student_id = $request->student_id;
         $dataprestasi->achievement_name = $request->achievement_name;
         $dataprestasi->achievement_date = $request->achievement_date;
@@ -87,7 +107,8 @@ class Achievements extends Controller
      */
     public function destroyAchievement($id)
     {
-        $dataprestasi = Achievement::find($id);
+        $id = (int) $id;
+        $dataprestasi = Achievement::findOrFail($id);
 
         $dataprestasi->delete();
 

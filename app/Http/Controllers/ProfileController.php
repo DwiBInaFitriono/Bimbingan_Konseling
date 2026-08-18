@@ -22,7 +22,18 @@ class ProfileController extends Controller
             'nip'   => ['nullable', 'string', 'max:50'],
             'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
             'phone' => ['nullable', 'string', 'max:20'],
+            'profile_image' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:800'],
         ]);
+
+        if ($request->hasFile('profile_image')) {
+            $imagePath = $request->file('profile_image')->store('profile_photos', 'public');
+            $validated['photo'] = $imagePath;
+            
+            // Delete old photo if exists
+            if ($user->photo && \Illuminate\Support\Facades\Storage::disk('public')->exists($user->photo)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($user->photo);
+            }
+        }
 
         $user->update($validated);
 

@@ -410,7 +410,7 @@
                                                     @endif
                                                     <div>
                                                         <span class="badge bg-secondary bg-opacity-10 text-secondary border px-2 py-1 me-1">{{ ucfirst($session->type) }}</span>
-                                                        <small class="text-muted fw-semibold"><i class="bi bi-calendar3 me-1 text-primary"></i>{{ $session->requested_date?->format('d M Y') }} - {{ \Carbon\Carbon::parse($session->requested_time)->format('H:i') }} WIB</small>
+                                                        <small class="text-muted fw-semibold"><i class="bi bi-calendar3 me-1 text-primary"></i>{{ $session->requested_date ? \Carbon\Carbon::parse($session->requested_date)->format('d M Y') : '-' }} - {{ $session->requested_time ? \Carbon\Carbon::parse($session->requested_time)->format('H:i') : '-' }} WIB</small>
                                                     </div>
                                                 </td>
                                                 <td class="text-center text-nowrap">
@@ -462,7 +462,11 @@
                                                              @endif
 
                                                              <li>
-                                                                 <a class="dropdown-item d-flex align-items-center py-2 text-danger" href="javascript:void(0)" onclick="swalConfirm('Yakin ingin menghapus jadwal konseling ini?', function(){ window.location='{{ route('counseling.destroy', $session->id) }}'; })">
+                                                                 <form id="delete-form-counseling-{{ $session->id }}" action="{{ route('counseling.destroy', $session->id) }}" method="POST" class="d-none">
+                                                                     @csrf
+                                                                     @method('DELETE')
+                                                                 </form>
+                                                                 <a class="dropdown-item d-flex align-items-center py-2 text-danger" href="javascript:void(0)" onclick="swalConfirm('Yakin ingin menghapus jadwal konseling ini?', function(){ document.getElementById('delete-form-counseling-{{ $session->id }}').submit(); })">
                                                                      <i class="bi bi-trash me-2"></i> Hapus
                                                                  </a>
                                                              </li>

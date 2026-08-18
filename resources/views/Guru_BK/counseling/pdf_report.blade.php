@@ -81,7 +81,7 @@
             @forelse ($reports as $c)
                 <tr>
                     <td class="text-center">{{ $loop->iteration }}</td>
-                    <td class="text-center">{{ \Carbon\Carbon::parse($c->requested_date)->format('d-m-Y') }}<br>{{ \Carbon\Carbon::parse($c->requested_time)->format('H:i') }}</td>
+                    <td class="text-center">{{ $c->requested_date ? \Carbon\Carbon::parse($c->requested_date)->format('d-m-Y') : '-' }}<br>{{ $c->requested_time ? \Carbon\Carbon::parse($c->requested_time)->format('H:i') : '-' }}</td>
                     <td>
                         {{ $c->student?->full_name ?? 'Siswa Terhapus' }}<br>
                         @if($c->type === 'kelompok' && $c->additionalStudents()->isNotEmpty())

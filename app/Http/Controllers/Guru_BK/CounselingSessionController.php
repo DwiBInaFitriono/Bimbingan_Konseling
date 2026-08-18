@@ -68,17 +68,17 @@ class CounselingSessionController extends Controller
             return response()->json([
                 'currentQueue' => $currentQueue ? [
                     'no_antrian' => $currentQueue->no_antrian,
-                    'student_name' => $currentQueue->student->full_name ?? 'Siswa',
-                    'class_name' => $currentQueue->student->class->school_class_name ?? null,
+                    'student_name' => $currentQueue->student?->full_name ?? 'Siswa',
+                    'class_name' => $currentQueue->student?->class?->school_class_name ?? null,
                     'topic' => \Illuminate\Support\Str::limit($currentQueue->topic, 30),
-                    'waktu_perkiraan' => substr($currentQueue->waktu_perkiraan ?? $currentQueue->requested_time, 0, 5),
+                    'waktu_perkiraan' => substr((string) ($currentQueue->waktu_perkiraan ?? $currentQueue->requested_time), 0, 5),
                 ] : null,
                 'nextQueue' => $nextQueue ? [
                     'no_antrian' => $nextQueueNumber,
-                    'student_name' => $nextQueue->student->full_name ?? 'Siswa',
-                    'class_name' => $nextQueue->student->class->school_class_name ?? null,
+                    'student_name' => $nextQueue->student?->full_name ?? 'Siswa',
+                    'class_name' => $nextQueue->student?->class?->school_class_name ?? null,
                     'topic' => \Illuminate\Support\Str::limit($nextQueue->topic, 30),
-                    'waktu_perkiraan' => substr($nextQueue->waktu_perkiraan ?? $nextQueue->requested_time, 0, 5),
+                    'waktu_perkiraan' => substr((string) ($nextQueue->waktu_perkiraan ?? $nextQueue->requested_time), 0, 5),
                 ] : null,
                 'pendingCount' => $pendingCount,
                 'approvedCount' => $approvedCount,
@@ -99,12 +99,12 @@ class CounselingSessionController extends Controller
      */
     public function report(Request $request)
     {
-        $month = $request->input('month', date('n'));
-        $year = $request->input('year', date('Y'));
-        $studentId = $request->input('student_id');
+        $month = (int) $request->input('month', date('n'));
+        $year = (int) $request->input('year', date('Y'));
+        $studentId = $request->input('student_id') ? (int) $request->input('student_id') : null;
         $status = $request->input('status', 'all');
 
-        $query = CounselingSession::with(['student.class', 'guruBk'])
+        $query = CounselingSession::with(['student.class', 'guruBk', 'additionalStudents'])
             ->whereMonth('requested_date', $month)
             ->whereYear('requested_date', $year);
 
@@ -128,12 +128,12 @@ class CounselingSessionController extends Controller
      */
     public function exportPdf(Request $request)
     {
-        $month = $request->input('month', date('n'));
-        $year = $request->input('year', date('Y'));
-        $studentId = $request->input('student_id');
+        $month = (int) $request->input('month', date('n'));
+        $year = (int) $request->input('year', date('Y'));
+        $studentId = $request->input('student_id') ? (int) $request->input('student_id') : null;
         $status = $request->input('status', 'all');
 
-        $query = CounselingSession::with(['student.class', 'guruBk'])
+        $query = CounselingSession::with(['student.class', 'guruBk', 'additionalStudents'])
             ->whereMonth('requested_date', $month)
             ->whereYear('requested_date', $year);
 
@@ -280,6 +280,7 @@ class CounselingSessionController extends Controller
      */
     public function approve(Request $request, $id)
     {
+        $id = (int) $id;
         $session = CounselingSession::findOrFail($id);
 
         // 1. Hitung antrian sebelumnya (gunakan whereIn untuk array)
@@ -353,6 +354,7 @@ class CounselingSessionController extends Controller
      */
     public function reject(Request $request, $id)
     {
+        $id = (int) $id;
         $session = CounselingSession::findOrFail($id);
         $session->update([
             'status'     => 'ditolak',
@@ -368,6 +370,7 @@ class CounselingSessionController extends Controller
      */
     public function complete(Request $request, $id)
     {
+        $id = (int) $id;
         $session = CounselingSession::findOrFail($id);
         $session->update([
             'status'         => 'selesai',
@@ -408,6 +411,7 @@ class CounselingSessionController extends Controller
      */
     public function cancel($id)
     {
+        $id = (int) $id;
         $session = CounselingSession::findOrFail($id);
         $session->update([
             'status'         => 'dibatalkan',
@@ -434,6 +438,7 @@ class CounselingSessionController extends Controller
      */
     public function destroy($id)
     {
+        $id = (int) $id;
         $session = CounselingSession::findOrFail($id);
         $session->delete();
 

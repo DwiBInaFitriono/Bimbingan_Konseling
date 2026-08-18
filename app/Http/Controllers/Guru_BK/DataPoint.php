@@ -64,6 +64,7 @@ class DataPoint extends Controller
      */
     public function editPoint($id)
     {
+        $id = (int) $id;
         $data = PointData::findOrFail($id);
         $datasiswa = Student::with('class')->get();
         return view('Guru_BK.Point.edit', compact('data', 'datasiswa'));
@@ -74,6 +75,7 @@ class DataPoint extends Controller
      */
     public function updatePoint(Request $request, $id)
     {
+        $id = (int) $id;
         $request->validate([
             'student_id'   => 'required|exists:students,id',
             'violation'    => 'required|string|max:255',
@@ -108,6 +110,7 @@ class DataPoint extends Controller
      */
     public function destroyPoint($id)
     {
+        $id = (int) $id;
         $data = PointData::findOrFail($id);
         $student = $data->student;
         $data->delete();

@@ -85,16 +85,9 @@
         <li class="nav-heading">PENGATURAN</li>
 
         <li class="nav-item">
-            <a class="nav-link {{ request()->routeIs('profile.show') ? '' : 'collapsed' }}" href="{{ route('profile.show') }}">
-                <i class="bi bi-person-gear"></i>
-                <span>Profil Saya</span>
-            </a>
-        </li>
-
-        <li class="nav-item">
             <a class="nav-link {{ request()->routeIs('settings.index') ? '' : 'collapsed' }}" href="{{ route('settings.index') }}">
                 <i class="bi bi-gear"></i>
-                <span>Pengaturan Akun</span>
+                <span>Pengaturan</span>
             </a>
         </li>
 

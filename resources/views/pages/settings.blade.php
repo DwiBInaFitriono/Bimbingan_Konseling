@@ -6,172 +6,120 @@
 </head>
 
 <body>
-    @php
-        $settingsUser = auth()->user();
-    @endphp
-
     @include('include.header')
     @include('include.sidebar')
 
     <main id="main" class="main">
         <div class="pagetitle">
-            <h1>Pengaturan Akun</h1>
+            <h1>Pengaturan Aplikasi</h1>
             <nav>
                 <ol class="breadcrumb">
                     <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Beranda</a></li>
-                    <li class="breadcrumb-item active">Pengaturan Akun</li>
+                    <li class="breadcrumb-item active">Pengaturan Aplikasi</li>
                 </ol>
             </nav>
         </div>
 
-        {{-- Flash Messages --}}
-        @if($errors->any())
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <i class="bi bi-exclamation-triangle me-1"></i>
-                <ul class="mb-0">
-                    @foreach($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        @endif
-
         <section class="section">
             <div class="row">
-                {{-- Update Profile Section --}}
-                <div class="col-lg-6">
-                    <div class="card">
+                {{-- Preferensi Tampilan --}}
+                <div class="col-lg-6 mb-4">
+                    <div class="card h-100">
                         <div class="card-body">
                             <h5 class="card-title">
-                                <i class="bi bi-person-circle me-2 text-primary"></i>Informasi Profil
+                                <i class="bi bi-palette me-2 text-primary"></i>Preferensi Tampilan
                             </h5>
-                            <p class="text-muted small mb-4">Perbarui informasi nama dan email akun Anda.</p>
-
-                            <form method="POST" action="{{ route('profile.update') }}">
-                                @csrf
-
-                                <div class="mb-3">
-                                    <label for="settingsName" class="form-label">Nama Lengkap <span class="text-danger">*</span></label>
-                                    <input name="name" type="text" class="form-control @error('name') is-invalid @enderror" id="settingsName" value="{{ old('name', $settingsUser?->name) }}" placeholder="Masukkan nama lengkap">
-                                    @error('name')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="settingsEmail" class="form-label">Email <span class="text-danger">*</span></label>
-                                    <input name="email" type="email" class="form-control @error('email') is-invalid @enderror" id="settingsEmail" value="{{ old('email', $settingsUser?->email) }}" placeholder="Masukkan email">
-                                    @error('email')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <button type="submit" class="btn btn-primary w-100">
-                                    <i class="bi bi-check-lg me-1"></i>Simpan Perubahan Profil
-                                </button>
-                            </form>
+                            <p class="text-muted small mb-4">Sesuaikan tampilan antarmuka aplikasi sesuai kenyamanan Anda.</p>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Tema Aplikasi</label>
+                                <select class="form-select">
+                                    <option value="light" selected>Terang (Light Mode)</option>
+                                    <option value="dark">Gelap (Dark Mode)</option>
+                                    <option value="system">Sistem Otomatis</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label fw-bold">Ukuran Font</label>
+                                <select class="form-select">
+                                    <option value="small">Kecil</option>
+                                    <option value="medium" selected>Sedang (Default)</option>
+                                    <option value="large">Besar</option>
+                                </select>
+                            </div>
+                            
+                            <button class="btn btn-outline-primary mt-2">Simpan Preferensi</button>
                         </div>
                     </div>
                 </div>
 
-                {{-- Update Password Section --}}
-                <div class="col-lg-6">
-                    <div class="card">
+                {{-- Pengaturan Notifikasi --}}
+                <div class="col-lg-6 mb-4">
+                    <div class="card h-100">
                         <div class="card-body">
                             <h5 class="card-title">
-                                <i class="bi bi-shield-lock me-2 text-warning"></i>Keamanan Password
+                                <i class="bi bi-bell me-2 text-warning"></i>Pengaturan Notifikasi
                             </h5>
-                            <p class="text-muted small mb-4">Pastikan akun Anda menggunakan password yang kuat dan unik.</p>
+                            <p class="text-muted small mb-4">Pilih notifikasi apa saja yang ingin Anda terima.</p>
+                            
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="notifJadwal" checked>
+                                <label class="form-check-label" for="notifJadwal">Pemberitahuan Jadwal Konseling Baru</label>
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="notifPelanggaran" checked>
+                                <label class="form-check-label" for="notifPelanggaran">Peringatan Poin Pelanggaran Siswa Tinggi</label>
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="notifLaporan">
+                                <label class="form-check-label" for="notifLaporan">Pengingat Laporan Bulanan</label>
+                            </div>
+                            <div class="form-check form-switch mb-3">
+                                <input class="form-check-input" type="checkbox" id="notifEmail" checked>
+                                <label class="form-check-label" for="notifEmail">Kirim Notifikasi via Email</label>
+                            </div>
 
-                            <form method="POST" action="{{ route('password.update') }}">
-                                @csrf
-
-                                <div class="mb-3">
-                                    <label for="settingsCurrentPassword" class="form-label">Password Saat Ini <span class="text-danger">*</span></label>
-                                    <input name="current_password" type="password" class="form-control @error('current_password') is-invalid @enderror" id="settingsCurrentPassword" placeholder="Masukkan password saat ini">
-                                    @error('current_password')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="settingsNewPassword" class="form-label">Password Baru <span class="text-danger">*</span></label>
-                                    <input name="password" type="password" class="form-control @error('password') is-invalid @enderror" id="settingsNewPassword" placeholder="Masukkan password baru (min. 6 karakter)">
-                                    @error('password')
-                                        <div class="invalid-feedback">{{ $message }}</div>
-                                    @enderror
-                                </div>
-
-                                <div class="mb-3">
-                                    <label for="settingsConfirmPassword" class="form-label">Konfirmasi Password Baru <span class="text-danger">*</span></label>
-                                    <input name="password_confirmation" type="password" class="form-control" id="settingsConfirmPassword" placeholder="Ulangi password baru">
-                                </div>
-
-                                <button type="submit" class="btn btn-warning w-100">
-                                    <i class="bi bi-key me-1"></i>Ubah Password
-                                </button>
-                            </form>
+                            <button class="btn btn-outline-warning mt-2">Simpan Notifikasi</button>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            {{-- Account Info Section --}}
-            <div class="row">
-                <div class="col-12">
+                {{-- Pengaturan Sistem --}}
+                <div class="col-lg-12">
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">
-                                <i class="bi bi-info-circle me-2 text-info"></i>Informasi Akun
+                                <i class="bi bi-gear-wide-connected me-2 text-secondary"></i>Pengaturan Sistem Dasar
                             </h5>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="border rounded p-3 text-center">
-                                        <i class="bi bi-calendar-check fs-3 text-primary"></i>
-                                        <h6 class="mt-2 mb-1">Tanggal Daftar</h6>
-                                        <span class="text-muted">{{ $settingsUser?->created_at ? $settingsUser->created_at->format('d F Y') : '-' }}</span>
-                                    </div>
+                            
+                            <div class="row mt-3">
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-bold">Bahasa Sistem</label>
+                                    <select class="form-select">
+                                        <option value="id" selected>Bahasa Indonesia</option>
+                                        <option value="en">English</option>
+                                    </select>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="border rounded p-3 text-center">
-                                        <i class="bi bi-clock-history fs-3 text-success"></i>
-                                        <h6 class="mt-2 mb-1">Terakhir Diperbarui</h6>
-                                        <span class="text-muted">{{ $settingsUser?->updated_at ? $settingsUser->updated_at->diffForHumans() : '-' }}</span>
-                                    </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-bold">Zona Waktu</label>
+                                    <select class="form-select">
+                                        <option value="asia-jakarta" selected>Asia/Jakarta (WIB)</option>
+                                        <option value="asia-makassar">Asia/Makassar (WITA)</option>
+                                        <option value="asia-jayapura">Asia/Jayapura (WIT)</option>
+                                    </select>
                                 </div>
-                                <div class="col-md-4">
-                                    <div class="border rounded p-3 text-center">
-                                        <i class="bi bi-shield-check fs-3 text-warning"></i>
-                                        <h6 class="mt-2 mb-1">Status Akun</h6>
-                                        <span class="badge bg-success">Aktif</span>
-                                    </div>
+                                <div class="col-md-4 mb-3">
+                                    <label class="form-label fw-bold">Tahun Ajaran Aktif</label>
+                                    <select class="form-select">
+                                        <option value="2025-2026">2025/2026</option>
+                                        <option value="2026-2027" selected>2026/2027</option>
+                                    </select>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
 
-            {{-- Danger Zone --}}
-            <div class="row">
-                <div class="col-12">
-                    <div class="card border-danger">
-                        <div class="card-body">
-                            <h5 class="card-title text-danger">
-                                <i class="bi bi-exclamation-triangle me-2"></i>Zona Berbahaya
-                            </h5>
-                            <div class="d-flex justify-content-between align-items-center">
-                                <div>
-                                    <h6 class="mb-1">Keluar dari Akun</h6>
-                                    <p class="text-muted mb-0 small">Anda akan diarahkan kembali ke halaman login.</p>
-                                </div>
-                                <form method="POST" action="{{ route('logout') }}">
-                                    @csrf
-                                    <button type="submit" class="btn btn-outline-danger">
-                                        <i class="bi bi-box-arrow-right me-1"></i>Keluar
-                                    </button>
-                                </form>
+                            <div class="mt-3">
+                                <button class="btn btn-primary px-4"><i class="bi bi-save me-2"></i>Simpan Konfigurasi Sistem</button>
                             </div>
                         </div>
                     </div>

@@ -119,7 +119,7 @@
                                 @forelse ($prestasi as $data)
                                     <tr>
                                         <td>{{ $loop->iteration }}</td>
-                                        <td class="fw-bold text-dark">{{ $data->student->full_name }}</td>
+                                        <td class="fw-bold text-dark">{{ $data->student?->full_name ?? 'Siswa Terhapus' }}</td>
                                         <td>
                                             <div class="fw-bold text-success text-truncate" style="max-width: 250px;" title="{{ $data->achievement_name }}">
                                                 <i class="bi bi-trophy me-1"></i>{{ $data->achievement_name }}
@@ -158,7 +158,11 @@
                                                         </a>
                                                     </li>
                                                     <li>
-                                                        <a class="dropdown-item d-flex align-items-center py-2 text-danger" href="javascript:void(0)" onclick="swalConfirm('Yakin ingin menghapus data prestasi ini?', function(){ window.location='{{ url('/hapusprestasi/' . $data->id) }}'; })">
+                                                        <form id="delete-form-prestasi-{{ $data->id }}" action="{{ url('/hapusprestasi/' . $data->id) }}" method="POST" class="d-none">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                        </form>
+                                                        <a class="dropdown-item d-flex align-items-center py-2 text-danger" href="javascript:void(0)" onclick="swalConfirm('Yakin ingin menghapus data prestasi ini?', function(){ document.getElementById('delete-form-prestasi-{{ $data->id }}').submit(); })">
                                                             <i class="bi bi-trash me-2"></i> Hapus
                                                         </a>
                                                     </li>
@@ -326,6 +330,36 @@
     </div>
 
     <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const searchInput = document.getElementById('searchPrestasi');
+            const tableRows = document.querySelectorAll('#tabelPrestasi tbody tr');
+            const noResultMsg = document.getElementById('noResultPrestasi');
+
+            if(searchInput) {
+                searchInput.addEventListener('keyup', function () {
+                    const filter = this.value.toLowerCase();
+                    let hasVisibleRow = false;
+
+                    tableRows.forEach(row => {
+                        if(row.cells.length === 1) return; // Skip empty row
+                        
+                        const text = row.textContent.toLowerCase();
+                        if (text.includes(filter)) {
+                            row.style.display = '';
+                            hasVisibleRow = true;
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+
+                    if (noResultMsg) {
+                        const isEmptyRowVisible = tableRows.length === 1 && tableRows[0].cells.length === 1;
+                        noResultMsg.classList.toggle('d-none', hasVisibleRow || isEmptyRowVisible);
+                    }
+                });
+            }
+        });
+
         function openEditModalPrestasi(id, student_id, date, name, level, category, status) {
             document.getElementById('formEditPrestasi').action = '/updateprestasi/' + id;
             document.getElementById('edit_achievement_date').value = date;

@@ -363,7 +363,11 @@
                                 {{-- Photo Section --}}
                                 <div class="profile-photo-section">
                                     <div class="photo-wrapper">
-                                        <img src="{{ asset('assets/img/profile-img.jpg') }}" alt="Foto Profil" id="profilePreview">
+                                        @if($pageUser?->photo)
+                                            <img src="{{ asset('storage/' . $pageUser->photo) }}" alt="Foto Profil" id="profilePreview">
+                                        @else
+                                            <img src="{{ asset('assets/img/profile-img.jpg') }}" alt="Foto Profil" id="profilePreview">
+                                        @endif
                                     </div>
                                     <div class="profile-photo-actions">
                                         <input type="file" name="profile_image" id="profileImageInput" class="d-none" accept="image/*" onchange="previewImage(this)">

@@ -24,7 +24,7 @@
             // Prevent double initialization
             if (!select.classList.contains('choices-initialized')) {
                 select.choicesObj = new Choices(select, {
-                    searchEnabled: false,
+                    searchEnabled: true,
                     itemSelectText: '',
                     shouldSort: false,
                     placeholder: true,

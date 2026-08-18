@@ -141,7 +141,11 @@
                                                         </a>
                                                     </li>
                                                     <li>
-                                                        <a class="dropdown-item d-flex align-items-center py-2 text-danger" href="javascript:void(0)" onclick="swalConfirm('Yakin ingin menghapus kategori ini?', function(){ window.location='{{ url('/hapuskategori/' . $data->id) }}'; })">
+                                                        <form id="delete-form-kategori-{{ $data->id }}" action="{{ url('/hapuskategori/' . $data->id) }}" method="POST" class="d-none">
+                                                            @csrf
+                                                            @method('DELETE')
+                                                        </form>
+                                                        <a class="dropdown-item d-flex align-items-center py-2 text-danger" href="javascript:void(0)" onclick="swalConfirm('Yakin ingin menghapus kategori ini?', function(){ document.getElementById('delete-form-kategori-{{ $data->id }}').submit(); })">
                                                             <i class="bi bi-trash me-2"></i> Hapus
                                                         </a>
                                                     </li>
