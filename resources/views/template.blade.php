@@ -28,6 +28,23 @@
             </nav>
         </div><!-- End Page Title -->
 
+        @php
+            $currentHour = (int) now()->format('H');
+            if ($currentHour >= 4 && $currentHour < 11) {
+                $serverGreeting = 'Selamat pagi';
+            } elseif ($currentHour >= 11 && $currentHour < 15) {
+                $serverGreeting = 'Selamat siang';
+            } elseif ($currentHour >= 15 && $currentHour < 18) {
+                $serverGreeting = 'Selamat sore';
+            } else {
+                $serverGreeting = 'Selamat malam';
+            }
+
+            \Carbon\Carbon::setLocale('id');
+            $serverDate = now()->translatedFormat('l, d F Y');
+            $serverClock = now()->format('H:i:s') . ' WIB';
+        @endphp
+
         <div class="col-12 mb-3">
             <div class="welcome-hero-card p-3 p-md-4 rounded-3 shadow-xs border position-relative overflow-hidden">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-2">
@@ -37,15 +54,15 @@
                         </div>
                         <div>
                             <h4 class="welcome-title mb-0">
-                                <span id="dynamicGreeting">Selamat datang</span>, 
+                                <span id="dynamicGreeting">{{ $serverGreeting }}</span>, 
                                 <span class="welcome-name">{{ $welcomeUser?->name ?? 'Guru BK' }}</span>
                             </h4>
                         </div>
                     </div>
                     <div class="welcome-date-chip d-none d-sm-inline-flex align-items-center gap-2">
                         <i class="bi bi-calendar3 text-primary"></i>
-                        <span class="welcome-date-text" id="welcomeLiveDate">Memuat tanggal...</span>
-                        <span class="welcome-clock-badge font-monospace" id="welcomeLiveClock">--:--:-- WIB</span>
+                        <span class="welcome-date-text" id="welcomeLiveDate">{{ $serverDate }}</span>
+                        <span class="welcome-clock-badge font-monospace" id="welcomeLiveClock">{{ $serverClock }}</span>
                     </div>
                 </div>
 
@@ -234,18 +251,7 @@
 
     <script>
         (function () {
-            // 1. Dynamic Greeting based on time of day
-            const hour = new Date().getHours();
-            let greeting = 'Selamat datang';
-            if (hour >= 4 && hour < 11) greeting = 'Selamat pagi';
-            else if (hour >= 11 && hour < 15) greeting = 'Selamat siang';
-            else if (hour >= 15 && hour < 18) greeting = 'Selamat sore';
-            else greeting = 'Selamat malam';
-
-            const greetingEl = document.getElementById('dynamicGreeting');
-            if (greetingEl) greetingEl.textContent = greeting;
-
-            // 2. Realtime Date & Clock Ticker
+            // Realtime Clock Ticker (detik berjalan)
             const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
             const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
 
@@ -260,14 +266,13 @@
                 if (clockEl) {
                     const h = String(now.getHours()).padStart(2, '0');
                     const m = String(now.getMinutes()).padStart(2, '0');
-                    const s = String(now.getSeconds()).padStart(2, '0');
                     clockEl.textContent = `${h}:${m}:${s} WIB`;
                 }
             }
             tickClock();
-            setInterval(tickClock, 1000);
+            setInterval(tickClock, 500);
 
-            // 3. Grounded BK Motivational Quotations Rotator (Anti-slop)
+            // Grounded BK Motivational Quotations Rotator (Anti-slop)
             const quotes = [
                 "Layanan bimbingan dan konseling siap mendampingi perkembangan siswa hari ini.",
                 "Catat setiap sesi konseling dan pantau perkembangan karakter siswa secara berkala.",
@@ -278,8 +283,7 @@
 
             const quoteEl = document.getElementById('animatedQuote');
             if (quoteEl) {
-                let currentIndex = Math.floor(Math.random() * quotes.length);
-                quoteEl.textContent = quotes[currentIndex];
+                let currentIndex = 0;
 
                 setInterval(() => {
                     quoteEl.classList.add('quote-fade-out');

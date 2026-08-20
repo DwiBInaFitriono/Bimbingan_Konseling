@@ -13,7 +13,7 @@
 {{-- Container Toast Notification Real-Time --}}
 <div class="toast-container position-fixed top-0 end-0 mt-5 me-3 pt-3 p-3" style="z-index: 11000; pointer-events: none;" id="liveToastContainer"></div>
 
-<script src="{{ asset('assets/js/script.js') }}?v={{ time() }}"></script>
+<script src="{{ asset('assets/js/script.js') }}?v=1.2.0"></script>
 
 <!-- Choices.js JS for beautiful dropdowns -->
 <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>

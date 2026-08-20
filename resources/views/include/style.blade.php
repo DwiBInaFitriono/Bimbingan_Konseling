@@ -6,10 +6,14 @@
 <link href="{{ asset('assets/img/favicon.png') }}" rel="icon">
 <link href="{{ asset('assets/img/apple-touch-icon.png') }}" rel="apple-touch-icon">
 
+<!-- Preload Icon Fonts for Instant Rendering -->
+<link rel="preload" href="{{ asset('assets/vendor/bootstrap-icons/fonts/bootstrap-icons.woff2?dd67030699838ea613ee6dbda90effa6') }}" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="{{ asset('assets/vendor/boxicons/fonts/boxicons.woff2') }}" as="font" type="font/woff2" crossorigin>
+
 <!-- Google Fonts -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Open+Sans:wght@300;400;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Open+Sans:wght@400;600;700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
 <!-- Vendor CSS Files -->
 <link href="{{ asset('assets/vendor/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet">
@@ -20,8 +24,8 @@
 <link href="{{ asset('assets/vendor/remixicon/remixicon.css') }}" rel="stylesheet">
 <link href="{{ asset('assets/vendor/simple-datatables/style.css') }}" rel="stylesheet">
 
-<!-- Template Main CSS File -->
-<link href="{{ asset('assets/css/style.css') }}?v={{ time() }}" rel="stylesheet">
+<!-- Template Main CSS File (Static asset version to enable instant browser memory caching) -->
+<link href="{{ asset('assets/css/style.css') }}?v=1.2.0" rel="stylesheet">
 
 <!-- Choices.js CSS for beautiful dropdowns -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
