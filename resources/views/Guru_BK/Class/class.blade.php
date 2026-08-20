@@ -1,11 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
     @include('include.style')
     <style>
         .modal-header-custom {
-            background: linear-gradient(135deg, #4154f1 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #4154f1 0%, #012970 100%);
             color: #ffffff;
             border-top-left-radius: 18px;
             border-top-right-radius: 18px;
@@ -320,3 +320,4 @@
 </body>
 
 </html>
+

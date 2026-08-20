@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -11,7 +11,7 @@
             box-shadow: 0 25px 60px rgba(33, 51, 99, 0.25);
         }
         .modal-header-custom {
-            background: linear-gradient(135deg, #4154f1 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #4154f1 0%, #012970 100%);
             color: white;
             border-top-left-radius: 18px;
             border-top-right-radius: 18px;
@@ -575,6 +575,8 @@
             </div>
         @endforeach
     </main>
+
+    @include('include.footer')
 
     {{-- Modal Tambah Konseling --}}
     <div class="modal fade konseling-modal" id="modalTambahKonseling" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
@@ -1330,3 +1332,4 @@
 </body>
 
 </html>
+

@@ -20,34 +20,34 @@
                 <img src="{{ asset('assets/img/logo-bk-baru.jpg') }}" alt="Logo BK" style="border-radius: 50%;">
                 <div>
                     <div class="fw-bold">Sistem Manajemen BK</div>
-                    <small class="text-primary fw-semibold">Portal Masuk Terpadu</small>
+                    <small class="text-primary fw-semibold">Panel Guru BK</small>
                 </div>
             </div>
             <h1 class="fw-bold mb-3 display-5">Bimbingan & Konseling Sekolah</h1>
             <p class="text-secondary fs-5 mb-5" style="max-width: 500px;">
-                Silakan masuk menggunakan akun Anda untuk mengelola bimbingan konseling atau mengajukan jadwal bimbingan siswa.
+                Masuk untuk mengelola data bimbingan, jadwal konseling, dan catatan poin siswa.
             </p>
             
             <div class="d-flex gap-3">
                 <!-- Fitur Utama -->
                 <div class="p-3 bg-white rounded-4 shadow-sm border border-light w-100">
                     <i class="bi bi-shield-check fs-3 text-primary"></i>
-                    <h6 class="fw-bold mt-2 mb-1 text-dark">Aman & Terpusat</h6>
-                    <small class="text-muted">Kelola seluruh data secara rahasia dan aman.</small>
+                    <h6 class="fw-bold mt-2 mb-1 text-dark">Data Terpusat</h6>
+                    <small class="text-muted">Semua data siswa dan rekam kasus tersimpan di satu sistem.</small>
                 </div>
                 <div class="p-3 bg-white rounded-4 shadow-sm border border-light w-100">
                     <i class="bi bi-calendar-check fs-3 text-primary"></i>
-                    <h6 class="fw-bold mt-2 mb-1 text-dark">Jadwal Efisien</h6>
-                    <small class="text-muted">Kemudahan pemantauan jadwal dan aktivitas.</small>
+                    <h6 class="fw-bold mt-2 mb-1 text-dark">Jadwal Konseling</h6>
+                    <small class="text-muted">Atur dan pantau permintaan bimbingan dari siswa.</small>
                 </div>
             </div>
         </section>
 
         <section class="auth-card-wrap theme-guru">
             <div class="card auth-card shadow-lg">
-                <div class="card-body p-4 pb-3"> <!-- Mengurangi padding bawah agar kotak lebih pendek -->
-                    <h2 class="h4 fw-bold text-center mb-1">Login Sistem</h2>
-                    <p class="text-muted text-center small mb-4">Silakan masuk ke akun Anda</p>
+                <div class="card-body p-4 pb-3">
+                    <h2 class="h4 fw-bold text-center mb-1">Masuk</h2>
+                    <p class="text-muted text-center small mb-4">Gunakan email dan password terdaftar</p>
 
                     @if (session('status'))
                         <div class="alert alert-success mb-3" role="alert">
@@ -95,17 +95,17 @@
 
                         <div class="col-12 mt-4">
                             <button type="submit" class="fk-btn-primary w-100" style="justify-content:center; padding:12px 26px;">
-                                <i class="bi bi-box-arrow-in-right"></i>LOGIN
+                                <i class="bi bi-box-arrow-in-right"></i>Masuk
                             </button>
                         </div>
                     </form>
 
                     {{-- Quick Demo Info --}}
                     <div class="mt-3 mb-0 text-center">
-                        <small class="text-dark d-block mb-2 fw-bold"><i class="bi bi-magic me-1"></i> Uji Coba Demo Akun Cepat:</small>
+                        <small class="text-dark d-block mb-2 fw-bold">Akun demo pengujian:</small>
                         <div class="d-flex justify-content-center gap-2">
                             <button type="button" class="fk-btn-light" style="font-size:0.8rem; padding:6px 16px;" onclick="fillDemo('rdxrio45@gmail.com', 'password')">
-                                <i class="bi bi-person-badge"></i>Demo
+                                <i class="bi bi-person-badge"></i>Gunakan Akun Demo
                             </button>
                         </div>
                     </div>

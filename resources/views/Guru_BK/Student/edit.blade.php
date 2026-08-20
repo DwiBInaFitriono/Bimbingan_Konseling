@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -11,7 +11,7 @@
             box-shadow: 0 25px 60px rgba(33, 51, 99, 0.25);
         }
         .card-header-custom {
-            background: linear-gradient(135deg, #4154f1 0%, #7c3aed 100%);
+            background: linear-gradient(135deg, #4154f1 0%, #012970 100%);
             color: white;
             border-top-left-radius: 18px;
             border-top-right-radius: 18px;
@@ -235,3 +235,4 @@
 </body>
 
 </html>
+

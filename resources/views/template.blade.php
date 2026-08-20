@@ -31,9 +31,9 @@
         <div class="col-12 mb-3">
             <div class="card bg-light border-0 shadow-sm">
                 <div class="card-body py-3">
-                    <h5 class="card-title m-0 text-primary">Selamat Datang Kembali, {{ $welcomeUser?->name ?? 'Guru BK' }}! 👋</h5>
+                    <h5 class="card-title m-0 text-primary text-break">Selamat datang, {{ $welcomeUser?->name ?? 'Guru BK' }}</h5>
                     <p class="mb-0 text-muted small">
-                        Sistem Informasi Manajemen Bimbingan Konseling (BK) membantu Anda mencatat perkembangan, kedisiplinan, prestasi, dan jadwal bimbingan siswa secara terstruktur.
+                        Berikut ringkasan data siswa, pengajuan konseling, dan catatan kedisiplinan hari ini.
                     </p>
                 </div>
             </div>

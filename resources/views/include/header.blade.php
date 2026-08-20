@@ -1,6 +1,7 @@
+
 <header id="header" class="header fixed-top d-flex align-items-center">
     @php
-        $profileUser = auth()->user() ?? $currentUser ?? \App\Models\User::latest()->first();
+        $profileUser = auth()->user() ?? $currentUser ?? null;
         $profileInitials = collect(explode(' ', trim($profileUser?->name ?? 'Pengguna')))
             ->filter()
             ->take(2)
@@ -18,86 +19,86 @@
         <button type="button" class="btn btn-link p-0 border-0 shadow-none d-lg-none toggle-sidebar-btn" aria-label="Toggle navigation">
             <i class="bi bi-list fs-2"></i>
         </button>
-    </div><!-- End Logo -->
-
-    <div class="search-bar">
-        <form class="search-form d-flex align-items-center" method="GET" action="#">
-            <input type="text" name="query" placeholder="Cari..." title="Masukkan kata kunci pencarian">
-            <button type="submit" title="Cari"><i class="bi bi-search"></i></button>
-        </form>
-    </div><!-- End Search Bar -->
+    </div>
 
     <nav class="header-nav ms-auto">
         <ul class="d-flex align-items-center">
 
-            <li class="nav-item d-block d-lg-none">
-                <a class="nav-link nav-icon search-bar-toggle " href="#">
-                    <i class="bi bi-search"></i>
-                </a>
-            </li><!-- End Search Icon-->
-
             <li class="nav-item dropdown pe-3">
 
-                <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
+                <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown" aria-expanded="false">
                     @if($profileUser?->photo)
-                        <img src="{{ asset('storage/' . $profileUser->photo) }}" alt="Profile" class="rounded-circle" style="width: 36px; height: 36px; object-fit: cover;">
+                        <img src="{{ asset('storage/' . $profileUser->photo) }}" alt="Profile" class="rounded-circle header-profile-img">
                     @else
                         <span class="profile-avatar rounded-circle d-inline-flex align-items-center justify-content-center">
                             {{ $profileInitials ?: 'P' }}
                         </span>
                     @endif
-                    <span class="d-none d-md-block dropdown-toggle ps-2">{{ $profileUser?->name ?? 'Pengguna' }}</span>
-                </a><!-- End Profile Iamge Icon -->
+                    <span class="d-none d-md-block dropdown-toggle ps-2 text-truncate" style="max-width: 150px;">{{ $profileUser?->name ?? 'Pengguna' }}</span>
+                </a>
 
-                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile">
-                    <li class="dropdown-header">
-                        @if($profileUser?->photo)
-                            <img src="{{ asset('storage/' . $profileUser->photo) }}" alt="Foto Profil" class="profile-dropdown-photo rounded-circle mb-3" style="width: 72px; height: 72px; object-fit: cover;">
-                        @else
-                            <img src="{{ asset('assets/img/profile-img.jpg') }}" alt="Foto Profil" class="profile-dropdown-photo rounded-circle mb-3" style="width: 72px; height: 72px; object-fit: cover;">
-                        @endif
-                        <h6>{{ $profileUser?->name ?? 'Pengguna' }}</h6>
-                        <span>{{ $profileUser?->email ?? 'Email tidak tersedia' }}</span>
-                    </li>
-                    <li>
-                        <hr class="dropdown-divider">
+                <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow profile profile-dropdown-menu">
+
+                    {{-- Profile Card Header --}}
+                    <li class="profile-dropdown-head">
+                        <div class="profile-dropdown-banner"></div>
+                        <div class="profile-dropdown-avatar-wrap">
+                            @if($profileUser?->photo)
+                                <img src="{{ asset('storage/' . $profileUser->photo) }}" alt="Foto Profil" class="profile-dropdown-avatar">
+                            @else
+                                <div class="profile-dropdown-avatar-fallback">
+                                    {{ $profileInitials ?: 'P' }}
+                                </div>
+                            @endif
+                        </div>
+                        <h6 class="profile-dropdown-name">{{ $profileUser?->name ?? 'Pengguna' }}</h6>
+                        <span class="profile-dropdown-email">{{ $profileUser?->email ?? 'Email tidak tersedia' }}</span>
                     </li>
 
+                    <li><hr class="dropdown-divider"></li>
+
                     <li>
-                        <a class="dropdown-item d-flex align-items-center" href="{{ route('profile.show') }}">
-                            <i class="bi bi-person-gear"></i>
-                            <span>Pengaturan Akun</span>
+                        <a class="dropdown-item d-flex align-items-center gap-2" href="{{ route('profile.show') }}">
+                            <div class="dropdown-icon-wrap bg-primary-subtle">
+                                <i class="bi bi-person-gear text-primary"></i>
+                            </div>
+                            <div>
+                                <span class="fw-semibold">Pengaturan Akun</span>
+                                <small class="d-block text-muted">Profil & password</small>
+                            </div>
                         </a>
                     </li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
-
 
                     <li>
-                        <a class="dropdown-item d-flex align-items-center" href="{{ route('help.center') }}">
-                            <i class="bi bi-question-circle"></i>
-                            <span>Butuh Bantuan?</span>
+                        <a class="dropdown-item d-flex align-items-center gap-2" href="{{ route('help.center') }}">
+                            <div class="dropdown-icon-wrap bg-success-subtle">
+                                <i class="bi bi-life-preserver text-success"></i>
+                            </div>
+                            <div>
+                                <span class="fw-semibold">Bantuan</span>
+                                <small class="d-block text-muted">Panduan & FAQ</small>
+                            </div>
                         </a>
                     </li>
-                    <li>
-                        <hr class="dropdown-divider">
-                    </li>
+
+                    <li><hr class="dropdown-divider"></li>
 
                     <li>
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
-                            <button type="submit" class="dropdown-item d-flex align-items-center">
-                                <i class="bi bi-box-arrow-right"></i>
-                                <span>Keluar</span>
+                            <button type="submit" class="dropdown-item d-flex align-items-center gap-2 text-danger">
+                                <div class="dropdown-icon-wrap bg-danger-subtle">
+                                    <i class="bi bi-box-arrow-right text-danger"></i>
+                                </div>
+                                <span class="fw-semibold">Keluar</span>
                             </button>
                         </form>
                     </li>
 
-                </ul><!-- End Profile Dropdown Items -->
-            </li><!-- End Profile Nav -->
+                </ul>
+            </li>
 
         </ul>
-    </nav><!-- End Icons Navigation -->
+    </nav>
 
-</header><!-- End Header -->
+</header>

@@ -89,15 +89,15 @@
             </div>
             <h1 class="display-6 fw-bold mb-3">Registrasi Akun Guru BK</h1>
             <p class="lead mb-4" style="max-width: 520px;">
-                Daftarkan diri Anda sebagai Guru BK untuk dapat mengelola bimbingan konseling, data siswa, kelas, skoring poin, dan laporan sekolah.
+                Daftar sebagai Guru BK untuk mengelola data siswa, jadwal konseling, dan catatan poin.
             </p>
             <div class="p-3 bg-white bg-opacity-75 rounded-3 shadow-sm border border-info border-opacity-25" style="max-width: 520px;">
                 <div class="d-flex align-items-center mb-1">
                     <i class="bi bi-info-circle-fill text-info fs-5 me-2"></i>
-                    <strong class="text-dark">Informasi Akun Siswa:</strong>
+                    <strong class="text-dark">Akun Siswa:</strong>
                 </div>
                 <small class="text-muted d-block">
-                    Siswa tidak dapat mendaftar mandiri di sini. Akun Siswa didaftarkan dan dikelola secara resmi oleh Guru BK dari menu <strong>Data Siswa</strong> di dalam sistem.
+                    Akun siswa didaftarkan oleh Guru BK melalui menu <strong>Data Siswa</strong> di dalam sistem.
                 </small>
             </div>
         </section>
@@ -109,8 +109,8 @@
                         <div class="d-inline-flex align-items-center justify-content-center bg-primary bg-opacity-10 text-primary rounded-circle mb-2" style="width: 56px; height: 56px;">
                             <i class="bi bi-person-badge fs-3"></i>
                         </div>
-                        <h2 class="h4 fw-bold mb-1">Daftar Guru BK</h2>
-                        <p class="text-muted small mb-0">Isi formulir di bawah ini untuk membuat akun Guru BK</p>
+                        <h2 class="h4 fw-bold mb-1">Daftar Akun</h2>
+                        <p class="text-muted small mb-0">Lengkapi data berikut untuk membuat akun Guru BK</p>
                     </div>
 
                     @if (session('success'))

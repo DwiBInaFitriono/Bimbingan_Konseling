@@ -29,22 +29,22 @@
                             <h5 class="card-title">
                                 <i class="bi bi-palette me-2 text-primary"></i>Preferensi Tampilan
                             </h5>
-                            <p class="text-muted small mb-4">Sesuaikan tampilan antarmuka aplikasi sesuai kenyamanan Anda.</p>
+                            <p class="text-muted small mb-4">Atur tema dan ukuran teks pada aplikasi.</p>
                             
                             <div class="mb-3">
                                 <label class="form-label fw-bold">Tema Aplikasi</label>
                                 <select class="form-select">
                                     <option value="light" selected>Terang (Light Mode)</option>
                                     <option value="dark">Gelap (Dark Mode)</option>
-                                    <option value="system">Sistem Otomatis</option>
+                                    <option value="system">Ikuti Sistem</option>
                                 </select>
                             </div>
                             
                             <div class="mb-3">
-                                <label class="form-label fw-bold">Ukuran Font</label>
+                                <label class="form-label fw-bold">Ukuran Teks</label>
                                 <select class="form-select">
                                     <option value="small">Kecil</option>
-                                    <option value="medium" selected>Sedang (Default)</option>
+                                    <option value="medium" selected>Sedang (Bawaan)</option>
                                     <option value="large">Besar</option>
                                 </select>
                             </div>
@@ -61,11 +61,11 @@
                             <h5 class="card-title">
                                 <i class="bi bi-bell me-2 text-warning"></i>Pengaturan Notifikasi
                             </h5>
-                            <p class="text-muted small mb-4">Pilih notifikasi apa saja yang ingin Anda terima.</p>
+                            <p class="text-muted small mb-4">Pilih jenis pemberitahuan yang ingin diterima.</p>
                             
                             <div class="form-check form-switch mb-3">
                                 <input class="form-check-input" type="checkbox" id="notifJadwal" checked>
-                                <label class="form-check-label" for="notifJadwal">Pemberitahuan Jadwal Konseling Baru</label>
+                                <label class="form-check-label" for="notifJadwal">Jadwal Konseling Baru</label>
                             </div>
                             <div class="form-check form-switch mb-3">
                                 <input class="form-check-input" type="checkbox" id="notifPelanggaran" checked>
@@ -73,11 +73,11 @@
                             </div>
                             <div class="form-check form-switch mb-3">
                                 <input class="form-check-input" type="checkbox" id="notifLaporan">
-                                <label class="form-check-label" for="notifLaporan">Pengingat Laporan Bulanan</label>
+                                <label class="form-check-label" for="notifLaporan">Pengingat Rekapan Bulanan</label>
                             </div>
                             <div class="form-check form-switch mb-3">
                                 <input class="form-check-input" type="checkbox" id="notifEmail" checked>
-                                <label class="form-check-label" for="notifEmail">Kirim Notifikasi via Email</label>
+                                <label class="form-check-label" for="notifEmail">Kirim ke Email</label>
                             </div>
 
                             <button class="btn btn-outline-warning mt-2">Simpan Notifikasi</button>
@@ -90,7 +90,7 @@
                     <div class="card">
                         <div class="card-body">
                             <h5 class="card-title">
-                                <i class="bi bi-gear-wide-connected me-2 text-secondary"></i>Pengaturan Sistem Dasar
+                                <i class="bi bi-gear-wide-connected me-2 text-secondary"></i>Pengaturan Umum
                             </h5>
                             
                             <div class="row mt-3">
@@ -127,6 +127,8 @@
             </div>
         </section>
     </main>
+
+    @include('include.footer')
 
     {{-- Vendor JS --}}
     <script src="{{ asset('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>

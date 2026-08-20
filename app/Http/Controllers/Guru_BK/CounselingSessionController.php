@@ -104,7 +104,7 @@ class CounselingSessionController extends Controller
         $studentId = $request->input('student_id') ? (int) $request->input('student_id') : null;
         $status = $request->input('status', 'all');
 
-        $query = CounselingSession::with(['student.class', 'guruBk', 'additionalStudents'])
+        $query = CounselingSession::with(['student.class', 'guruBk'])
             ->whereMonth('requested_date', $month)
             ->whereYear('requested_date', $year);
 
@@ -133,7 +133,7 @@ class CounselingSessionController extends Controller
         $studentId = $request->input('student_id') ? (int) $request->input('student_id') : null;
         $status = $request->input('status', 'all');
 
-        $query = CounselingSession::with(['student.class', 'guruBk', 'additionalStudents'])
+        $query = CounselingSession::with(['student.class', 'guruBk'])
             ->whereMonth('requested_date', $month)
             ->whereYear('requested_date', $year);
 

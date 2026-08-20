@@ -26,8 +26,8 @@
                 <div class="card-body pt-4">
                     {{-- Filter Form --}}
                     <form method="GET" action="{{ route('counseling.report') }}" class="row g-3 mb-4 p-3 bg-light rounded-3 border">
-                        <div class="col-md-2">
-                            <label class="form-label fw-bold">Pilih Bulan</label>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Bulan</label>
                             <select name="month" class="form-select">
                                 @for($m = 1; $m <= 12; $m++)
                                     <option value="{{ sprintf('%02d', $m) }}" {{ $month == sprintf('%02d', $m) ? 'selected' : '' }}>
@@ -36,8 +36,8 @@
                                 @endfor
                             </select>
                         </div>
-                        <div class="col-md-2">
-                            <label class="form-label fw-bold">Pilih Tahun</label>
+                        <div class="col-md-3">
+                            <label class="form-label fw-bold">Tahun</label>
                             <select name="year" class="form-select">
                                 @for($y = date('Y') - 5; $y <= date('Y'); $y++)
                                     <option value="{{ $y }}" {{ $year == $y ? 'selected' : '' }}>
@@ -46,18 +46,7 @@
                                 @endfor
                             </select>
                         </div>
-                        <div class="col-md-4">
-                            <label class="form-label fw-bold">Pilih Siswa</label>
-                            <select name="student_id" class="form-select">
-                                <option value="">Semua Siswa</option>
-                                @foreach($students as $s)
-                                    <option value="{{ $s->id }}" {{ $studentId == $s->id ? 'selected' : '' }}>
-                                        {{ $s->full_name }} ({{ $s->class?->school_class_name ?? 'Tanpa Kelas' }})
-                                    </option>
-                                @endforeach
-                            </select>
-                        </div>
-                        <div class="col-md-2">
+                        <div class="col-md-3">
                             <label class="form-label fw-bold">Status</label>
                             <select name="status" class="form-select">
                                 <option value="all" {{ $status == 'all' ? 'selected' : '' }}>Semua Status</option>
@@ -67,12 +56,12 @@
                                 <option value="ditolak" {{ $status == 'ditolak' ? 'selected' : '' }}>Ditolak</option>
                             </select>
                         </div>
-                        <div class="col-md-2 d-flex align-items-end gap-2">
+                        <div class="col-md-3 d-flex align-items-end gap-2">
                             <button type="submit" class="btn btn-primary fw-semibold w-100" title="Terapkan Filter">
-                                <i class="bi bi-search"></i>
+                                <i class="bi bi-search me-1"></i>Filter
                             </button>
-                            <a href="{{ route('counseling.report.pdf', ['month' => $month, 'year' => $year, 'student_id' => $studentId, 'status' => $status]) }}" class="btn btn-danger fw-semibold w-100" target="_blank" title="Cetak PDF">
-                                <i class="bi bi-printer"></i>
+                            <a href="{{ route('counseling.report.pdf', ['month' => $month, 'year' => $year, 'status' => $status]) }}" class="btn btn-danger fw-semibold w-100" target="_blank" title="Cetak PDF">
+                                <i class="bi bi-printer me-1"></i>Cetak PDF
                             </a>
                         </div>
                     </form>
