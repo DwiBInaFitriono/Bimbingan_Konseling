@@ -29,12 +29,32 @@
         </div><!-- End Page Title -->
 
         <div class="col-12 mb-3">
-            <div class="card bg-light border-0 shadow-sm">
-                <div class="card-body py-3">
-                    <h5 class="card-title m-0 text-primary text-break">Selamat datang, {{ $welcomeUser?->name ?? 'Guru BK' }}</h5>
-                    <p class="mb-0 text-muted small">
-                        Berikut ringkasan data siswa, pengajuan konseling, dan catatan kedisiplinan hari ini.
-                    </p>
+            <div class="welcome-hero-card p-3 p-md-4 rounded-3 shadow-xs border position-relative overflow-hidden">
+                <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-2">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="welcome-avatar-badge d-flex align-items-center justify-content-center">
+                            <i class="bi bi-person-check-fill"></i>
+                        </div>
+                        <div>
+                            <h4 class="welcome-title mb-0">
+                                <span id="dynamicGreeting">Selamat datang</span>, 
+                                <span class="welcome-name">{{ $welcomeUser?->name ?? 'Guru BK' }}</span>
+                            </h4>
+                        </div>
+                    </div>
+                    <div class="welcome-date-chip d-none d-sm-inline-flex align-items-center gap-2">
+                        <i class="bi bi-calendar3 text-primary"></i>
+                        <span class="welcome-date-text" id="welcomeLiveDate">Memuat tanggal...</span>
+                        <span class="welcome-clock-badge font-monospace" id="welcomeLiveClock">--:--:-- WIB</span>
+                    </div>
+                </div>
+
+                {{-- Motivational Counselor Quotes --}}
+                <div class="welcome-quote-box mt-2 pt-2 border-top d-flex align-items-center gap-2">
+                    <i class="bi bi-quote fs-5 text-primary opacity-50 flex-shrink-0"></i>
+                    <div class="quote-text-container">
+                        <span id="animatedQuote" class="welcome-quote-text">Layanan bimbingan dan konseling siap mendampingi perkembangan siswa hari ini.</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -212,6 +232,70 @@
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
     @include('include.script')
 
+    <script>
+        (function () {
+            // 1. Dynamic Greeting based on time of day
+            const hour = new Date().getHours();
+            let greeting = 'Selamat datang';
+            if (hour >= 4 && hour < 11) greeting = 'Selamat pagi';
+            else if (hour >= 11 && hour < 15) greeting = 'Selamat siang';
+            else if (hour >= 15 && hour < 18) greeting = 'Selamat sore';
+            else greeting = 'Selamat malam';
+
+            const greetingEl = document.getElementById('dynamicGreeting');
+            if (greetingEl) greetingEl.textContent = greeting;
+
+            // 2. Realtime Date & Clock Ticker
+            const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+            const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+            function tickClock() {
+                const now = new Date();
+                const dateEl = document.getElementById('welcomeLiveDate');
+                const clockEl = document.getElementById('welcomeLiveClock');
+
+                if (dateEl) {
+                    dateEl.textContent = `${days[now.getDay()]}, ${now.getDate()} ${months[now.getMonth()]} ${now.getFullYear()}`;
+                }
+                if (clockEl) {
+                    const h = String(now.getHours()).padStart(2, '0');
+                    const m = String(now.getMinutes()).padStart(2, '0');
+                    const s = String(now.getSeconds()).padStart(2, '0');
+                    clockEl.textContent = `${h}:${m}:${s} WIB`;
+                }
+            }
+            tickClock();
+            setInterval(tickClock, 1000);
+
+            // 3. Grounded BK Motivational Quotations Rotator (Anti-slop)
+            const quotes = [
+                "Layanan bimbingan dan konseling siap mendampingi perkembangan siswa hari ini.",
+                "Catat setiap sesi konseling dan pantau perkembangan karakter siswa secara berkala.",
+                "Komunikasi terbuka dan empati menjadi kunci pendampingan siswa di sekolah.",
+                "Pantau kedisiplinan dan apresiasi setiap capaian prestasi siswa.",
+                "Bimbingan yang konsisten membantu siswa menemukan potensi terbaiknya."
+            ];
+
+            const quoteEl = document.getElementById('animatedQuote');
+            if (quoteEl) {
+                let currentIndex = Math.floor(Math.random() * quotes.length);
+                quoteEl.textContent = quotes[currentIndex];
+
+                setInterval(() => {
+                    quoteEl.classList.add('quote-fade-out');
+                    setTimeout(() => {
+                        currentIndex = (currentIndex + 1) % quotes.length;
+                        quoteEl.textContent = quotes[currentIndex];
+                        quoteEl.classList.remove('quote-fade-out');
+                        quoteEl.classList.add('quote-fade-in');
+                        setTimeout(() => {
+                            quoteEl.classList.remove('quote-fade-in');
+                        }, 400);
+                    }, 300);
+                }, 7000);
+            }
+        })();
+    </script>
 </body>
 
 </html>

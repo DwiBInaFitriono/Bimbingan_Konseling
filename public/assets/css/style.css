@@ -1025,9 +1025,98 @@ h6 {
   padding: 8px 15px;
 }
 
+/* Welcome Hero Card (Anti-Slop UI) */
+.welcome-hero-card {
+  background: linear-gradient(135deg, #ffffff 0%, #f7f9ff 100%);
+  border: 1px solid rgba(1, 41, 112, 0.08) !important;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(1, 41, 112, 0.04);
+}
+
+.welcome-avatar-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, #4154f1, #012970);
+  color: #fff;
+  font-size: 19px;
+  flex-shrink: 0;
+}
+
+.welcome-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #012970;
+  line-height: 1.25;
+}
+
+.welcome-title .welcome-name {
+  color: #4154f1;
+  font-weight: 800;
+}
+
+.welcome-date-chip {
+  background: #ffffff;
+  border: 1px solid rgba(1, 41, 112, 0.12);
+  padding: 6px 14px;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+}
+
+.welcome-date-chip i {
+  font-size: 16px;
+}
+
+.welcome-date-text {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.welcome-clock-badge {
+  background: rgba(65, 84, 241, 0.09);
+  color: #3b4bf2;
+  font-weight: 700;
+  font-size: 13px;
+  padding: 3px 9px;
+  border-radius: 5px;
+  letter-spacing: 0.03em;
+}
+
+.welcome-quote-box {
+  border-color: rgba(1, 41, 112, 0.06) !important;
+}
+
+.welcome-quote-text {
+  font-size: 13px;
+  color: #475569;
+  display: inline-block;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+  line-height: 1.4;
+}
+
+.quote-fade-out {
+  opacity: 0;
+  transform: translateY(-3px);
+}
+
+.quote-fade-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 /* Info Cards */
 .dashboard .info-card {
   padding-bottom: 10px;
+  border-radius: 14px;
+  border: 1px solid rgba(1, 41, 112, 0.06);
+  box-shadow: 0 3px 12px rgba(1, 41, 112, 0.04);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.dashboard .info-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 22px rgba(1, 41, 112, 0.08);
 }
 
 .dashboard .info-card h6 {
