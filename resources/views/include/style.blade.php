@@ -21,7 +21,7 @@
 <link href="{{ asset('assets/vendor/simple-datatables/style.css') }}" rel="stylesheet">
 
 <!-- Template Main CSS File -->
-<link href="{{ asset('assets/css/style.css') }}" rel="stylesheet">
+<link href="{{ asset('assets/css/style.css') }}?v={{ time() }}" rel="stylesheet">
 
 <!-- Choices.js CSS for beautiful dropdowns -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />

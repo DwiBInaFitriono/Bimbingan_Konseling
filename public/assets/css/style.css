@@ -43,14 +43,14 @@ h6 {
 --------------------------------------------------------------*/
 #main {
   margin-top: 60px;
-  padding: 20px 30px;
+  padding: 4px 28px 24px;
   transition: all 0.3s;
   min-height: calc(100vh - 120px);
 }
 
 @media (max-width: 1199px) {
   #main {
-    padding: 20px;
+    padding: 4px 16px 20px;
   }
 }
 
@@ -58,14 +58,45 @@ h6 {
 # Page Title
 --------------------------------------------------------------*/
 .pagetitle {
-  margin-bottom: 10px;
+  margin-top: 0;
+  margin-bottom: 8px;
+  padding-top: 0;
 }
 
 .pagetitle h1 {
-  font-size: 24px;
-  margin-bottom: 0;
-  font-weight: 600;
+  font-size: 21px;
+  margin-top: 0;
+  margin-bottom: 2px;
+  font-weight: 700;
   color: #012970;
+  line-height: 1.15;
+}
+
+.pagetitle .breadcrumb {
+  font-size: 13px;
+  font-family: "Nunito", sans-serif;
+  color: #899bbd;
+  font-weight: 600;
+  margin-bottom: 0 !important;
+  padding: 0;
+}
+
+.pagetitle .breadcrumb a {
+  color: #899bbd;
+  transition: 0.3s;
+}
+
+.pagetitle .breadcrumb a:hover {
+  color: #51678f;
+}
+
+.pagetitle .breadcrumb .breadcrumb-item::before {
+  color: #899bbd;
+}
+
+.pagetitle .breadcrumb .active {
+  color: #51678f;
+  font-weight: 600;
 }
 
 /*--------------------------------------------------------------
@@ -372,22 +403,43 @@ h6 {
 }
 
 .logo .brand-main {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 800;
   color: #012970;
   font-family: "Nunito", sans-serif;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  line-height: 1.15;
 }
 
-.logo .brand-main {
+.logo .brand-accent {
+  color: #4154f1;
+  font-weight: 900;
+  background: linear-gradient(135deg, #4154f1, #0ea5e9);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.logo .brand-sub {
+  font-size: 9px;
+  font-weight: 700;
+  color: #717ff5;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: "Open Sans", sans-serif;
+  line-height: 1.2;
+  margin-top: 1px;
   white-space: nowrap;
 }
 
 .header-logo-img {
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   object-fit: contain;
   flex-shrink: 0;
   display: block;
+  border-radius: 9px;
+  box-shadow: 0 4px 10px rgba(65, 84, 241, 0.18);
 }
 
 .profile-avatar {
@@ -620,6 +672,7 @@ h6 {
   text-align: center;
   padding-bottom: 16px;
   position: relative;
+  border-bottom: 1px solid #eef2f6;
 }
 
 .profile-dropdown-banner {
@@ -694,15 +747,25 @@ h6 {
   justify-content: center;
 }
 
-.bg-primary-subtle { background: rgba(65, 84, 241, 0.1); }
-.bg-success-subtle { background: rgba(46, 202, 106, 0.1); }
-.bg-danger-subtle  { background: rgba(220, 53, 69, 0.1); }
+.bg-primary-subtle {
+  background: rgba(65, 84, 241, 0.1);
+}
+
+.bg-success-subtle {
+  background: rgba(46, 202, 106, 0.1);
+}
+
+.bg-danger-subtle {
+  background: rgba(220, 53, 69, 0.1);
+}
 
 .header-nav .profile .dropdown-item {
   font-size: 13.5px;
-  padding: 10px 16px;
+  padding: 8px 14px;
+  margin: 2px 10px;
+  border-radius: 9px;
   transition: all 0.2s ease;
-  border-radius: 0;
+  width: auto;
 }
 
 .header-nav .profile .dropdown-item small {
@@ -711,12 +774,34 @@ h6 {
 }
 
 .header-nav .profile .dropdown-item:hover {
-  background-color: #f6f9ff;
+  background-color: #f1f5f9;
 }
 
 .header-nav .profile .dropdown-divider {
-  margin: 4px 12px;
-  border-color: #f0f2f5;
+  margin: 4px 14px;
+  border-top: 1px solid #eef2f6;
+  opacity: 1;
+}
+
+.header-nav .profile .dropdown-item-logout {
+  padding: 9px 14px;
+  color: #dc2626 !important;
+}
+
+.header-nav .profile .dropdown-item-logout i {
+  font-size: 18px !important;
+  color: #dc2626 !important;
+  line-height: 1 !important;
+  margin-right: 2px !important;
+}
+
+.header-nav .profile .dropdown-item-logout:hover {
+  background-color: #fef2f2 !important;
+  color: #b91c1c !important;
+}
+
+.header-nav .profile .dropdown-item-logout:hover i {
+  color: #b91c1c !important;
 }
 
 /*--------------------------------------------------------------
@@ -1375,107 +1460,165 @@ h6 {
   align-items: center;
   justify-content: center;
   background: rgba(15, 23, 42, 0);
-  backdrop-filter: blur(0px);
-  transition: background 0.25s ease, backdrop-filter 0.25s ease;
+  opacity: 0;
+  transition: opacity 0.12s ease;
+  pointer-events: none;
 }
+
 .swal-overlay.swal-show {
-  background: rgba(15, 23, 42, 0.45);
-  backdrop-filter: blur(4px);
+  background: rgba(15, 23, 42, 0.55);
+  opacity: 1;
+  pointer-events: auto;
 }
+
 .swal-modal {
-  background: #fff;
-  border-radius: 20px;
-  padding: 36px 32px 28px;
-  width: 380px;
+  background: #ffffff;
+  border-radius: 14px;
+  border: 1px solid #e2e8f0;
+  padding: 28px 24px 22px;
+  width: 360px;
   max-width: 90vw;
   text-align: center;
-  box-shadow: 0 25px 60px rgba(0,0,0,0.2), 0 0 0 1px rgba(0,0,0,0.04);
-  transform: scale(0.85) translateY(20px);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+  transform: translateY(6px) scale(0.98);
   opacity: 0;
-  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), opacity 0.25s ease;
+  transition: transform 0.12s ease-out, opacity 0.12s ease-out;
 }
+
 .swal-modal.swal-show {
-  transform: scale(1) translateY(0);
+  transform: translateY(0) scale(1);
   opacity: 1;
 }
+
 .swal-icon-wrap {
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
+
 .swal-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 64px;
-  height: 64px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
-  font-size: 1.8rem;
+  font-size: 1.5rem;
 }
+
 .swal-icon-info {
-  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  background: #eff6ff;
   color: #2563eb;
+  border: 1px solid #dbeafe;
 }
+
 .swal-icon-warning {
-  background: linear-gradient(135deg, #fef3c7, #fde68a);
-  color: #d97706;
+  background: #fefce8;
+  color: #ca8a04;
+  border: 1px solid #fef08a;
 }
+
 .swal-icon-error {
-  background: linear-gradient(135deg, #fee2e2, #fecaca);
+  background: #fef2f2;
   color: #dc2626;
+  border: 1px solid #fecaca;
 }
+
 .swal-icon-success {
-  background: linear-gradient(135deg, #d1fae5, #a7f3d0);
-  color: #059669;
+  background: #f0fdf4;
+  color: #16a34a;
+  border: 1px solid #bbf7d0;
 }
+
 .swal-title {
-  font-size: 1.15rem;
+  font-size: 1.05rem;
   font-weight: 700;
-  color: #1e293b;
-  margin: 0 0 8px;
+  color: #0f172a;
+  margin: 0 0 6px;
 }
+
 .swal-text {
-  font-size: 0.9rem;
-  color: #64748b;
-  margin: 0 0 24px;
+  font-size: 0.88rem;
+  color: #475569;
+  margin: 0 0 20px;
   line-height: 1.5;
 }
+
 .swal-actions {
   display: flex;
   gap: 10px;
   justify-content: center;
 }
+
 .swal-btn {
-  padding: 10px 28px;
-  border-radius: 10px;
+  padding: 8px 20px;
+  border-radius: 8px;
   font-size: 0.88rem;
   font-weight: 600;
-  border: none;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.12s ease;
   outline: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
 }
+
 .swal-btn:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
+
 .swal-btn:active {
   transform: translateY(0);
 }
+
 .swal-btn-primary {
-  background: linear-gradient(135deg, #4154f1, #6366f1);
-  color: #fff;
+  background: #012970;
+  color: #ffffff;
+  border: 1px solid #012970;
 }
+
+.swal-btn-primary:hover {
+  background: #4154f1;
+  border-color: #4154f1;
+}
+
 .swal-btn-danger {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
-  color: #fff;
+  background: #dc2626;
+  color: #ffffff;
+  border: 1px solid #dc2626;
 }
+
+.swal-btn-danger:hover {
+  background: #b91c1c;
+  border-color: #b91c1c;
+}
+
 .swal-btn-cancel {
-  background: #f1f5f9;
-  color: #475569;
-  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #334155;
+  border: 1px solid #cbd5e1;
+}
+
+.swal-btn-cancel:hover {
+  background: #f8fafc;
+  border-color: #94a3b8;
 }
 
 /* Global safeguard against layout-breaking long unbroken strings */
-td, th, h1, h2, h3, h4, h5, h6, .card-title, span, p, a, label, .profile-name, .dropdown-item {
-    overflow-wrap: anywhere;
-    word-break: break-word;
+td,
+th,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.card-title,
+span,
+p,
+a,
+label,
+.profile-name,
+.dropdown-item {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }

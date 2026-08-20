@@ -278,9 +278,8 @@
 
     @include('include.footer')
 
-    {{-- Vendor JS --}}
-    <script src="{{ asset('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('assets/js/main.js') }}"></script>
+    {{-- Vendor JS & Notification Scripts --}}
+    @include('include.script')
 
     {{-- Smooth scroll for anchor buttons --}}
     <script>

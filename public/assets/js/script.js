@@ -9,31 +9,44 @@ window.scrollTo(0, 0);
 // 1. Toast Notification Helper (Global Scope)
 window.showToast = function (message, type = 'success') {
     let container = document.getElementById('liveToastContainer');
-    if (!container) return;
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'liveToastContainer';
+        container.className = 'toast-container position-fixed top-0 end-0 p-3 mt-5 me-2';
+        container.style.zIndex = '11000';
+        container.style.pointerEvents = 'none';
+        document.body.appendChild(container);
+    }
 
     let toastId = 'toast-' + Date.now();
-    let bgClass = type === 'success' ? 'bg-success text-white'
-                : type === 'error'   ? 'bg-danger text-white'
-                :                      'bg-warning text-dark';
-    let icon    = type === 'success' ? 'bi-check-circle-fill'
-                : type === 'error'   ? 'bi-exclamation-triangle-fill'
-                :                      'bi-exclamation-circle-fill';
+    let borderStyle = type === 'success' ? 'border-left: 5px solid #10b981;'
+                    : type === 'error'   ? 'border-left: 5px solid #ef4444;'
+                    : type === 'warning' ? 'border-left: 5px solid #f59e0b;'
+                    :                      'border-left: 5px solid #4154f1;';
+    let iconColor = type === 'success' ? 'color: #10b981;'
+                  : type === 'error'   ? 'color: #ef4444;'
+                  : type === 'warning' ? 'color: #f59e0b;'
+                  :                      'color: #4154f1;';
+    let iconClass = type === 'success' ? 'bi-check-circle-fill'
+                  : type === 'error'   ? 'bi-exclamation-octagon-fill'
+                  : type === 'warning' ? 'bi-exclamation-triangle-fill'
+                  :                      'bi-info-circle-fill';
 
     let toastHtml = `
-        <div id="${toastId}" class="toast align-items-center ${bgClass} border-0 shadow-lg rounded-3" role="alert" aria-live="assertive" aria-atomic="true" style="min-width:280px;max-width:360px;">
-            <div class="d-flex">
-                <div class="toast-body fs-6 d-flex align-items-center gap-2 py-3 px-3">
-                    <i class="bi ${icon} fs-4 flex-shrink-0"></i>
-                    <span>${message}</span>
+        <div id="${toastId}" class="toast align-items-center border-0 shadow-lg rounded-3 mb-2" role="alert" aria-live="assertive" aria-atomic="true" style="background:#ffffff; ${borderStyle} min-width:300px; max-width:400px; pointer-events:auto; box-shadow: 0 10px 30px rgba(1,41,112,0.12) !important;">
+            <div class="d-flex align-items-center py-2 px-3">
+                <i class="bi ${iconClass} fs-4 me-2 flex-shrink-0" style="${iconColor}"></i>
+                <div class="toast-body p-0 flex-grow-1 text-dark" style="font-size: 13.5px; font-weight: 500;">
+                    ${message}
                 </div>
-                <button type="button" class="btn-close ${type === 'warning' ? '' : 'btn-close-white'} me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                <button type="button" class="btn-close ms-2 me-0 flex-shrink-0" data-bs-dismiss="toast" aria-label="Close" style="font-size: 0.75rem;"></button>
             </div>
         </div>
     `;
     container.insertAdjacentHTML('beforeend', toastHtml);
 
     let toastEl = document.getElementById(toastId);
-    let bsToast = new bootstrap.Toast(toastEl, { delay: 3000 });
+    let bsToast = new bootstrap.Toast(toastEl, { delay: 3500 });
     bsToast.show();
 
     toastEl.addEventListener('hidden.bs.toast', function () {
@@ -86,15 +99,13 @@ window.showToast = function (message, type = 'success') {
         actions.innerHTML = '';
 
         overlay.style.display = 'flex';
-        requestAnimationFrame(() => {
-            overlay.classList.add('swal-show');
-            modal.classList.add('swal-show');
-        });
+        overlay.classList.add('swal-show');
+        modal.classList.add('swal-show');
 
         function close() {
             modal.classList.remove('swal-show');
             overlay.classList.remove('swal-show');
-            setTimeout(() => { overlay.style.display = 'none'; }, 250);
+            setTimeout(() => { overlay.style.display = 'none'; }, 130);
         }
 
         return { close, actions };
@@ -112,6 +123,7 @@ window.showToast = function (message, type = 'success') {
 
         const btn = document.createElement('button');
         btn.className = 'swal-btn swal-btn-primary';
+        btn.type = 'button';
         btn.textContent = 'OK';
         btn.onclick = close;
         actions.appendChild(btn);
@@ -123,18 +135,27 @@ window.showToast = function (message, type = 'success') {
         const { close, actions } = showModal({
             message,
             type: 'confirm',
-            title: 'Konfirmasi'
+            title: 'Konfirmasi Tindakan'
         });
 
         const btnCancel = document.createElement('button');
         btnCancel.className = 'swal-btn swal-btn-cancel';
-        btnCancel.textContent = 'Batal';
+        btnCancel.type = 'button';
+        btnCancel.textContent = 'Tidak';
         btnCancel.onclick = function() { close(); if (onCancel) onCancel(); };
 
         const btnOk = document.createElement('button');
         btnOk.className = 'swal-btn swal-btn-danger';
-        btnOk.textContent = 'Ya, Lanjutkan';
-        btnOk.onclick = function() { close(); if (onConfirm) onConfirm(); };
+        btnOk.type = 'button';
+        btnOk.textContent = 'Iya, Lanjutkan';
+        btnOk.onclick = function() {
+            btnOk.disabled = true;
+            btnCancel.style.display = 'none';
+            btnOk.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Memproses...';
+            if (typeof onConfirm === 'function') {
+                onConfirm();
+            }
+        };
 
         actions.appendChild(btnCancel);
         actions.appendChild(btnOk);

@@ -81,7 +81,7 @@
     <div class="auth-shell">
         <section class="auth-hero order-lg-2">
             <div class="brand-chip mb-4">
-                <img src="{{ asset('assets/img/logo.png') }}" alt="Sistem BK">
+                <img src="{{ asset('assets/img/logo-bk.svg') }}" alt="Sistem BK">
                 <div>
                     <div class="fw-bold">Sistem Manajemen BK</div>
                     <small class="text-primary fw-semibold">Pendaftaran Guru BK</small>

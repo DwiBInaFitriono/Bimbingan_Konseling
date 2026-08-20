@@ -11,7 +11,7 @@
 <script src="{{ asset('assets/js/main.js') }}"></script>
 
 {{-- Container Toast Notification Real-Time --}}
-<div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 11000;" id="liveToastContainer"></div>
+<div class="toast-container position-fixed top-0 end-0 mt-5 me-3 pt-3 p-3" style="z-index: 11000; pointer-events: none;" id="liveToastContainer"></div>
 
 <script src="{{ asset('assets/js/script.js') }}?v={{ time() }}"></script>
 

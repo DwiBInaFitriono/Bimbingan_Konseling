@@ -17,7 +17,7 @@
     <div class="auth-shell">
         <section class="auth-hero">
             <div class="brand-chip mb-4">
-                <img src="{{ asset('assets/img/logo-bk-baru.jpg') }}" alt="Logo BK" style="border-radius: 50%;">
+                <img src="{{ asset('assets/img/logo-bk.svg') }}" alt="Logo BK">
                 <div>
                     <div class="fw-bold">Sistem Manajemen BK</div>
                     <small class="text-primary fw-semibold">Panel Guru BK</small>

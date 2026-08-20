@@ -11,9 +11,12 @@
 
     <div class="d-flex align-items-center gap-3">
         <a href="{{ url('template') }}" class="logo d-flex align-items-center gap-2 text-decoration-none">
-            <img src="{{ asset('assets/img/logo.png') }}" alt="" aria-hidden="true" class="header-logo-img">
-            <span class="d-none d-lg-inline-block brand-main">Sistem Manajemen BK</span>
-            <span class="d-lg-none fw-semibold lh-1">BK</span>
+            <img src="{{ asset('assets/img/logo-bk.svg') }}?v={{ time() }}" alt="Logo BK" class="header-logo-img">
+            <div class="d-none d-lg-flex flex-column justify-content-center">
+                <span class="brand-main">Sistem Manajemen <span class="brand-accent"></span></span>
+                <span class="brand-sub">Bimbingan &amp; Konseling</span>
+            </div>
+            <span class="d-lg-none fw-bold brand-main">SIM-<span class="brand-accent">BK</span></span>
         </a>
 
         <button type="button" class="btn btn-link p-0 border-0 shadow-none d-lg-none toggle-sidebar-btn" aria-label="Toggle navigation">
@@ -55,41 +58,33 @@
                         <span class="profile-dropdown-email">{{ $profileUser?->email ?? 'Email tidak tersedia' }}</span>
                     </li>
 
-                    <li><hr class="dropdown-divider"></li>
-
-                    <li>
+                    <li class="pt-1">
                         <a class="dropdown-item d-flex align-items-center gap-2" href="{{ route('profile.show') }}">
                             <div class="dropdown-icon-wrap bg-primary-subtle">
                                 <i class="bi bi-person-gear text-primary"></i>
                             </div>
-                            <div>
-                                <span class="fw-semibold">Pengaturan Akun</span>
-                                <small class="d-block text-muted">Profil & password</small>
-                            </div>
+                            <span class="fw-semibold">Pengaturan Akun</span>
                         </a>
                     </li>
+
+                    <li><hr class="dropdown-divider"></li>
 
                     <li>
                         <a class="dropdown-item d-flex align-items-center gap-2" href="{{ route('help.center') }}">
                             <div class="dropdown-icon-wrap bg-success-subtle">
                                 <i class="bi bi-life-preserver text-success"></i>
                             </div>
-                            <div>
-                                <span class="fw-semibold">Bantuan</span>
-                                <small class="d-block text-muted">Panduan & FAQ</small>
-                            </div>
+                            <span class="fw-semibold">Bantuan</span>
                         </a>
                     </li>
 
                     <li><hr class="dropdown-divider"></li>
 
-                    <li>
-                        <form method="POST" action="{{ route('logout') }}">
+                    <li class="pb-1">
+                        <form method="POST" action="{{ route('logout') }}" class="m-0">
                             @csrf
-                            <button type="submit" class="dropdown-item d-flex align-items-center gap-2 text-danger">
-                                <div class="dropdown-icon-wrap bg-danger-subtle">
-                                    <i class="bi bi-box-arrow-right text-danger"></i>
-                                </div>
+                            <button type="submit" class="dropdown-item dropdown-item-logout d-flex align-items-center gap-2 text-danger">
+                                <i class="bi bi-box-arrow-right"></i>
                                 <span class="fw-semibold">Keluar</span>
                             </button>
                         </form>

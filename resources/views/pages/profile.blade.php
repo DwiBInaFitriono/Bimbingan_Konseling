@@ -256,26 +256,7 @@
 
 
 
-        {{-- Flash Alerts --}}
-        @if(session('success'))
-            <div class="alert alert-success alert-dismissible fade show profile-alert" role="alert">
-                <i class="bi bi-check-circle-fill me-1"></i>{{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
-        @if(session('password_success'))
-            <div class="alert alert-success alert-dismissible fade show profile-alert" role="alert">
-                <i class="bi bi-check-circle-fill me-1"></i>{{ session('password_success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
-        @if($errors->any())
-            <div class="alert alert-danger alert-dismissible fade show profile-alert" role="alert">
-                <i class="bi bi-exclamation-circle-fill me-1"></i>
-                @foreach($errors->all() as $err)<div>{{ $err }}</div>@endforeach
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
+
 
         <section class="section profile">
             <div class="row g-4 align-items-start">
@@ -454,8 +435,7 @@
 
     @include('include.footer')
 
-    <script src="{{ asset('assets/vendor/bootstrap/js/bootstrap.bundle.min.js') }}"></script>
-    <script src="{{ asset('assets/js/main.js') }}"></script>
+    @include('include.script')
     <script>
         function previewImage(input) {
             if (input.files && input.files[0]) {
