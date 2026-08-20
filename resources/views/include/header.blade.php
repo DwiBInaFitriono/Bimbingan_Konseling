@@ -60,9 +60,7 @@
 
                     <li class="pt-1">
                         <a class="dropdown-item d-flex align-items-center gap-2" href="{{ route('profile.show') }}">
-                            <div class="dropdown-icon-wrap bg-primary-subtle">
-                                <i class="bi bi-person-gear text-primary"></i>
-                            </div>
+                            <i class="bi bi-person-gear"></i>
                             <span class="fw-semibold">Pengaturan Akun</span>
                         </a>
                     </li>
@@ -71,9 +69,7 @@
 
                     <li>
                         <a class="dropdown-item d-flex align-items-center gap-2" href="{{ route('help.center') }}">
-                            <div class="dropdown-icon-wrap bg-success-subtle">
-                                <i class="bi bi-life-preserver text-success"></i>
-                            </div>
+                            <i class="bi bi-question-circle"></i>
                             <span class="fw-semibold">Bantuan</span>
                         </a>
                     </li>
