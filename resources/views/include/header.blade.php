@@ -29,9 +29,13 @@
 
             <li class="nav-item dropdown pe-3">
 
+                @php
+                    $headerPhotoSrc = $profileUser?->photo ? (str_starts_with($profileUser->photo, 'data:') || str_starts_with($profileUser->photo, 'http') ? $profileUser->photo : asset('storage/' . $profileUser->photo)) : null;
+                @endphp
+
                 <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown" aria-expanded="false">
-                    @if($profileUser?->photo)
-                        <img src="{{ asset('storage/' . $profileUser->photo) }}" alt="Profile" class="rounded-circle header-profile-img">
+                    @if($headerPhotoSrc)
+                        <img src="{{ $headerPhotoSrc }}" alt="Profile" class="rounded-circle header-profile-img">
                     @else
                         <span class="profile-avatar rounded-circle d-inline-flex align-items-center justify-content-center">
                             {{ $profileInitials ?: 'P' }}
@@ -46,8 +50,8 @@
                     <li class="profile-dropdown-head">
                         <div class="profile-dropdown-banner"></div>
                         <div class="profile-dropdown-avatar-wrap">
-                            @if($profileUser?->photo)
-                                <img src="{{ asset('storage/' . $profileUser->photo) }}" alt="Foto Profil" class="profile-dropdown-avatar">
+                            @if($headerPhotoSrc)
+                                <img src="{{ $headerPhotoSrc }}" alt="Foto Profil" class="profile-dropdown-avatar">
                             @else
                                 <div class="profile-dropdown-avatar-fallback">
                                     {{ $profileInitials ?: 'P' }}

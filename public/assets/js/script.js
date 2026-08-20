@@ -1,11 +1,5 @@
 /* Extracted from Blade files */
 
-// Force browser to always load page at the top on refresh (prevent scroll restoration jump)
-if ('scrollRestoration' in history) {
-    history.scrollRestoration = 'manual';
-}
-window.scrollTo(0, 0);
-
 // 1. Toast Notification Helper (Global Scope)
 window.showToast = function (message, type = 'success') {
     let container = document.getElementById('liveToastContainer');

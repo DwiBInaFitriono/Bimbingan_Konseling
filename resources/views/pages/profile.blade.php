@@ -276,13 +276,11 @@
 
                                 {{-- Photo --}}
                                 <div class="photo-upload-area">
-                                    @if($pageUser?->photo)
-                                        <img src="{{ asset('storage/' . $pageUser->photo) }}"
-                                             alt="Foto Profil" class="photo-avatar" id="profilePreview">
-                                    @else
-                                        <img src="{{ asset('assets/img/profile-img.jpg') }}"
-                                             alt="Foto Profil" class="photo-avatar" id="profilePreview">
-                                    @endif
+                                    @php
+                                        $userPhotoSrc = $pageUser?->photo ? (str_starts_with($pageUser->photo, 'data:') || str_starts_with($pageUser->photo, 'http') ? $pageUser->photo : asset('storage/' . $pageUser->photo)) : asset('assets/img/profile-img.jpg');
+                                    @endphp
+                                    <img src="{{ $userPhotoSrc }}"
+                                         alt="Foto Profil" class="photo-avatar" id="profilePreview">
                                     <div>
                                         <input type="file" name="profile_image" id="profileImageInput"
                                                class="d-none" accept="image/*" onchange="previewImage(this)">
