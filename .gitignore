@@ -25,3 +25,5 @@ CLAUDE.md
 
 .vercel
 .env*
+*.pem
+tidb-ca.pem
