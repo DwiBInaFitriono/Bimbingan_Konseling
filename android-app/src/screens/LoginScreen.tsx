@@ -237,43 +237,7 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
             Butuh bantuan? Hubungi admin sekolah
           </p>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, margin: '14px 0 2px' }}>
-            <div style={{ flex: 1, height: 1, background: '#F1F5F9' }} />
-            <span style={{ fontSize: 11, color: '#CBD5E1', fontWeight: 600, whiteSpace: 'nowrap' }}>Flutter Source Code</span>
-            <div style={{ flex: 1, height: 1, background: '#F1F5F9' }} />
-          </div>
 
-          <a
-            href={window.location.origin + '/flutter_sistembk.zip'}
-            download="flutter_sistembk.zip"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: 8,
-              width: '100%',
-              marginTop: 8,
-              padding: '11px',
-              borderRadius: 14,
-              border: '1.5px solid #E2E8F0',
-              background: '#FAFAFA',
-              color: '#475569',
-              fontWeight: 700,
-              fontSize: 13,
-              fontFamily: 'Nunito',
-              textDecoration: 'none',
-              transition: 'all 0.2s',
-            }}
-            onMouseEnter={e => { (e.currentTarget as HTMLAnchorElement).style.background = '#F1F5F9'; (e.currentTarget as HTMLAnchorElement).style.borderColor = '#CBD5E1' }}
-            onMouseLeave={e => { (e.currentTarget as HTMLAnchorElement).style.background = '#FAFAFA'; (e.currentTarget as HTMLAnchorElement).style.borderColor = '#E2E8F0' }}
-          >
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
-              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/>
-              <polyline points="7 10 12 15 17 10"/>
-              <line x1="12" y1="15" x2="12" y2="3"/>
-            </svg>
-            Download Flutter ZIP (32 KB)
-          </a>
         </div>
       </FU>
     </div>
