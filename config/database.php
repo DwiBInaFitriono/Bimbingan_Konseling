@@ -57,7 +57,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'strict' => true,
-            'options' => [],
+            'options' => extension_loaded('pdo_mysql') ? [PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false] : [],
         ],
 
         'pgsql' => [
