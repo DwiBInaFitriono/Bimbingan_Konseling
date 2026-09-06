@@ -3,6 +3,10 @@
 error_reporting(E_ALL & ~E_DEPRECATED & ~E_USER_DEPRECATED);
 ini_set('display_errors', '0');
 
+// Override storage path ke /tmp/ (writable di Vercel Lambda)
+$tmpStorage = '/tmp/storage';
+putenv('LARAVEL_STORAGE_PATH=' . $tmpStorage);
+
 $requiredCacheDirectories = [
     '/tmp/storage/cache',
     '/tmp/storage/logs',

@@ -5,7 +5,7 @@
   "env": {
     "APP_NAME": "Sistem BK",
     "APP_ENV": "production",
-    "APP_DEBUG": "true",
+    "APP_DEBUG": "false",
     "APP_KEY": "base64:+Qcwp/FKLglL0KxMs2gScVj8drIYrGkgQwx0oRGBk9Q=",
     "APP_URL": "https://bimbingan-konseling-three.vercel.app",
     "LOG_CHANNEL": "stderr",
@@ -20,7 +20,8 @@
     "VIEW_COMPILED_PATH": "/tmp/storage/framework/views",
     "CACHE_DRIVER": "array",
     "CACHE_STORE": "array",
-    "SESSION_DRIVER": "cookie",
+    "SESSION_DRIVER": "file",
+    "SESSION_LIFETIME": "120",
     "FILESYSTEM_DISK": "local",
     "BROADCAST_DRIVER": "log",
     "QUEUE_CONNECTION": "sync"
