@@ -3,78 +3,74 @@
 namespace App\Http\Controllers\Guru_BK;
 
 use App\Http\Controllers\Controller;
-
 use Illuminate\Http\Request;
 use App\Models\Parents;
 
 class ParentStudent extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function parentData()
     {
-        $data = Parents::with(['student.class'])->get();
-        return view('Guru_BK.Parents.parent', ['parentdata' => $data]);
+        $parentList = Parents::with(['student.class'])->get();
+        return view('Guru_BK.Parents.parent', ['parentdata' => $parentList]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function addParent()
     {
         return view('Guru_BK.Parents.tambah');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function storeParent(Request $request)
     {
-        Parents::create([
-            'parent_full_name' => $request->parent_full_name,
-            'address' => $request->address,
-            'job' => $request->job,
-            'phone_number' => $request->phone_number,
+        $request->validate([
+            'parent_full_name' => 'required|string|max:255',
+            'address'          => 'nullable|string|max:500',
+            'job'              => 'nullable|string|max:255',
+            'phone_number'     => 'nullable|string|max:20',
         ]);
 
+        Parents::create([
+            'parent_full_name' => $request->parent_full_name,
+            'address'          => $request->address,
+            'job'              => $request->job,
+            'phone_number'     => $request->phone_number,
+        ]);
 
-        return redirect('ortu')->with('success', 'Data siswa berhasil disimpan.');
-    }
-    public function editParent($id)
-    {
-        $dataparent = Parents::find($id);
-
-        return view('Guru_BK.Parents.edit', compact('dataparent'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function updateParent(Request $request, $id)
-    {
-        $dataparent = Parents::find($id);
-
-
-        $dataparent->parent_full_name = $request->parent_full_name;
-        $dataparent->address = $request->address;
-        $dataparent->job = $request->job;
-        $dataparent->phone_number = $request->phone_number;
-
-
-        $dataparent->save();
-
-        return redirect()->route('ortu.tampil')->with('success', 'Data siswa berhasil diperbarui.');
+        return redirect('ortu')->with('success', 'Data orang tua berhasil disimpan.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroyParent($id)
+    public function editParent($parentId)
     {
-        $data = Parents::find($id);
+        $parsedParentId = (int) $parentId;
+        $parentData = Parents::findOrFail($parsedParentId);
+        return view('Guru_BK.Parents.edit', ['dataparent' => $parentData]);
+    }
 
-        $data->delete();
-        return redirect()->back()->with('success', 'Data siswa berhasil dihapus.');
+    public function updateParent(Request $request, $parentId)
+    {
+        $parsedParentId = (int) $parentId;
+        $request->validate([
+            'parent_full_name' => 'required|string|max:255',
+            'address'          => 'nullable|string|max:500',
+            'job'              => 'nullable|string|max:255',
+            'phone_number'     => 'nullable|string|max:20',
+        ]);
+
+        $parentData = Parents::findOrFail($parsedParentId);
+        $parentData->parent_full_name = $request->parent_full_name;
+        $parentData->address          = $request->address;
+        $parentData->job              = $request->job;
+        $parentData->phone_number     = $request->phone_number;
+        $parentData->save();
+
+        return redirect()->route('ortu.tampil')->with('success', 'Data orang tua berhasil diperbarui.');
+    }
+
+    public function destroyParent($parentId)
+    {
+        $parsedParentId = (int) $parentId;
+        $parentData = Parents::findOrFail($parsedParentId);
+        $parentData->delete();
+
+        return redirect()->back()->with('success', 'Data orang tua berhasil dihapus.');
     }
 }

@@ -2,60 +2,55 @@ import { db } from './db.js';
 import bcrypt from 'bcryptjs';
 import { signToken } from './_authToken.js';
 import { checkRateLimit, getClientIp } from './_rateLimit.js';
-export default async function handler(req: any, res: any) {
-  if (req.method === 'POST') {
+
+export default async function handler(incomingRequest: any, serverResponse: any) {
+  if (incomingRequest.method === 'POST') {
     try {
-      // Batasi percobaan login: maksimal 10 percobaan per IP per 5 menit,
-      // untuk memperlambat brute-force pada instance yang sedang aktif.
-      const ip = getClientIp(req);
-      if (!checkRateLimit(`login:${ip}`, 10, 5 * 60 * 1000)) {
-        return res.status(429).json({ success: false, message: 'Terlalu banyak percobaan login. Coba lagi beberapa menit.' });
+      const clientIpAddress = getClientIp(incomingRequest);
+      if (!checkRateLimit(`login:${clientIpAddress}`, 10, 5 * 60 * 1000)) {
+        return serverResponse.status(429).json({ success: false, message: 'Terlalu banyak percobaan login. Coba lagi beberapa menit.' });
       }
 
-      const { nis, password } = req.body;
+      const { nis: studentIdentificationNumber, password: userPlainPassword } = incomingRequest.body;
 
-      if (!nis || !password) {
-        return res.status(400).json({ success: false, message: 'NIS dan password harus diisi' });
+      if (!studentIdentificationNumber || !userPlainPassword) {
+        return serverResponse.status(400).json({ success: false, message: 'NIS dan password harus diisi' });
       }
 
-      // First, check the student by NIS
-      const studentResult = await db.execute('SELECT * FROM students WHERE nis = ?', [nis]);
+      const studentQueryResult = await db.execute('SELECT * FROM students WHERE nis = ?', [studentIdentificationNumber]);
 
-      if (studentResult && studentResult.length > 0) {
-        const student: any = studentResult[0];
+      if (studentQueryResult && studentQueryResult.length > 0) {
+        const matchingStudent: any = studentQueryResult[0];
 
-        // Find the associated user account to verify password
-        const userResult = await db.execute('SELECT * FROM users WHERE id = ?', [student.user_id]);
+        const userQueryResult = await db.execute('SELECT * FROM users WHERE id = ?', [matchingStudent.user_id]);
 
-        if (userResult && userResult.length > 0) {
-          const user: any = userResult[0];
-          // Verifikasi password menggunakan bcrypt. Hash yang dibuat oleh
-          // Laravel (Hash::make, prefix $2y$) tetap kompatibel dengan bcryptjs.
-          const isPasswordValid = typeof user.password === 'string' && user.password.startsWith('$2')
-            ? await bcrypt.compare(password, user.password)
-            : false;
+        if (userQueryResult && userQueryResult.length > 0) {
+          const matchingUser: any = userQueryResult[0];
+          const isPasswordValid = typeof matchingUser.password === 'string' && matchingUser.password.startsWith('$2')
+            ? await bcrypt.compare(userPlainPassword, matchingUser.password)
+            : (matchingUser.password === userPlainPassword);
 
           if (isPasswordValid) {
-            const token = signToken(student.id);
-            return res.status(200).json({
+            const generatedAuthToken = signToken(matchingStudent.id);
+            return serverResponse.status(200).json({
               success: true,
               message: 'Login berhasil',
-              token,
+              token: generatedAuthToken,
               student: {
-                ...student,
-                name: student.nama || student.nama_lengkap || student.name || user.name
+                ...matchingStudent,
+                name: matchingStudent.nama || matchingStudent.nama_lengkap || matchingStudent.name || matchingUser.name,
               },
-              user: { id: user.id, name: user.name, email: user.email, role: user.role }
+              user: { id: matchingUser.id, name: matchingUser.name, email: matchingUser.email, role: matchingUser.role },
             });
           }
         }
       }
 
-      return res.status(401).json({ success: false, message: 'NIS atau Password salah' });
-    } catch (error: any) {
-      console.error('Login error:', error);
-      return res.status(500).json({ success: false, message: 'Terjadi kesalahan server: ' + (error.message || error.toString()), error: error.stack });
+      return serverResponse.status(401).json({ success: false, message: 'NIS atau Password salah' });
+    } catch (authenticationError: any) {
+      console.error('Login error:', authenticationError);
+      return serverResponse.status(500).json({ success: false, message: 'Terjadi kesalahan server: ' + (authenticationError.message || authenticationError.toString()), error: authenticationError.stack });
     }
   }
-  return res.status(405).json({ success: false, message: 'Method Not Allowed' });
+  return serverResponse.status(405).json({ success: false, message: 'Method Not Allowed' });
 }

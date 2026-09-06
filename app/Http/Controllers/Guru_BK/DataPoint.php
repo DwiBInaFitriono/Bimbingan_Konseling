@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Guru_BK;
 
 use App\Http\Controllers\Controller;
-
 use Illuminate\Http\Request;
 use App\Models\PointData;
 use App\Models\Student;
@@ -11,28 +10,19 @@ use Illuminate\Support\Facades\Auth;
 
 class DataPoint extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function dataPoint()
     {
-        $data = PointData::with(['student.class', 'recorder'])->latest()->get();
-        $datasiswa = Student::with('class')->get();
-        return view('Guru_BK.Point.points', ['datapoint' => $data, 'datasiswa' => $datasiswa]);
+        $violationPointList = PointData::with(['student.class', 'recorder'])->latest()->get();
+        $studentList = Student::with('class')->get();
+        return view('Guru_BK.Point.points', ['datapoint' => $violationPointList, 'datasiswa' => $studentList]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function createPoint()
     {
-        $datasiswa = Student::with('class')->get();
-        return view('Guru_BK.Point.tambah', compact('datasiswa'));
+        $studentList = Student::with('class')->get();
+        return view('Guru_BK.Point.tambah', ['datasiswa' => $studentList]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function storePoint(Request $request)
     {
         $request->validate([
@@ -42,7 +32,7 @@ class DataPoint extends Controller
             'violation_date' => 'nullable|date',
         ]);
 
-        $point = PointData::create([
+        $createdPointData = PointData::create([
             'student_id'     => $request->student_id,
             'violation'      => $request->violation,
             'point_number'   => $request->point_number,
@@ -51,72 +41,65 @@ class DataPoint extends Controller
             'recorded_by'    => Auth::id(),
         ]);
 
-        // Recalculate student score & status
-        if ($point->student) {
-            $point->student->recalculateStatus();
+        if ($createdPointData->student) {
+            $createdPointData->student->recalculateStatus();
         }
 
         return redirect()->route('point.tampil')->with('success', 'Poin pelanggaran siswa berhasil dicatat.');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function editPoint($id)
+    public function editPoint($pointDataId)
     {
-        $id = (int) $id;
-        $data = PointData::findOrFail($id);
-        $datasiswa = Student::with('class')->get();
-        return view('Guru_BK.Point.edit', compact('data', 'datasiswa'));
+        $parsedPointId = (int) $pointDataId;
+        $violationPointData = PointData::findOrFail($parsedPointId);
+        $studentList = Student::with('class')->get();
+        return view('Guru_BK.Point.edit', [
+            'data' => $violationPointData,
+            'datasiswa' => $studentList,
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function updatePoint(Request $request, $id)
+    public function updatePoint(Request $request, $pointDataId)
     {
-        $id = (int) $id;
+        $parsedPointId = (int) $pointDataId;
         $request->validate([
             'student_id'   => 'required|exists:students,id',
             'violation'    => 'required|string|max:255',
             'point_number' => 'required|integer|min:1',
         ]);
 
-        $data = PointData::findOrFail($id);
-        $oldStudentId = $data->student_id;
+        $violationPointData = PointData::findOrFail($parsedPointId);
+        $originalStudentId = $violationPointData->student_id;
 
-        $data->student_id     = $request->student_id;
-        $data->violation      = $request->violation;
-        $data->point_number   = $request->point_number;
-        $data->violation_date = $request->violation_date ?? $data->violation_date;
-        $data->description    = $request->description;
-        $data->save();
+        $violationPointData->student_id     = $request->student_id;
+        $violationPointData->violation      = $request->violation;
+        $violationPointData->point_number   = $request->point_number;
+        $violationPointData->violation_date = $request->violation_date ?? $violationPointData->violation_date;
+        $violationPointData->description    = $request->description;
+        $violationPointData->save();
 
-        if ($data->student) {
-            $data->student->recalculateStatus();
+        if ($violationPointData->student) {
+            $violationPointData->student->recalculateStatus();
         }
-        if ($oldStudentId != $data->student_id) {
-            $oldStudent = Student::find($oldStudentId);
-            if ($oldStudent) {
-                $oldStudent->recalculateStatus();
+        if ($originalStudentId != $violationPointData->student_id) {
+            $previousStudent = Student::find($originalStudentId);
+            if ($previousStudent) {
+                $previousStudent->recalculateStatus();
             }
         }
 
         return redirect()->route('point.tampil')->with('success', 'Data poin pelanggaran berhasil diperbarui.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroyPoint($id)
+    public function destroyPoint($pointDataId)
     {
-        $id = (int) $id;
-        $data = PointData::findOrFail($id);
-        $student = $data->student;
-        $data->delete();
+        $parsedPointId = (int) $pointDataId;
+        $violationPointData = PointData::findOrFail($parsedPointId);
+        $affectedStudent = $violationPointData->student;
+        $violationPointData->delete();
 
-        if ($student) {
-            $student->recalculateStatus();
+        if ($affectedStudent) {
+            $affectedStudent->recalculateStatus();
         }
 
         return redirect()->back()->with('success', 'Data poin berhasil dihapus.');

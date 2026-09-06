@@ -1,27 +1,25 @@
 import { db } from './db.js';
 import { getAuthenticatedStudentId } from './_authToken.js';
 
-export default async function handler(req: any, res: any) {
-  // Wajib login: student_id diambil dari token yang sudah diverifikasi,
-  // bukan dari query string klien (mencegah IDOR — baca riwayat siswa lain).
-  const authenticatedStudentId = getAuthenticatedStudentId(req);
+export default async function handler(incomingRequest: any, serverResponse: any) {
+  const authenticatedStudentId = getAuthenticatedStudentId(incomingRequest);
   if (!authenticatedStudentId) {
-    return res.status(401).json({ success: false, message: 'Sesi tidak valid. Silakan login kembali.' });
+    return serverResponse.status(401).json({ success: false, message: 'Sesi tidak valid. Silakan login kembali.' });
   }
 
-  if (req.method === 'GET') {
+  if (incomingRequest.method === 'GET') {
     try {
-      const { type } = req.query;
+      const { type: historyCategoryType } = incomingRequest.query;
 
-      if (!type) {
-        return res.status(400).json({ success: false, message: 'type is required' });
+      if (!historyCategoryType) {
+        return serverResponse.status(400).json({ success: false, message: 'type is required' });
       }
 
-      let query = '';
+      let historySqlQuery = '';
 
-      switch(type) {
+      switch (historyCategoryType) {
         case 'konseling':
-          query = `
+          historySqlQuery = `
             SELECT cs.*, u.name as counselor_name
             FROM counseling_sessions cs
             LEFT JOIN users u ON cs.guru_bk_id = u.id
@@ -30,7 +28,7 @@ export default async function handler(req: any, res: any) {
           `;
           break;
         case 'pelanggaran':
-          query = `
+          historySqlQuery = `
             SELECT pd.*, dpc.category_of_violation as category_name, pd.point_number as category_point
             FROM point_datas pd
             LEFT JOIN data_point_categories dpc ON (pd.point_number >= dpc.category_score_min AND pd.point_number <= dpc.category_score_max)
@@ -39,29 +37,29 @@ export default async function handler(req: any, res: any) {
           `;
           break;
         case 'kasus':
-          query = `
+          historySqlQuery = `
             SELECT * FROM case_studies 
             WHERE student_id = ? AND deleted_at IS NULL
             ORDER BY created_at DESC
           `;
           break;
         case 'prestasi':
-          query = `
+          historySqlQuery = `
             SELECT * FROM achievements 
             WHERE student_id = ? AND deleted_at IS NULL
             ORDER BY achievement_date DESC
           `;
           break;
         default:
-          return res.status(400).json({ success: false, message: 'Invalid type' });
+          return serverResponse.status(400).json({ success: false, message: 'Invalid type' });
       }
 
-      let results = await db.execute(query, [authenticatedStudentId]);
-      return res.status(200).json({ success: true, data: results });
-    } catch (error: any) {
-      console.error('Riwayat GET error:', error);
-      return res.status(500).json({ success: false, message: 'Terjadi kesalahan server' });
+      const historyRecords = await db.execute(historySqlQuery, [authenticatedStudentId]);
+      return serverResponse.status(200).json({ success: true, data: historyRecords });
+    } catch (historyFetchError: any) {
+      console.error('Riwayat GET error:', historyFetchError);
+      return serverResponse.status(500).json({ success: false, message: 'Terjadi kesalahan server' });
     }
   }
-  return res.status(405).json({ message: 'Method Not Allowed' });
+  return serverResponse.status(405).json({ message: 'Method Not Allowed' });
 }

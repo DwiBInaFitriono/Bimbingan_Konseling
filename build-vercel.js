@@ -3,294 +3,278 @@ const path = require('path');
 const { execFileSync } = require('child_process');
 const libphp = require('@libphp/almalinux-9-v85');
 
-// Monkey-patch libphp.getFiles to ensure Linux forward slashes on Windows
-const origGetFiles = libphp.getFiles;
-libphp.getFiles = async function() {
-    const files = await origGetFiles.call(this);
-    const normalized = {};
-    for (const [k, v] of Object.entries(files)) {
-        normalized[k.replace(/\\/g, '/')] = v;
+const originalGetFilesFunction = libphp.getFiles;
+libphp.getFiles = async function () {
+    const rawFilesMap = await originalGetFilesFunction.call(this);
+    const normalizedFilesMap = {};
+    for (const [filePathKey, fileEntryValue] of Object.entries(rawFilesMap)) {
+        normalizedFilesMap[filePathKey.replace(/\\/g, '/')] = fileEntryValue;
     }
-    return normalized;
+    return normalizedFilesMap;
 };
 
 const vercelPhp = require('vercel-php');
 
 async function main() {
-    console.log('🚀 Starting custom Vercel Build Output API v3 generator...');
-    const workPath = process.cwd();
+    const currentWorkingDirectory = process.cwd();
 
-    // 1. Run vercel-php builder
-    const result = await vercelPhp.build({
+    const vercelBuilderResult = await vercelPhp.build({
         files: {},
         entrypoint: 'api/index.php',
-        workPath: workPath,
+        workPath: currentWorkingDirectory,
         config: {},
         meta: { isDev: false }
     });
 
-    const funcDir = path.join(workPath, '.vercel/output/functions/api/index.func');
-    fs.mkdirSync(funcDir, { recursive: true });
+    const targetFunctionDirectory = path.join(currentWorkingDirectory, '.vercel/output/functions/api/index.func');
+    fs.mkdirSync(targetFunctionDirectory, { recursive: true });
 
-    // 2. Copy libphp binaries (including php-cgi, php, and shared libraries)
-    console.log('📦 Writing libphp binaries to .vercel/output...');
-    const libphpFiles = await libphp.getFiles();
-    for (const [relPath, fileObj] of Object.entries(libphpFiles)) {
-        const destPath = path.join(funcDir, relPath);
-        fs.mkdirSync(path.dirname(destPath), { recursive: true });
-        
-        const sourcePath = typeof fileObj === 'string' ? fileObj : (fileObj.fsPath || null);
-        const fileData = typeof fileObj === 'string' ? null : (fileObj.data || null);
+    const libphpFilesMap = await libphp.getFiles();
+    for (const [relativeFilePath, libphpFileObject] of Object.entries(libphpFilesMap)) {
+        const destinationFilePath = path.join(targetFunctionDirectory, relativeFilePath);
+        fs.mkdirSync(path.dirname(destinationFilePath), { recursive: true });
 
-        if (sourcePath && fs.existsSync(sourcePath)) {
+        const sourceFilePath = typeof libphpFileObject === 'string' ? libphpFileObject : (libphpFileObject.fsPath || null);
+        const binaryBufferData = typeof libphpFileObject === 'string' ? null : (libphpFileObject.data || null);
+
+        if (sourceFilePath && fs.existsSync(sourceFilePath)) {
             try {
-                const realPath = fs.realpathSync(sourcePath);
-                fs.copyFileSync(realPath, destPath);
-            } catch(e) {
-                try { fs.copyFileSync(sourcePath, destPath); } catch(err) {}
+                const resolvedRealPath = fs.realpathSync(sourceFilePath);
+                fs.copyFileSync(resolvedRealPath, destinationFilePath);
+            } catch (resolveException) {
+                try { fs.copyFileSync(sourceFilePath, destinationFilePath); } catch (copyException) {}
             }
-        } else if (fileData) {
-            fs.writeFileSync(destPath, fileData);
+        } else if (binaryBufferData) {
+            fs.writeFileSync(destinationFilePath, binaryBufferData);
         }
-        try { fs.chmodSync(destPath, 0o755); } catch (e) {}
+        try { fs.chmodSync(destinationFilePath, 0o755); } catch (chmodException) {}
     }
 
-    // 3. Copy user lambda files
-    console.log('📦 Writing user function files to .vercel/output...');
-    const lambdaFiles = result.output.files;
-    for (const [relPath, fileObj] of Object.entries(lambdaFiles)) {
-        const normalizedPath = relPath.replace(/\\/g, '/');
+    const lambdaFilesMap = vercelBuilderResult.output.files;
+    for (const [relativeFilePath, lambdaFileObject] of Object.entries(lambdaFilesMap)) {
+        const normalizedFilePath = relativeFilePath.replace(/\\/g, '/');
 
-        // Ignore git, node_modules, and vercel cache
         if (
-            normalizedPath.startsWith('user/.git/') ||
-            normalizedPath.startsWith('user/node_modules/') ||
-            normalizedPath.startsWith('user/.vercel/')
+            normalizedFilePath.startsWith('user/.git/') ||
+            normalizedFilePath.startsWith('user/node_modules/') ||
+            normalizedFilePath.startsWith('user/.vercel/')
         ) {
             continue;
         }
 
-        const destPath = path.join(funcDir, normalizedPath);
-        fs.mkdirSync(path.dirname(destPath), { recursive: true });
+        const destinationFilePath = path.join(targetFunctionDirectory, normalizedFilePath);
+        fs.mkdirSync(path.dirname(destinationFilePath), { recursive: true });
 
-        if (fileObj.fsPath) {
-            if (fs.existsSync(fileObj.fsPath)) {
+        if (lambdaFileObject.fsPath) {
+            if (fs.existsSync(lambdaFileObject.fsPath)) {
                 try {
-                    const realPath = fs.realpathSync(fileObj.fsPath);
-                    const stat = fs.statSync(realPath);
-                    if (stat.isDirectory()) {
-                        fs.cpSync(realPath, destPath, { recursive: true, dereference: true });
+                    const resolvedRealPath = fs.realpathSync(lambdaFileObject.fsPath);
+                    const fileStatistics = fs.statSync(resolvedRealPath);
+                    if (fileStatistics.isDirectory()) {
+                        fs.cpSync(resolvedRealPath, destinationFilePath, { recursive: true, dereference: true });
                     } else {
-                        fs.copyFileSync(realPath, destPath);
+                        fs.copyFileSync(resolvedRealPath, destinationFilePath);
                     }
-                } catch(e) {
+                } catch (resolveException) {
                     try {
-                        fs.copyFileSync(fileObj.fsPath, destPath);
-                    } catch(err) {}
+                        fs.copyFileSync(lambdaFileObject.fsPath, destinationFilePath);
+                    } catch (copyException) {}
                 }
             }
-        } else if (fileObj.data) {
-            fs.writeFileSync(destPath, fileObj.data);
+        } else if (lambdaFileObject.data) {
+            fs.writeFileSync(destinationFilePath, lambdaFileObject.data);
         }
-        if (fileObj.mode) {
-            try { fs.chmodSync(destPath, fileObj.mode); } catch (e) {}
+        if (lambdaFileObject.mode) {
+            try { fs.chmodSync(destinationFilePath, lambdaFileObject.mode); } catch (chmodException) {}
         }
     }
-    console.log('📦 Copying shared libraries to php directory to satisfy dynamic linker...');
-    const libDir = path.join(funcDir, 'lib');
-    const phpDir = path.join(funcDir, 'php');
-    if (fs.existsSync(libDir)) {
-        const libs = fs.readdirSync(libDir);
-        for (const lib of libs) {
+
+    const sharedLibraryDirectory = path.join(targetFunctionDirectory, 'lib');
+    const phpBinaryDirectory = path.join(targetFunctionDirectory, 'php');
+    if (fs.existsSync(sharedLibraryDirectory)) {
+        const sharedLibrariesList = fs.readdirSync(sharedLibraryDirectory);
+        for (const libraryFileName of sharedLibrariesList) {
             try {
-                fs.copyFileSync(path.join(libDir, lib), path.join(phpDir, lib));
-            } catch(e) {}
+                fs.copyFileSync(path.join(sharedLibraryDirectory, libraryFileName), path.join(phpBinaryDirectory, libraryFileName));
+            } catch (copyException) {}
         }
     }
 
-    console.log('📦 Running composer install in user directory...');
     try {
-        const phpCli = path.join(funcDir, 'php/php');
-        const composerCli = path.join(funcDir, 'php/composer');
-        const phpIniPath = path.join(funcDir, 'php/php.ini');
-        
-        let phpIniContent = fs.readFileSync(phpIniPath, 'utf8');
-        const originalExtensionDir = 'extension_dir=/var/task/php/modules';
-        if (phpIniContent.includes(originalExtensionDir)) {
-            console.log('✅ Found extension_dir in php.ini, replacing it...');
-            phpIniContent = phpIniContent.replace(originalExtensionDir, 'extension_dir=' + path.join(funcDir, 'php/modules'));
-        } else {
-            console.log('❌ Could not find extension_dir=/var/task/php/modules in php.ini!');
-            console.log(phpIniContent.substring(0, 500));
-        }
-        const buildPhpIniPath = path.join(funcDir, 'php/php-build.ini');
-        fs.writeFileSync(buildPhpIniPath, phpIniContent);
+        const phpCliExecutable = path.join(targetFunctionDirectory, 'php/php');
+        const composerCliExecutable = path.join(targetFunctionDirectory, 'php/composer');
+        const phpIniConfigurationPath = path.join(targetFunctionDirectory, 'php/php.ini');
 
-        execFileSync(phpCli, [
-            '-c', buildPhpIniPath,
-            composerCli,
-            'install',
-            '--no-dev',
-            '--optimize-autoloader'
-        ], {
-            cwd: path.join(funcDir, 'user'),
-            env: {
-                ...process.env,
-                COMPOSER_HOME: path.join(funcDir, 'composer-home'),
-                PHPRC: buildPhpIniPath,
-                LD_LIBRARY_PATH: path.join(funcDir, 'lib') + (process.env.LD_LIBRARY_PATH ? ':' + process.env.LD_LIBRARY_PATH : '')
-            },
-            stdio: 'inherit'
-        });
-        console.log('✅ Composer install successful!');
-    } catch (e) {
-        console.error('❌ Composer install failed:', e);
+        let phpIniConfigurationContent = fs.readFileSync(phpIniConfigurationPath, 'utf8');
+        const originalExtensionDirectoryConfig = 'extension_dir=/var/task/php/modules';
+        if (phpIniConfigurationContent.includes(originalExtensionDirectoryConfig)) {
+            phpIniConfigurationContent = phpIniConfigurationContent.replace(
+                originalExtensionDirectoryConfig,
+                'extension_dir=' + path.join(targetFunctionDirectory, 'php/modules')
+            );
+        }
+        const buildPhpIniPath = path.join(targetFunctionDirectory, 'php/php-build.ini');
+        fs.writeFileSync(buildPhpIniPath, phpIniConfigurationContent);
+
+        if (process.platform !== 'win32') {
+            execFileSync(phpCliExecutable, [
+                '-c', buildPhpIniPath,
+                composerCliExecutable,
+                'install',
+                '--no-dev',
+                '--optimize-autoloader'
+            ], {
+                cwd: path.join(targetFunctionDirectory, 'user'),
+                env: {
+                    ...process.env,
+                    COMPOSER_HOME: path.join(targetFunctionDirectory, 'composer-home'),
+                    PHPRC: buildPhpIniPath,
+                    LD_LIBRARY_PATH: path.join(targetFunctionDirectory, 'lib') + (process.env.LD_LIBRARY_PATH ? ':' + process.env.LD_LIBRARY_PATH : '')
+                },
+                stdio: 'inherit'
+            });
+        }
+    } catch (composerException) {
+        console.error('Composer install failed:', composerException);
     }
 
-    // 4. Create index.js wrapper using synchronous PHP-CGI (req, res) handler
-    console.log('🔧 Creating index.js entrypoint wrapper with (req, res) PHP-CGI runner...');
-    const indexJsContent = "const { execFileSync } = require('child_process');\n" +
+    const indexJsRunnerContent = "const { execFileSync } = require('child_process');\n" +
 "const path = require('path');\n" +
 "const fs = require('fs');\n" +
 "\n" +
-"module.exports = async (req, res) => {\n" +
+"module.exports = async (incomingHttpRequest, outgoingHttpResponse) => {\n" +
 "    try {\n" +
-"        const taskRoot = __dirname;\n" +
-"        const phpCgiBin = path.join(taskRoot, 'php/php-cgi');\n" +
-"        const phpIni = path.join(taskRoot, 'php/php.ini');\n" +
+"        const taskRootDirectory = __dirname;\n" +
+"        const phpCgiExecutable = path.join(taskRootDirectory, 'php/php-cgi');\n" +
+"        const phpIniConfiguration = path.join(taskRootDirectory, 'php/php.ini');\n" +
 "        \n" +
-"        let scriptFile = path.join(taskRoot, 'user/api/index.php');\n" +
-"        if (!fs.existsSync(scriptFile)) {\n" +
-"            scriptFile = path.join(taskRoot, 'user/public/index.php');\n" +
+"        let executedScriptFilePath = path.join(taskRootDirectory, 'user/api/index.php');\n" +
+"        if (!fs.existsSync(executedScriptFilePath)) {\n" +
+"            executedScriptFilePath = path.join(taskRootDirectory, 'user/public/index.php');\n" +
 "        }\n" +
 "\n" +
-"        const reqUrl = req.url || '/';\n" +
-"        const [reqPath, queryString] = reqUrl.split('?');\n" +
-"        const method = (req.method || 'GET').toUpperCase();\n" +
+"        const incomingRequestUrl = incomingHttpRequest.url || '/';\n" +
+"        const [extractedRequestPath, extractedQueryString] = incomingRequestUrl.split('?');\n" +
+"        const httpRequestMethod = (incomingHttpRequest.method || 'GET').toUpperCase();\n" +
 "\n" +
-"        if (reqUrl === '/ls') {\n" +
-"            res.statusCode = 200;\n" +
-"            res.setHeader('content-type', 'text/plain');\n" +
-"            let out = 'NODE JS IS RUNNING\\n';\n" +
-"            return res.end(out);\n" +
+"        if (incomingRequestUrl === '/ls') {\n" +
+"            outgoingHttpResponse.statusCode = 200;\n" +
+"            outgoingHttpResponse.setHeader('content-type', 'text/plain');\n" +
+"            return outgoingHttpResponse.end('NODE JS IS RUNNING\\n');\n" +
 "        }\n" +
 "\n" +
-"        const env = {\n" +
+"        const cgiEnvironmentVariables = {\n" +
 "            ...process.env,\n" +
 "            GATEWAY_INTERFACE: 'CGI/1.1',\n" +
 "            SERVER_PROTOCOL: 'HTTP/1.1',\n" +
-"            REQUEST_METHOD: method,\n" +
-"            SCRIPT_FILENAME: scriptFile,\n" +
+"            REQUEST_METHOD: httpRequestMethod,\n" +
+"            SCRIPT_FILENAME: executedScriptFilePath,\n" +
 "            SCRIPT_NAME: '/index.php',\n" +
-"            PATH_INFO: reqPath || '/',\n" +
-"            REQUEST_URI: reqUrl,\n" +
-"            QUERY_STRING: queryString || '',\n" +
-"            HTTP_HOST: req.headers.host || req.headers.Host || 'localhost',\n" +
+"            PATH_INFO: extractedRequestPath || '/',\n" +
+"            REQUEST_URI: incomingRequestUrl,\n" +
+"            QUERY_STRING: extractedQueryString || '',\n" +
+"            HTTP_HOST: incomingHttpRequest.headers.host || incomingHttpRequest.headers.Host || 'localhost',\n" +
 "            REDIRECT_STATUS: '200',\n" +
-"            LD_LIBRARY_PATH: path.join(taskRoot, 'lib') + ':' + (process.env.LD_LIBRARY_PATH || '')\n" +
+"            LD_LIBRARY_PATH: path.join(taskRootDirectory, 'lib') + ':' + (process.env.LD_LIBRARY_PATH || '')\n" +
 "        };\n" +
 "\n" +
-"        for (const [key, val] of Object.entries(req.headers || {})) {\n" +
-"            const headerKey = 'HTTP_' + key.toUpperCase().replace(/-/g, '_');\n" +
-"            env[headerKey] = val;\n" +
+"        for (const [headerKey, headerValue] of Object.entries(incomingHttpRequest.headers || {})) {\n" +
+"            const cgiHeaderKey = 'HTTP_' + headerKey.toUpperCase().replace(/-/g, '_');\n" +
+"            cgiEnvironmentVariables[cgiHeaderKey] = headerValue;\n" +
 "        }\n" +
-"        if (req.headers['content-type']) env.CONTENT_TYPE = req.headers['content-type'];\n" +
-"        if (req.headers['content-length']) env.CONTENT_LENGTH = req.headers['content-length'];\n" +
+"        if (incomingHttpRequest.headers['content-type']) cgiEnvironmentVariables.CONTENT_TYPE = incomingHttpRequest.headers['content-type'];\n" +
+"        if (incomingHttpRequest.headers['content-length']) cgiEnvironmentVariables.CONTENT_LENGTH = incomingHttpRequest.headers['content-length'];\n" +
 "\n" +
-"        // Collect body manually if needed\n" +
-"        let inputBuffer = Buffer.alloc(0);\n" +
-"        if (method !== 'GET' && method !== 'HEAD') {\n" +
-"            if (req.body) {\n" +
-"                if (Buffer.isBuffer(req.body)) {\n" +
-"                    inputBuffer = req.body;\n" +
-"                } else if (typeof req.body === 'string') {\n" +
-"                    inputBuffer = Buffer.from(req.body);\n" +
+"        let requestBodyBuffer = Buffer.alloc(0);\n" +
+"        if (httpRequestMethod !== 'GET' && httpRequestMethod !== 'HEAD') {\n" +
+"            if (incomingHttpRequest.body) {\n" +
+"                if (Buffer.isBuffer(incomingHttpRequest.body)) {\n" +
+"                    requestBodyBuffer = incomingHttpRequest.body;\n" +
+"                } else if (typeof incomingHttpRequest.body === 'string') {\n" +
+"                    requestBodyBuffer = Buffer.from(incomingHttpRequest.body);\n" +
 "                } else {\n" +
-"                    // If Vercel parsed it as an object, serialize it back based on content type\n" +
-"                    const ct = req.headers['content-type'] || '';\n" +
-"                    if (ct.includes('application/json')) {\n" +
-"                        inputBuffer = Buffer.from(JSON.stringify(req.body));\n" +
-"                    } else if (ct.includes('application/x-www-form-urlencoded')) {\n" +
-"                        inputBuffer = Buffer.from(new URLSearchParams(req.body).toString());\n" +
+"                    const contentTypeHeader = incomingHttpRequest.headers['content-type'] || '';\n" +
+"                    if (contentTypeHeader.includes('application/json')) {\n" +
+"                        requestBodyBuffer = Buffer.from(JSON.stringify(incomingHttpRequest.body));\n" +
+"                    } else if (contentTypeHeader.includes('application/x-www-form-urlencoded')) {\n" +
+"                        requestBodyBuffer = Buffer.from(new URLSearchParams(incomingHttpRequest.body).toString());\n" +
 "                    } else {\n" +
-"                        inputBuffer = Buffer.from(JSON.stringify(req.body));\n" +
+"                        requestBodyBuffer = Buffer.from(JSON.stringify(incomingHttpRequest.body));\n" +
 "                    }\n" +
 "                }\n" +
 "            } else {\n" +
-"                // Read from stream\n" +
-"                inputBuffer = await new Promise((resolve, reject) => {\n" +
-"                    const chunks = [];\n" +
-"                    req.on('data', c => chunks.push(c));\n" +
-"                    req.on('end', () => resolve(Buffer.concat(chunks)));\n" +
-"                    req.on('error', reject);\n" +
+"                requestBodyBuffer = await new Promise((resolvePromise, rejectPromise) => {\n" +
+"                    const streamDataChunks = [];\n" +
+"                    incomingHttpRequest.on('data', incomingChunk => streamDataChunks.push(incomingChunk));\n" +
+"                    incomingHttpRequest.on('end', () => resolvePromise(Buffer.concat(streamDataChunks)));\n" +
+"                    incomingHttpRequest.on('error', rejectPromise);\n" +
 "                });\n" +
 "            }\n" +
-"            env.CONTENT_LENGTH = String(inputBuffer.length);\n" +
+"            cgiEnvironmentVariables.CONTENT_LENGTH = String(requestBodyBuffer.length);\n" +
 "        }\n" +
 "\n" +
-"        let result;\n" +
+"        let phpExecutionRawOutput;\n" +
 "        try {\n" +
 "            const { spawnSync } = require('child_process');\n" +
-"            const child = spawnSync(phpCgiBin, ['-c', phpIni, scriptFile], {\n" +
-"                env,\n" +
-"                cwd: path.join(taskRoot, 'user'),\n" +
-"                input: inputBuffer,\n" +
+"            const childProcess = spawnSync(phpCgiExecutable, ['-c', phpIniConfiguration, executedScriptFilePath], {\n" +
+"                env: cgiEnvironmentVariables,\n" +
+"                cwd: path.join(taskRootDirectory, 'user'),\n" +
+"                input: requestBodyBuffer,\n" +
 "                maxBuffer: 20 * 1024 * 1024\n" +
 "            });\n" +
-"            if (child.stderr && child.stderr.length > 0) {\n" +
-"                console.error('PHP STDERR:', child.stderr.toString());\n" +
+"            if (childProcess.stderr && childProcess.stderr.length > 0) {\n" +
+"                console.error('PHP STDERR:', childProcess.stderr.toString());\n" +
 "            }\n" +
-"            if (child.error) {\n" +
-"                throw child.error;\n" +
+"            if (childProcess.error) {\n" +
+"                throw childProcess.error;\n" +
 "            }\n" +
-"            if (!child.stdout || child.stdout.length === 0) {\n" +
-"                res.statusCode = 500;\n" +
-"                res.setHeader('content-type', 'text/plain');\n" +
-"                return res.end('PHP CGI returned empty response. Status: ' + child.status + '\\nSTDERR: ' + (child.stderr ? child.stderr.toString() : ''));\n" +
+"            if (!childProcess.stdout || childProcess.stdout.length === 0) {\n" +
+"                outgoingHttpResponse.statusCode = 500;\n" +
+"                outgoingHttpResponse.setHeader('content-type', 'text/plain');\n" +
+"                return outgoingHttpResponse.end('PHP CGI returned empty response. Status: ' + childProcess.status + '\\nSTDERR: ' + (childProcess.stderr ? childProcess.stderr.toString() : ''));\n" +
 "            }\n" +
-"            result = child.stdout;\n" +
-"        } catch (error) {\n" +
-"            res.statusCode = 500;\n" +
-"            res.setHeader('content-type', 'text/plain');\n" +
-"            return res.end('PHP CGI Execution Error: ' + error.message);\n" +
+"            phpExecutionRawOutput = childProcess.stdout;\n" +
+"        } catch (cgiExecutionError) {\n" +
+"            outgoingHttpResponse.statusCode = 500;\n" +
+"            outgoingHttpResponse.setHeader('content-type', 'text/plain');\n" +
+"            return outgoingHttpResponse.end('PHP CGI Execution Error: ' + cgiExecutionError.message);\n" +
 "        }\n" +
 "\n" +
 "        try {\n" +
-"            const outStr = result.toString('latin1');\n" +
-"            const [headersPart, ...bodyParts] = outStr.split('\\r\\n\\r\\n');\n" +
-"            const bodyStr = bodyParts.join('\\r\\n\\r\\n');\n" +
+"            const outputStringLatin1 = phpExecutionRawOutput.toString('latin1');\n" +
+"            const [headersSection, ...bodySections] = outputStringLatin1.split('\\r\\n\\r\\n');\n" +
+"            const responseBodyString = bodySections.join('\\r\\n\\r\\n');\n" +
 "\n" +
-"            const headerLines = headersPart.split('\\r\\n');\n" +
-"            for (const line of headerLines) {\n" +
-"                const sep = line.indexOf(':');\n" +
-"                if (sep > 0) {\n" +
-"                    const key = line.substring(0, sep).trim();\n" +
-"                    const val = line.substring(sep + 1).trim();\n" +
-"                    if (key.toLowerCase() === 'status') {\n" +
-"                        res.statusCode = parseInt(val, 10);\n" +
+"            const headerLinesList = headersSection.split('\\r\\n');\n" +
+"            for (const headerLine of headerLinesList) {\n" +
+"                const separatorIndex = headerLine.indexOf(':');\n" +
+"                if (separatorIndex > 0) {\n" +
+"                    const responseHeaderKey = headerLine.substring(0, separatorIndex).trim();\n" +
+"                    const responseHeaderValue = headerLine.substring(separatorIndex + 1).trim();\n" +
+"                    if (responseHeaderKey.toLowerCase() === 'status') {\n" +
+"                        outgoingHttpResponse.statusCode = parseInt(responseHeaderValue, 10);\n" +
 "                    } else {\n" +
-"                        res.setHeader(key, val);\n" +
+"                        outgoingHttpResponse.setHeader(responseHeaderKey, responseHeaderValue);\n" +
 "                    }\n" +
 "                }\n" +
 "            }\n" +
-"            res.end(Buffer.from(bodyStr, 'latin1'));\n" +
-"        } catch (error) {\n" +
-"            res.statusCode = 500;\n" +
-"            res.setHeader('content-type', 'text/plain');\n" +
-"            res.end('Wrapper Error: ' + error.message);\n" +
+"            outgoingHttpResponse.end(Buffer.from(responseBodyString, 'latin1'));\n" +
+"        } catch (parsingError) {\n" +
+"            outgoingHttpResponse.statusCode = 500;\n" +
+"            outgoingHttpResponse.setHeader('content-type', 'text/plain');\n" +
+"            outgoingHttpResponse.end('Wrapper Error: ' + parsingError.message);\n" +
 "        }\n" +
-"    } catch (err) {\n" +
-"        console.error('PHP CGI Error:', err);\n" +
-"        res.statusCode = 500;\n" +
-"        res.setHeader('content-type', 'text/plain');\n" +
-"        res.end('PHP CGI Error: ' + err.message);\n" +
+"    } catch (globalCatchError) {\n" +
+"        console.error('PHP CGI Error:', globalCatchError);\n" +
+"        outgoingHttpResponse.statusCode = 500;\n" +
+"        outgoingHttpResponse.setHeader('content-type', 'text/plain');\n" +
+"        outgoingHttpResponse.end('PHP CGI Error: ' + globalCatchError.message);\n" +
 "    }\n" +
 "};\n";
 
-    fs.writeFileSync(path.join(funcDir, 'index.js'), indexJsContent);
+    fs.writeFileSync(path.join(targetFunctionDirectory, 'index.js'), indexJsRunnerContent);
 
-    // 5. Create .vc-config.json
-    const vcConfig = {
+    const vercelConfigObject = {
         runtime: "nodejs20.x",
         handler: "index.js",
         launcherType: "Nodejs",
@@ -299,39 +283,33 @@ async function main() {
             NOW_PHP_DEV: "0"
         }
     };
-    fs.writeFileSync(path.join(funcDir, '.vc-config.json'), JSON.stringify(vcConfig, null, 2));
+    fs.writeFileSync(path.join(targetFunctionDirectory, '.vc-config.json'), JSON.stringify(vercelConfigObject, null, 2));
 
-    // 6. Create static files directory
-    console.log('📦 Copying public files to .vercel/output/static...');
-    const staticDir = path.join(workPath, '.vercel/output/static');
-    fs.mkdirSync(staticDir, { recursive: true });
+    const vercelStaticOutputDirectory = path.join(currentWorkingDirectory, '.vercel/output/static');
+    fs.mkdirSync(vercelStaticOutputDirectory, { recursive: true });
     try {
-        fs.cpSync(path.join(workPath, 'public'), staticDir, { recursive: true, force: true });
-        // Remove PHP files from static so Vercel doesn't serve them as downloads
-        const files = fs.readdirSync(staticDir);
-        for (const file of files) {
-            if (file.endsWith('.php')) {
-                fs.unlinkSync(path.join(staticDir, file));
+        fs.cpSync(path.join(currentWorkingDirectory, 'public'), vercelStaticOutputDirectory, { recursive: true, force: true });
+        const staticDirectoryFiles = fs.readdirSync(vercelStaticOutputDirectory);
+        for (const singleFileName of staticDirectoryFiles) {
+            if (singleFileName.endsWith('.php')) {
+                fs.unlinkSync(path.join(vercelStaticOutputDirectory, singleFileName));
             }
         }
-    } catch(e) {
-        console.error('Failed to copy public files to static:', e);
+    } catch (staticCopyException) {
+        console.error('Failed to copy public files to static:', staticCopyException);
     }
 
-    // 7. Create .vercel/output/config.json
-    const outputConfig = {
+    const vercelOutputConfiguration = {
         version: 3,
         routes: [
             { handle: "filesystem" },
             { src: "/(.*)", dest: "/api/index" }
         ]
     };
-    fs.writeFileSync(path.join(workPath, '.vercel/output/config.json'), JSON.stringify(outputConfig, null, 2));
-
-    console.log('✅ Successfully generated Vercel Build Output API v3 bundle!');
+    fs.writeFileSync(path.join(currentWorkingDirectory, '.vercel/output/config.json'), JSON.stringify(vercelOutputConfiguration, null, 2));
 }
 
-main().catch(err => {
-    console.error('❌ Failed to generate vercel output:', err);
+main().catch(fatalExecutionError => {
+    console.error('Failed to generate vercel output:', fatalExecutionError);
     process.exit(1);
 });

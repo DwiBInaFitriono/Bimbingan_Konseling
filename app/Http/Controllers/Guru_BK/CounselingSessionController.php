@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Guru_BK;
 
 use App\Http\Controllers\Controller;
-
 use App\Models\CounselingSession;
 use App\Models\Student;
 use App\Models\ClassData;
@@ -11,48 +10,43 @@ use App\Models\CaseStudy;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 
 class CounselingSessionController extends Controller
 {
-    /**
-     * Tampilan daftar pengajuan konseling untuk Guru BK
-     */
     public function index(Request $request)
     {
-       
-        $query = CounselingSession::with(['student.class', 'guruBk'])->latest();
+        $counselingSessionQuery = CounselingSession::with(['student.class', 'guruBk'])->latest();
 
         if ($request->filled('status')) {
-            $query->where('status', $request->status);
+            $counselingSessionQuery->where('status', $request->status);
         }
 
-        $sessions = $query->get();
+        $sessions = $counselingSessionQuery->get();
         $pendingCount = CounselingSession::where('status', 'menunggu')->count();
         $approvedCount = CounselingSession::where('status', 'disetujui')->count();
         $completedCount = CounselingSession::where('status', 'selesai')->count();
-        $today = date('Y-m-d');
+        $currentDate = date('Y-m-d');
 
         $currentQueue = CounselingSession::with(['student.class', 'guruBk'])
-            ->whereDate('requested_date', $today)
+            ->whereDate('requested_date', $currentDate)
             ->where('status_antrian', 'sekarang')
             ->orderBy('id', 'desc')
             ->first();
 
         $nextQueue = CounselingSession::with(['student.class', 'guruBk'])
-            ->whereDate('requested_date', $today)
+            ->whereDate('requested_date', $currentDate)
             ->where('status', 'disetujui')
             ->where('status_antrian', 'menunggu')
             ->orderBy('no_antrian', 'asc')
             ->first();
 
-        // Jika tidak ada antrean berjalan hari ini, promosikan antrean pertama yang menunggu
         if (!$currentQueue && $nextQueue) {
             $nextQueue->update(['status_antrian' => 'sekarang']);
             $currentQueue = $nextQueue;
             
-            // Ambil ulang antrean berikutnya
             $nextQueue = CounselingSession::with(['student.class', 'guruBk'])
-                ->whereDate('requested_date', $today)
+                ->whereDate('requested_date', $currentDate)
                 ->where('status', 'disetujui')
                 ->where('status_antrian', 'menunggu')
                 ->orderBy('no_antrian', 'asc')
@@ -70,14 +64,14 @@ class CounselingSessionController extends Controller
                     'no_antrian' => $currentQueue->no_antrian,
                     'student_name' => $currentQueue->student?->full_name ?? 'Siswa',
                     'class_name' => $currentQueue->student?->class?->school_class_name ?? null,
-                    'topic' => \Illuminate\Support\Str::limit($currentQueue->topic, 30),
+                    'topic' => Str::limit($currentQueue->topic, 30),
                     'waktu_perkiraan' => substr((string) ($currentQueue->waktu_perkiraan ?? $currentQueue->requested_time), 0, 5),
                 ] : null,
                 'nextQueue' => $nextQueue ? [
                     'no_antrian' => $nextQueueNumber,
                     'student_name' => $nextQueue->student?->full_name ?? 'Siswa',
                     'class_name' => $nextQueue->student?->class?->school_class_name ?? null,
-                    'topic' => \Illuminate\Support\Str::limit($nextQueue->topic, 30),
+                    'topic' => Str::limit($nextQueue->topic, 30),
                     'waktu_perkiraan' => substr((string) ($nextQueue->waktu_perkiraan ?? $nextQueue->requested_time), 0, 5),
                 ] : null,
                 'pendingCount' => $pendingCount,
@@ -92,11 +86,6 @@ class CounselingSessionController extends Controller
         ));
     }
 
-
-
-    /**
-     * Tampilan Halaman Rekapitulasi Catatan Konseling Bulanan
-     */
     public function report(Request $request)
     {
         $month = (int) $request->input('month', date('n'));
@@ -104,28 +93,25 @@ class CounselingSessionController extends Controller
         $studentId = $request->input('student_id') ? (int) $request->input('student_id') : null;
         $status = $request->input('status', 'all');
 
-        $query = CounselingSession::with(['student.class', 'guruBk'])
+        $counselingReportQuery = CounselingSession::with(['student.class', 'guruBk'])
             ->whereMonth('requested_date', $month)
             ->whereYear('requested_date', $year);
 
         if ($studentId) {
-            $query->where('student_id', $studentId);
+            $counselingReportQuery->where('student_id', $studentId);
         }
 
         if ($status != 'all') {
-            $query->where('status', $status);
+            $counselingReportQuery->where('status', $status);
         }
 
-        $reports = $query->orderBy('requested_date', 'asc')->get();
+        $reports = $counselingReportQuery->orderBy('requested_date', 'asc')->get();
         $students = Student::with('class')->orderBy('full_name')->get();
         $selectedStudent = $studentId ? Student::with('class')->find($studentId) : null;
 
         return view('Guru_BK.counseling.report', compact('reports', 'students', 'month', 'year', 'studentId', 'status', 'selectedStudent'));
     }
 
-    /**
-     * Tampilan Format Cetak / Export PDF Resmi Laporan Konseling
-     */
     public function exportPdf(Request $request)
     {
         $month = (int) $request->input('month', date('n'));
@@ -133,19 +119,19 @@ class CounselingSessionController extends Controller
         $studentId = $request->input('student_id') ? (int) $request->input('student_id') : null;
         $status = $request->input('status', 'all');
 
-        $query = CounselingSession::with(['student.class', 'guruBk'])
+        $counselingPdfQuery = CounselingSession::with(['student.class', 'guruBk'])
             ->whereMonth('requested_date', $month)
             ->whereYear('requested_date', $year);
 
         if ($studentId) {
-            $query->where('student_id', $studentId);
+            $counselingPdfQuery->where('student_id', $studentId);
         }
 
         if ($status != 'all') {
-            $query->where('status', $status);
+            $counselingPdfQuery->where('status', $status);
         }
 
-        $reports = $query->orderBy('requested_date', 'asc')->get();
+        $reports = $counselingPdfQuery->orderBy('requested_date', 'asc')->get();
         $selectedStudent = $studentId ? Student::with(['class', 'parent'])->find($studentId) : null;
         $guruBk = Auth::user();
 
@@ -160,12 +146,8 @@ class CounselingSessionController extends Controller
         return view('Guru_BK.counseling.pdf_report', compact('reports', 'month', 'year', 'monthName', 'selectedStudent', 'guruBk', 'status'));
     }
 
-    /**
-     * Simpan pengajuan konseling baru (Guru BK)
-     */
     public function store(Request $request)
     {
-        // Gabungkan slot_waktu jika dari form Guru BK (menggunakan jam tersedia)
         if ($request->has('available_time_start') && $request->has('available_time_end')) {
             $request->merge([
                 'slot_waktu' => $request->available_time_start . ' - ' . $request->available_time_end
@@ -184,27 +166,27 @@ class CounselingSessionController extends Controller
             'case_study_id'  => 'nullable|exists:case_studies,id',
         ]);
 
-        $user = Auth::user();
+        $authenticatedUser = Auth::user();
 
-        $studentId = $request->student_id;
-        if (!$studentId) {
+        $selectedStudentId = $request->student_id;
+        if (!$selectedStudentId) {
             return back()->with('error', 'Silakan pilih siswa terlebih dahulu.');
         }
 
-        $parts = explode(' - ', $request->slot_waktu);
-        $jam_awal = $parts[0] ?? null;
-        $jam_akhir = $parts[1] ?? null;
+        $timeSlotComponents = explode(' - ', $request->slot_waktu);
+        $sessionStartTime = $timeSlotComponents[0] ?? null;
+        $sessionEndTime = $timeSlotComponents[1] ?? null;
 
-        $session = CounselingSession::create([
-            'student_id'     => $studentId,
+        $counselingSession = CounselingSession::create([
+            'student_id'     => $selectedStudentId,
             'additional_student_ids' => $request->type === 'kelompok' ? $request->additional_student_ids : null,
             'case_study_id'  => $request->case_study_id,
-            'guru_bk_id'     => $user->id,
+            'guru_bk_id'     => $authenticatedUser->id,
             'requested_date' => $request->requested_date,
             'slot_waktu'     => $request->slot_waktu,
-            'available_time_start' => $jam_awal,
-            'available_time_end' => $jam_akhir,
-            'requested_time' => $jam_awal,
+            'available_time_start' => $sessionStartTime,
+            'available_time_end' => $sessionEndTime,
+            'requested_time' => $sessionStartTime,
             'topic'          => $request->topic,
             'description'    => $request->description,
             'type'           => $request->type,
@@ -213,26 +195,23 @@ class CounselingSessionController extends Controller
             'approved_at'    => now(),
         ]);
 
-        // Karena auto disetujui, langsung buatkan nomor antrian dan waktu perkiraan
-        // Karena auto disetujui, langsung buatkan nomor antrian dan waktu perkiraan
-        $queueData = $this->generateQueueNumber($session);
-        if (isset($queueData['error'])) {
-            $session->forceDelete();
-            return back()->with('error', $queueData['error']);
+        $queueAllocationData = $this->generateQueueNumber($counselingSession);
+        if (isset($queueAllocationData['error'])) {
+            $counselingSession->forceDelete();
+            return back()->with('error', $queueAllocationData['error']);
         }
         
-        $session->update([
-            'no_antrian'      => $queueData['no_antrian'],
-            'waktu_perkiraan' => $queueData['waktu_perkiraan_str']
+        $counselingSession->update([
+            'no_antrian'      => $queueAllocationData['no_antrian'],
+            'waktu_perkiraan' => $queueAllocationData['waktu_perkiraan_str']
         ]);
 
-        // Automate CaseStudy status to 'proses'
         if ($request->case_study_id) {
-            $caseStudy = CaseStudy::find($request->case_study_id);
-            if ($caseStudy) {
-                $caseStudy->update([
+            $relatedCaseStudy = CaseStudy::find($request->case_study_id);
+            if ($relatedCaseStudy) {
+                $relatedCaseStudy->update([
                     'status' => 'proses',
-                    'handled_by' => $user->id,
+                    'handled_by' => $authenticatedUser->id,
                 ]);
             }
         }
@@ -240,55 +219,47 @@ class CounselingSessionController extends Controller
         return redirect()->route('counseling.index')->with('success', 'Pengajuan jadwal konseling berhasil disimpan.');
     }
 
-    /**
-     * Setujui pengajuan konseling (Guru BK)
-     */
-    public function approve(Request $request, $id)
+    public function approve(Request $request, $counselingSessionId)
     {
-        $id = (int) $id;
-        $session = CounselingSession::findOrFail($id);
+        $parsedSessionId = (int) $counselingSessionId;
+        $counselingSession = CounselingSession::findOrFail($parsedSessionId);
 
-        $queueData = $this->generateQueueNumber($session);
-        if (isset($queueData['error'])) {
-            return back()->with('error', $queueData['error']);
+        $queueAllocationData = $this->generateQueueNumber($counselingSession);
+        if (isset($queueAllocationData['error'])) {
+            return back()->with('error', $queueAllocationData['error']);
         }
         
-        $no_antrian_baru = $queueData['no_antrian'];
-        $waktu_perkiraan_str = $queueData['waktu_perkiraan_str'];
+        $allocatedQueueNumber = $queueAllocationData['no_antrian'];
+        $allocatedTimeString = $queueAllocationData['waktu_perkiraan_str'];
 
-        // 3. Update status & antrian
-        $session->update([
+        $counselingSession->update([
             'status'          => 'disetujui',
             'guru_bk_id'      => Auth::id(),
-            'notes'           => $request->notes ?? $session->notes,
-            'no_antrian'      => $no_antrian_baru,
-            'waktu_perkiraan' => $waktu_perkiraan_str,
+            'notes'           => $request->notes ?? $counselingSession->notes,
+            'no_antrian'      => $allocatedQueueNumber,
+            'waktu_perkiraan' => $allocatedTimeString,
             'status_antrian'  => 'menunggu',
             'approved_at'     => now(),
         ]);
 
-        // Automate CaseStudy status to 'proses'
-        if ($session->case_study_id) {
-            $caseStudy = CaseStudy::find($session->case_study_id);
-            if ($caseStudy) {
-                $caseStudy->update([
+        if ($counselingSession->case_study_id) {
+            $relatedCaseStudy = CaseStudy::find($counselingSession->case_study_id);
+            if ($relatedCaseStudy) {
+                $relatedCaseStudy->update([
                     'status'     => 'proses',
                     'handled_by' => Auth::id(),
                 ]);
             }
         }
 
-        return redirect()->route('counseling.index')->with('success', 'Konseling disetujui. Siswa mendapat antrian ke-'.$no_antrian_baru);
+        return redirect()->route('counseling.index')->with('success', 'Konseling disetujui. Siswa mendapat antrian ke-'.$allocatedQueueNumber);
     }
 
-    /**
-     * Tolak pengajuan konseling (Guru BK)
-     */
-    public function reject(Request $request, $id)
+    public function reject(Request $request, $counselingSessionId)
     {
-        $id = (int) $id;
-        $session = CounselingSession::findOrFail($id);
-        $session->update([
+        $parsedSessionId = (int) $counselingSessionId;
+        $counselingSession = CounselingSession::findOrFail($parsedSessionId);
+        $counselingSession->update([
             'status'     => 'ditolak',
             'guru_bk_id' => Auth::id(),
             'notes'      => $request->notes ?? 'Jadwal tidak tersedia, silakan ajukan ulang.',
@@ -297,30 +268,26 @@ class CounselingSessionController extends Controller
         return redirect()->route('counseling.index')->with('success', 'Pengajuan konseling telah ditolak.');
     }
 
-    /**
-     * Selesaikan sesi konseling & catat hasil (Guru BK)
-     */
-    public function complete(Request $request, $id)
+    public function complete(Request $request, $counselingSessionId)
     {
-        $id = (int) $id;
-        $session = CounselingSession::findOrFail($id);
-        $session->update([
+        $parsedSessionId = (int) $counselingSessionId;
+        $counselingSession = CounselingSession::findOrFail($parsedSessionId);
+        $counselingSession->update([
             'status'         => 'selesai',
             'status_antrian' => 'selesai',
             'notes'          => $request->notes,
             'completed_at'   => now(),
         ]);
 
-        $this->advanceQueue($session);
+        $this->advanceQueue($counselingSession);
 
-        // Automate CaseStudy status to 'selesai'
-        if ($session->case_study_id) {
-            $caseStudy = CaseStudy::find($session->case_study_id);
-            if ($caseStudy) {
-                $caseStudy->update([
+        if ($counselingSession->case_study_id) {
+            $relatedCaseStudy = CaseStudy::find($counselingSession->case_study_id);
+            if ($relatedCaseStudy) {
+                $relatedCaseStudy->update([
                     'status' => 'selesai',
                     'action_taken' => $request->notes,
-                    'recommendation' => $caseStudy->recommendation ?: 'Konseling telah selesai dilakukan.',
+                    'recommendation' => $relatedCaseStudy->recommendation ?: 'Konseling telah selesai dilakukan.',
                 ]);
             }
         }
@@ -328,95 +295,69 @@ class CounselingSessionController extends Controller
         return redirect()->route('counseling.index')->with('success', 'Sesi konseling telah selesai dicatat.');
     }
 
-    /**
-     * Batalkan sesi konseling
-     */
-    public function cancel($id)
+    public function destroy($counselingSessionId)
     {
-        $id = (int) $id;
-        $session = CounselingSession::findOrFail($id);
-        $session->update([
-            'status'         => 'dibatalkan',
-            'status_antrian' => 'selesai',
-        ]);
-
-        $this->advanceQueue($session);
-
-        return redirect()->route('counseling.index')->with('success', 'Pengajuan konseling berhasil dibatalkan.');
-    }
-
-    /**
-     * Hapus sesi konseling
-     */
-    public function destroy($id)
-    {
-        $id = (int) $id;
-        $session = CounselingSession::findOrFail($id);
-        $session->delete();
+        $parsedSessionId = (int) $counselingSessionId;
+        $counselingSession = CounselingSession::findOrFail($parsedSessionId);
+        $counselingSession->delete();
 
         return redirect()->route('counseling.index')->with('success', 'Jadwal konseling berhasil dihapus.');
     }
 
-    /**
-     * Helper: Generate nomor antrian dan waktu perkiraan
-     */
-    private function generateQueueNumber(CounselingSession $session)
+    private function generateQueueNumber(CounselingSession $counselingSession)
     {
-        $query = CounselingSession::where('requested_date', $session->requested_date)
-            ->where('slot_waktu', $session->slot_waktu)
-            ->where('guru_bk_id', $session->guru_bk_id)
+        $queueCountingQuery = CounselingSession::where('requested_date', $counselingSession->requested_date)
+            ->where('slot_waktu', $counselingSession->slot_waktu)
+            ->where('guru_bk_id', $counselingSession->guru_bk_id)
             ->whereIn('status', ['disetujui', 'selesai']);
 
-        if ($session->id) {
-            $query->where('id', '!=', $session->id);
+        if ($counselingSession->id) {
+            $queueCountingQuery->where('id', '!=', $counselingSession->id);
         }
         
-        $antrian_sebelumnya = $query->count();
-        $no_antrian_baru = $antrian_sebelumnya + 1;
-        $waktu_perkiraan_str = null;
+        $previousQueueCount = $queueCountingQuery->count();
+        $newQueueNumber = $previousQueueCount + 1;
+        $calculatedTimeString = null;
 
-        if ($session->slot_waktu) {
-            $parts = explode(' - ', $session->slot_waktu);
-            $jam_awal = $parts[0];
-            $jam_akhir = $parts[1] ?? null;
-            $waktu_awal_obj = \Carbon\Carbon::parse($jam_awal);
+        if ($counselingSession->slot_waktu) {
+            $timeSlotComponents = explode(' - ', $counselingSession->slot_waktu);
+            $sessionStartTime = $timeSlotComponents[0];
+            $sessionEndTime = $timeSlotComponents[1] ?? null;
+            $startTimeCarbon = Carbon::parse($sessionStartTime);
             
-            $sesi_terakhir = (clone $query)->orderBy('no_antrian', 'desc')->first();
+            $latestScheduledSession = (clone $queueCountingQuery)->orderBy('no_antrian', 'desc')->first();
 
-            if ($sesi_terakhir && $sesi_terakhir->waktu_perkiraan) {
-                $waktu_perkiraan = \Carbon\Carbon::parse($sesi_terakhir->waktu_perkiraan)
+            if ($latestScheduledSession && $latestScheduledSession->waktu_perkiraan) {
+                $calculatedTime = Carbon::parse($latestScheduledSession->waktu_perkiraan)
                     ->addMinutes(rand(25, 35));
             } else {
-                $waktu_perkiraan = $waktu_awal_obj->addMinutes(rand(0, 5));
+                $calculatedTime = $startTimeCarbon->addMinutes(rand(0, 5));
             }
 
-            if ($jam_akhir && $waktu_perkiraan->greaterThan(\Carbon\Carbon::parse($jam_akhir))) {
+            if ($sessionEndTime && $calculatedTime->greaterThan(Carbon::parse($sessionEndTime))) {
                 return ['error' => 'Maaf, kuota antrean untuk jadwal tersebut sudah penuh (melebihi jam ketersediaan guru).'];
             }
             
-            $waktu_perkiraan_str = $waktu_perkiraan->format('H:i');
+            $calculatedTimeString = $calculatedTime->format('H:i');
         }
 
         return [
-            'no_antrian' => $no_antrian_baru,
-            'waktu_perkiraan_str' => $waktu_perkiraan_str
+            'no_antrian' => $newQueueNumber,
+            'waktu_perkiraan_str' => $calculatedTimeString
         ];
     }
 
-    /**
-     * Helper: Majukan antrian ke sesi berikutnya jika ada
-     */
-    private function advanceQueue(CounselingSession $session)
+    private function advanceQueue(CounselingSession $counselingSession)
     {
-        $next = CounselingSession::whereDate('requested_date', $session->requested_date)
-            ->where('guru_bk_id', $session->guru_bk_id)
+        $nextInLineSession = CounselingSession::whereDate('requested_date', $counselingSession->requested_date)
+            ->where('guru_bk_id', $counselingSession->guru_bk_id)
             ->where('status', 'disetujui')
             ->where('status_antrian', 'menunggu')
             ->orderBy('no_antrian', 'asc')
             ->first();
             
-        if ($next) {
-            $next->update(['status_antrian' => 'sekarang']);
+        if ($nextInLineSession) {
+            $nextInLineSession->update(['status_antrian' => 'sekarang']);
         }
     }
 }

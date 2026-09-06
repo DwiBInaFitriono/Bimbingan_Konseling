@@ -25,5 +25,13 @@ CLAUDE.md
 
 .vercel
 .env*
+!.env.example
 *.pem
+database/*.pem
 tidb-ca.pem
+
+# Markdown documentation (except root README.md)
+*.md
+!/README.md
+**/*.md
+!/README.md

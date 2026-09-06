@@ -3,34 +3,24 @@
 namespace App\Http\Controllers\Guru_BK;
 
 use App\Http\Controllers\Controller;
-
 use Illuminate\Http\Request;
 use App\Models\Achievement;
 use App\Models\Student;
 
 class Achievements extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function indexAchievement()
     {
-        $dataprestasi = Achievement::with('student')->get();
-        return view('Guru_BK.Achievement.prestasi', ['prestasi' => $dataprestasi]);
+        $achievementList = Achievement::with('student')->get();
+        return view('Guru_BK.Achievement.prestasi', ['prestasi' => $achievementList]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function createAchievement()
     {
-        $datasiswa = Student::all();
-        return view('Guru_BK.Achievement.tambah', ['datasiswa' => $datasiswa]);
+        $studentList = Student::all();
+        return view('Guru_BK.Achievement.tambah', ['datasiswa' => $studentList]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function storeAchievement(Request $request)
     {
         $request->validate([
@@ -51,34 +41,23 @@ class Achievements extends Controller
             'achievement_status' => $request->achievement_status,
         ]);
 
-        return redirect('dataprestasi');
+        return redirect('dataprestasi')->with('success', 'Data prestasi berhasil ditambahkan.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function showAchievement($id)
+    public function editAchievement($achievementId)
     {
-        //
+        $parsedAchievementId = (int) $achievementId;
+        $achievement = Achievement::findOrFail($parsedAchievementId);
+        $studentList = Student::all();
+        return view('Guru_BK.Achievement.edit', [
+            'dataprestasi' => $achievement,
+            'datasiswa' => $studentList,
+        ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function editAchievement($id)
+    public function updateAchievement(Request $request, $achievementId)
     {
-        $id = (int) $id;
-        $dataprestasi = Achievement::findOrFail($id);
-        $datasiswa = Student::all();
-        return view('Guru_BK.Achievement.edit', compact('dataprestasi', 'datasiswa'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function updateAchievement(Request $request, $id)
-    {
-        $id = (int) $id;
+        $parsedAchievementId = (int) $achievementId;
         $request->validate([
             'student_id' => 'required|exists:students,id',
             'achievement_name' => 'required|string',
@@ -88,30 +67,24 @@ class Achievements extends Controller
             'achievement_status' => 'required|string',
         ]);
 
-        $dataprestasi = Achievement::findOrFail($id);
-        $dataprestasi->student_id = $request->student_id;
-        $dataprestasi->achievement_name = $request->achievement_name;
-        $dataprestasi->achievement_date = $request->achievement_date;
-        $dataprestasi->achievement_level = $request->achievement_level;
-        $dataprestasi->achievement_category = $request->achievement_category;
-        $dataprestasi->achievement_status = $request->achievement_status;
+        $achievement = Achievement::findOrFail($parsedAchievementId);
+        $achievement->student_id = $request->student_id;
+        $achievement->achievement_name = $request->achievement_name;
+        $achievement->achievement_date = $request->achievement_date;
+        $achievement->achievement_level = $request->achievement_level;
+        $achievement->achievement_category = $request->achievement_category;
+        $achievement->achievement_status = $request->achievement_status;
+        $achievement->save();
 
-
-        $dataprestasi->save();
-
-        return redirect()->route('dataprestasi.tampil');
+        return redirect()->route('dataprestasi.tampil')->with('success', 'Data prestasi berhasil diperbarui.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroyAchievement($id)
+    public function destroyAchievement($achievementId)
     {
-        $id = (int) $id;
-        $dataprestasi = Achievement::findOrFail($id);
+        $parsedAchievementId = (int) $achievementId;
+        $achievement = Achievement::findOrFail($parsedAchievementId);
+        $achievement->delete();
 
-        $dataprestasi->delete();
-
-        return redirect()->back();
+        return redirect()->back()->with('success', 'Data prestasi berhasil dihapus.');
     }
 }

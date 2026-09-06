@@ -1,61 +1,60 @@
 import React, { useState, useEffect } from 'react';
 import { ApiService } from '../services/api';
-import { Screen, HistTab } from '../types';
-import { P, V, T, AM, RD, IND } from '../constants';
-import { FU, SIR } from '../components/Animations';
-import { StatusBar } from '../components/StatusBar';
-import { BottomNav } from '../components/BottomNav';
-import { SubHeader } from '../components/SubHeader';
-import { InputField } from '../components/InputField';
+import { COLOR_PRIMARY, COLOR_VIOLET, COLOR_DANGER, COLOR_INDIGO } from '../constants';
+import { FadeUpAnimation } from '../components/Animations';
 
 export function LoginScreen({ onLogin }: { onLogin: () => void }) {
-  const [nis, setNis] = useState('')
-  const [pass, setPass] = useState('')
-  const [showPass, setShowPass] = useState(false)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [toastVisible, setToastVisible] = useState(false)
-  const [toastLeaving, setToastLeaving] = useState(false)
-  const [nisFocused, setNisFocused] = useState(false)
-  const [passFocused, setPassFocused] = useState(false)
+  const [studentIdentificationNumber, setStudentIdentificationNumber] = useState('');
+  const [accountPassword, setAccountPassword] = useState('');
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [isLoadingAuthentication, setIsLoadingAuthentication] = useState(false);
+  const [authenticationErrorMessage, setAuthenticationErrorMessage] = useState('');
+  const [isNotificationToastVisible, setIsNotificationToastVisible] = useState(false);
+  const [isNotificationToastLeaving, setIsNotificationToastLeaving] = useState(false);
+  const [isNisInputFocused, setIsNisInputFocused] = useState(false);
+  const [isPasswordInputFocused, setIsPasswordInputFocused] = useState(false);
 
   useEffect(() => {
-    if (!error) return
-    setToastVisible(true)
-    setToastLeaving(false)
-    const hideTimer = setTimeout(() => {
-      setToastLeaving(true)
-      setTimeout(() => { setToastVisible(false); setError('') }, 400)
-    }, 3000)
-    return () => clearTimeout(hideTimer)
-  }, [error])
+    if (!authenticationErrorMessage) return;
+    setIsNotificationToastVisible(true);
+    setIsNotificationToastLeaving(false);
+    const dismissNotificationTimer = setTimeout(() => {
+      setIsNotificationToastLeaving(true);
+      setTimeout(() => {
+        setIsNotificationToastVisible(false);
+        setAuthenticationErrorMessage('');
+      }, 400);
+    }, 3000);
+    return () => clearTimeout(dismissNotificationTimer);
+  }, [authenticationErrorMessage]);
 
-  const handleLogin = async () => {
-    if (!nis || !pass) { setError('Lengkapi semua field terlebih dahulu'); return }
-    setError('')
-    setLoading(true)
+  const handleAuthenticationSubmit = async () => {
+    if (!studentIdentificationNumber || !accountPassword) {
+      setAuthenticationErrorMessage('Lengkapi semua field terlebih dahulu');
+      return;
+    }
+    setAuthenticationErrorMessage('');
+    setIsLoadingAuthentication(true);
     
     try {
-      const res = await ApiService.login(nis, pass);
-      if (res.success) {
-        // Simpan data user
-        localStorage.setItem('student_data', JSON.stringify(res.student));
+      const loginResponse = await ApiService.login(studentIdentificationNumber, accountPassword);
+      if (loginResponse.success) {
+        localStorage.setItem('student_data', JSON.stringify(loginResponse.student));
         onLogin();
       } else {
-        setError(res.message || 'Login gagal');
+        setAuthenticationErrorMessage(loginResponse.message || 'Login gagal');
       }
-    } catch (err: any) {
-      setError(err.message || 'Terjadi kesalahan jaringan');
+    } catch (networkError: any) {
+      setAuthenticationErrorMessage(networkError.message || 'Terjadi kesalahan jaringan');
     } finally {
-      setLoading(false);
+      setIsLoadingAuthentication(false);
     }
-  }
+  };
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: `linear-gradient(145deg, #5B21B6 0%, ${P} 45%, ${IND} 75%, ${V} 100%)`, position: 'relative', overflow: 'hidden' }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: `linear-gradient(145deg, #5B21B6 0%, ${COLOR_PRIMARY} 45%, ${COLOR_INDIGO} 75%, ${COLOR_VIOLET} 100%)`, position: 'relative', overflow: 'hidden' }}>
 
-      {/* Floating Toast */}
-      {toastVisible && (
+      {isNotificationToastVisible && (
         <div
           style={{
             position: 'absolute',
@@ -70,21 +69,27 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
             display: 'flex',
             alignItems: 'center',
             gap: 10,
-            animation: `${toastLeaving ? 'toastOut' : 'toastIn'} 0.4s cubic-bezier(0.22,1,0.36,1) both`,
-            borderLeft: `4px solid ${RD}`,
+            animation: `${isNotificationToastLeaving ? 'toastOut' : 'toastIn'} 0.4s cubic-bezier(0.22,1,0.36,1) both`,
+            borderLeft: `4px solid ${COLOR_DANGER}`,
           }}
         >
           <div style={{ width: 32, height: 32, borderRadius: 10, background: '#FEF2F2', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={RD} strokeWidth="2.5" strokeLinecap="round">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={COLOR_DANGER} strokeWidth="2.5" strokeLinecap="round">
               <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
             </svg>
           </div>
           <div style={{ flex: 1 }}>
             <p style={{ margin: 0, fontSize: 11, fontWeight: 700, color: '#64748B', textTransform: 'uppercase', letterSpacing: '0.04em', fontFamily: 'Nunito' }}>Perhatian</p>
-            <p style={{ margin: '2px 0 0', fontSize: 12, fontWeight: 600, color: '#1E293B', lineHeight: 1.4 }}>{error}</p>
+            <p style={{ margin: '2px 0 0', fontSize: 12, fontWeight: 600, color: '#1E293B', lineHeight: 1.4 }}>{authenticationErrorMessage}</p>
           </div>
           <button
-            onClick={() => { setToastLeaving(true); setTimeout(() => { setToastVisible(false); setError('') }, 400) }}
+            onClick={() => {
+              setIsNotificationToastLeaving(true);
+              setTimeout(() => {
+                setIsNotificationToastVisible(false);
+                setAuthenticationErrorMessage('');
+              }, 400);
+            }}
             style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8', padding: 0, display: 'flex', flexShrink: 0 }}
           >
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
@@ -94,7 +99,6 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
         </div>
       )}
 
-      {/* Animated blobs */}
       <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: '8%', left: '-12%', width: 220, height: 220, background: 'rgba(255,255,255,0.07)', borderRadius: '60% 40% 30% 70% / 60% 30% 70% 40%', animation: 'blob 9s ease-in-out infinite, float 7s ease-in-out infinite' }} />
         <div style={{ position: 'absolute', top: '18%', right: '-8%', width: 160, height: 160, background: 'rgba(255,255,255,0.09)', borderRadius: '30% 60% 70% 40% / 50% 60% 30% 60%', animation: 'blob 11s ease-in-out infinite reverse, float2 8s ease-in-out infinite' }} />
@@ -102,14 +106,12 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
         <div style={{ position: 'absolute', top: '30%', right: '12%', width: 44, height: 44, background: `rgba(245,158,11,0.25)`, borderRadius: '50%', animation: 'float2 4.5s ease-in-out infinite 1s' }} />
         <div style={{ position: 'absolute', top: '55%', left: '18%', width: 28, height: 28, background: 'rgba(255,255,255,0.18)', borderRadius: '50%', animation: 'float 3.8s ease-in-out infinite 0.8s' }} />
         <div style={{ position: 'absolute', top: '12%', left: '40%', width: 18, height: 18, background: 'rgba(255,255,255,0.15)', borderRadius: '50%', animation: 'float2 3s ease-in-out infinite 2s' }} />
-        {/* Ring decorations */}
         <div style={{ position: 'absolute', top: -90, right: -90, width: 300, height: 300, border: '1px solid rgba(255,255,255,0.08)', borderRadius: '50%' }} />
         <div style={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, border: '1px solid rgba(255,255,255,0.06)', borderRadius: '50%' }} />
       </div>
 
-      {/* Top hero */}
       <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px 32px 0', position: 'relative', zIndex: 1 }}>
-        <FU d={0}>
+        <FadeUpAnimation delayMilliseconds={0}>
           <div style={{ position: 'relative', marginBottom: 16, display: 'flex', justifyContent: 'center' }}>
             <div
               style={{ width: 84, height: 84, borderRadius: 24, background: 'rgba(255,255,255,0.15)', backdropFilter: 'blur(12px)', border: '1.5px solid rgba(255,255,255,0.25)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 12px 40px rgba(0,0,0,0.25)', animation: 'rippleOut 2.5s ease-in-out infinite' }}
@@ -117,68 +119,65 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
               <span style={{ fontSize: 30, fontWeight: 900, color: '#fff', fontFamily: 'Nunito', letterSpacing: -1 }}>BK</span>
             </div>
           </div>
-        </FU>
-        <FU d={80}>
+        </FadeUpAnimation>
+        <FadeUpAnimation delayMilliseconds={80}>
           <div style={{ textAlign: 'center' }}>
             <h1 style={{ color: '#fff', fontWeight: 900, fontSize: 26, fontFamily: 'Nunito', margin: 0, letterSpacing: -0.5 }}>SistemBK</h1>
-            <p style={{ color: 'rgba(255,255,255,0.65)', fontSize: 13, margin: '6px 0 0', fontWeight: 500, paddingBottom: 28 }}>SMK Negeri 1 Contoh Kota</p>
+            <p style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, margin: '6px 0 0', fontWeight: 500, paddingBottom: 28 }}>Layanan Bimbingan dan Konseling Siswa</p>
           </div>
-        </FU>
+        </FadeUpAnimation>
       </div>
 
-      {/* Form card */}
-      <FU d={160}>
+      <FadeUpAnimation delayMilliseconds={160}>
         <div
           style={{ background: '#fff', borderRadius: '32px 32px 0 0', padding: '28px 24px 24px', position: 'relative', boxShadow: '0 -24px 60px rgba(0,0,0,0.18)', zIndex: 1 }}
         >
-          <h2 style={{ fontFamily: 'Nunito', fontWeight: 900, fontSize: 22, color: '#1E293B', margin: '0 0 4px' }}>Selamat Datang 👋</h2>
-          <p style={{ color: '#94A3B8', fontSize: 13, margin: '0 0 20px', fontWeight: 500 }}>Masuk untuk mengakses akun siswa Anda</p>
-
-          {/* Toast notification rendered at root of screen via portal-like fixed positioning */}
+          <h2 style={{ fontFamily: 'Nunito', fontWeight: 900, fontSize: 22, color: '#1E293B', margin: '0 0 4px' }}>Masuk ke Akun Siswa</h2>
+          <p style={{ color: '#64748B', fontSize: 13, margin: '0 0 20px', fontWeight: 500 }}>Masukkan NIS dan kata sandi Anda untuk melanjutkan</p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             <div>
               <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                NIS / Username <span style={{ color: RD }}>*</span>
+                NIS / Username <span style={{ color: COLOR_DANGER }}>*</span>
               </label>
               <div style={{ position: 'relative' }}>
-                <div style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: nisFocused ? P : '#94A3B8', transition: 'color 0.2s' }}>
+                <div style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: isNisInputFocused ? COLOR_PRIMARY : '#94A3B8', transition: 'color 0.2s' }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
                 </div>
                 <input
                   type="text"
-                  value={nis}
-                  onChange={e => setNis(e.target.value)}
+                  value={studentIdentificationNumber}
+                  onChange={event => setStudentIdentificationNumber(event.target.value)}
                   placeholder="Masukkan NIS Anda"
-                  onFocus={() => setNisFocused(true)}
-                  onBlur={() => setNisFocused(false)}
-                  style={{ width: '100%', paddingLeft: 42, paddingRight: 16, paddingTop: 14, paddingBottom: 14, borderRadius: 14, fontSize: 14, color: '#1E293B', fontFamily: 'Inter', background: '#F8FAFC', border: `1.5px solid ${nisFocused ? P : '#E2E8F0'}`, outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box' }}
+                  onFocus={() => setIsNisInputFocused(true)}
+                  onBlur={() => setIsNisInputFocused(false)}
+                  style={{ width: '100%', paddingLeft: 42, paddingRight: 16, paddingTop: 14, paddingBottom: 14, borderRadius: 14, fontSize: 14, color: '#1E293B', fontFamily: 'Inter', background: '#F8FAFC', border: `1.5px solid ${isNisInputFocused ? COLOR_PRIMARY : '#E2E8F0'}`, outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box' }}
                 />
               </div>
             </div>
 
             <div>
               <label style={{ fontSize: 11, fontWeight: 700, color: '#64748B', display: 'block', marginBottom: 6, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-                Password <span style={{ color: RD }}>*</span>
+                Password <span style={{ color: COLOR_DANGER }}>*</span>
               </label>
               <div style={{ position: 'relative' }}>
-                <div style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: passFocused ? P : '#94A3B8', transition: 'color 0.2s' }}>
+                <div style={{ position: 'absolute', left: 14, top: '50%', transform: 'translateY(-50%)', color: isPasswordInputFocused ? COLOR_PRIMARY : '#94A3B8', transition: 'color 0.2s' }}>
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
                 </div>
                 <input
-                  type={showPass ? 'text' : 'password'}
-                  value={pass}
-                  onChange={e => setPass(e.target.value)}
+                  type={isPasswordVisible ? 'text' : 'password'}
+                  value={accountPassword}
+                  onChange={event => setAccountPassword(event.target.value)}
                   placeholder="Masukkan password"
-                  onFocus={() => setPassFocused(true)}
-                  onBlur={() => setPassFocused(false)}
-                  style={{ width: '100%', paddingLeft: 42, paddingRight: 44, paddingTop: 14, paddingBottom: 14, borderRadius: 14, fontSize: 14, color: '#1E293B', fontFamily: 'Inter', background: '#F8FAFC', border: `1.5px solid ${passFocused ? P : '#E2E8F0'}`, outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box' }}
+                  onFocus={() => setIsPasswordInputFocused(true)}
+                  onBlur={() => setIsPasswordInputFocused(false)}
+                  style={{ width: '100%', paddingLeft: 42, paddingRight: 44, paddingTop: 14, paddingBottom: 14, borderRadius: 14, fontSize: 14, color: '#1E293B', fontFamily: 'Inter', background: '#F8FAFC', border: `1.5px solid ${isPasswordInputFocused ? COLOR_PRIMARY : '#E2E8F0'}`, outline: 'none', transition: 'border-color 0.2s', boxSizing: 'border-box' }}
                 />
                 <button
-                  onClick={() => setShowPass(v => !v)}
+                  onClick={() => setIsPasswordVisible(previousState => !previousState)}
                   style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#94A3B8', padding: 0, display: 'flex' }}
                 >
-                  {showPass
+                  {isPasswordVisible
                     ? <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19M1 1l22 22"/></svg>
                     : <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                   }
@@ -188,22 +187,22 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
           </div>
 
           <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 8, marginBottom: 20 }}>
-            <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: P, fontSize: 13, fontWeight: 700, fontFamily: 'Nunito' }}>
+            <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: COLOR_PRIMARY, fontSize: 13, fontWeight: 700, fontFamily: 'Nunito' }}>
               Lupa Password?
             </button>
           </div>
 
           <button
-            onClick={handleLogin}
-            disabled={loading}
+            onClick={handleAuthenticationSubmit}
+            disabled={isLoadingAuthentication}
             style={{
               width: '100%',
               padding: '16px',
               borderRadius: 18,
               border: 'none',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              background: loading ? '#94A3B8' : `linear-gradient(135deg, ${P} 0%, ${V} 100%)`,
-              boxShadow: loading ? 'none' : `0 10px 28px rgba(79,70,229,0.45)`,
+              cursor: isLoadingAuthentication ? 'not-allowed' : 'pointer',
+              background: isLoadingAuthentication ? '#94A3B8' : `linear-gradient(135deg, ${COLOR_PRIMARY} 0%, ${COLOR_VIOLET} 100%)`,
+              boxShadow: isLoadingAuthentication ? 'none' : `0 10px 28px rgba(79,70,229,0.45)`,
               color: '#fff',
               fontWeight: 900,
               fontSize: 16,
@@ -215,10 +214,10 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
               transition: 'all 0.25s',
               transform: 'scale(1)',
             }}
-            onMouseDown={e => { if (!loading) (e.currentTarget as HTMLButtonElement).style.transform = 'scale(0.97)' }}
-            onMouseUp={e => (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'}
+            onMouseDown={mouseEvent => { if (!isLoadingAuthentication) (mouseEvent.currentTarget as HTMLButtonElement).style.transform = 'scale(0.97)'; }}
+            onMouseUp={mouseEvent => (mouseEvent.currentTarget as HTMLButtonElement).style.transform = 'scale(1)'}
           >
-            {loading ? (
+            {isLoadingAuthentication ? (
               <>
                 <svg className="animate-spin" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0" strokeDasharray="28" strokeDashoffset="6"/></svg>
                 Memproses...
@@ -231,17 +230,12 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
             )}
           </button>
 
-
-
-          <p style={{ textAlign: 'center', fontSize: 11, color: '#CBD5E1', marginTop: 10, marginBottom: 0, fontWeight: 500 }}>
+          <p style={{ textAlign: 'center', fontSize: 12, color: '#64748B', marginTop: 14, marginBottom: 0, fontWeight: 500 }}>
             Butuh bantuan? Hubungi admin sekolah
           </p>
-
-
         </div>
-      </FU>
+      </FadeUpAnimation>
     </div>
-  )
+  );
 }
 
-// ─── DASHBOARD SCREEN ─────────────────────────────────────────────────────────

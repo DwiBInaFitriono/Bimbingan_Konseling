@@ -10,15 +10,11 @@ class DataPointCategory extends Model
 {
     use HasFactory, SoftDeletes;
     protected $table = 'data_point_categories';
-    protected $primarykey = 'id';
+    protected $primaryKey = 'id';
     protected $fillable = [
-        'id',
         'category_of_violation',
         'category_score_min',
         'category_score_max',
-        'follow_up'
-
-
-
+        'follow_up',
     ];
 }

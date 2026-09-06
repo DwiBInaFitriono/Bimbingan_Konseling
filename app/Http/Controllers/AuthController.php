@@ -22,20 +22,19 @@ class AuthController extends Controller
 
     public function login(Request $request): RedirectResponse
     {
-        $credentials = $request->validate([
+        $loginCredentials = $request->validate([
             'email'    => ['required', 'email'],
             'password' => ['required'],
             'role'     => ['required', 'in:guru_bk,siswa']
         ]);
 
-        // Melakukan validasi Auth lengkap dengan role-nya agar siswa tak bisa login di form guru
-        $attemptData = [
-            'email' => $credentials['email'],
-            'password' => $credentials['password'],
-            'role' => $credentials['role']
+        $authenticationAttemptData = [
+            'email' => $loginCredentials['email'],
+            'password' => $loginCredentials['password'],
+            'role' => $loginCredentials['role']
         ];
 
-        if (Auth::attempt($attemptData, $request->boolean('remember'))) {
+        if (Auth::attempt($authenticationAttemptData, $request->boolean('remember'))) {
             $request->session()->regenerate();
 
             return redirect()->route('dashboard')->with('success', 'Login berhasil. Selamat bertugas!');
@@ -57,21 +56,20 @@ class AuthController extends Controller
 
     public function register(Request $request): RedirectResponse
     {
-        // Registrasi publik khusus untuk Guru BK
-        $validated = $request->validate([
+        $validatedRegistrationData = $request->validate([
             'name'     => ['required', 'string', 'max:255'],
             'email'    => ['required', 'email', 'max:255', 'unique:users,email'],
             'password' => ['required', 'string', 'min:6', 'confirmed'],
         ]);
 
-        $user = User::create([
-            'name'     => $validated['name'],
-            'email'    => $validated['email'],
-            'password' => Hash::make($validated['password']),
+        $registeredUser = User::create([
+            'name'     => $validatedRegistrationData['name'],
+            'email'    => $validatedRegistrationData['email'],
+            'password' => Hash::make($validatedRegistrationData['password']),
             'role'     => 'guru_bk',
         ]);
 
-        Auth::login($user);
+        Auth::login($registeredUser);
         $request->session()->regenerate();
 
         return redirect()->route('dashboard')->with('success', 'Registrasi akun Guru BK berhasil. Selamat bertugas!');

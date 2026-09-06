@@ -3,35 +3,27 @@
 namespace App\Http\Controllers\Guru_BK;
 
 use App\Http\Controllers\Controller;
-
 use Illuminate\Http\Request;
 use App\Models\CaseStudy;
 use App\Models\Student;
+use App\Models\PointData;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class CaseReport extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function indexCaseReport()
     {
-        $data = CaseStudy::with(['student.class', 'handler'])->latest()->get();
-        return view('Guru_BK.CaseStudy.studykasus', ['datastudykasus' => $data]);
+        $caseStudyList = CaseStudy::with(['student.class', 'handler'])->latest()->get();
+        return view('Guru_BK.CaseStudy.studykasus', ['datastudykasus' => $caseStudyList]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function createCaseReport()
     {
-        $datasiswa = Student::with('class')->get();
-        return view('Guru_BK.CaseStudy.tambah', compact('datasiswa'));
+        $studentList = Student::with('class')->get();
+        return view('Guru_BK.CaseStudy.tambah', ['datasiswa' => $studentList]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function storeCaseReport(Request $request)
     {
         $request->validate([
@@ -46,12 +38,12 @@ class CaseReport extends Controller
             'evidence'          => 'nullable|file|mimes:jpg,jpeg,png,webp,mp4,mov,avi|max:20480',
         ]);
 
-        $evidencePath = null;
+        $evidenceFilePath = null;
         if ($request->hasFile('evidence')) {
-            $file = $request->file('evidence');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->storeAs('public/evidence', $filename);
-            $evidencePath = 'storage/evidence/' . $filename;
+            $evidenceFile = $request->file('evidence');
+            $uniqueEvidenceFileName = time() . '_' . $evidenceFile->getClientOriginalName();
+            $evidenceFile->storeAs('public/evidence', $uniqueEvidenceFileName);
+            $evidenceFilePath = 'storage/evidence/' . $uniqueEvidenceFileName;
         }
 
         CaseStudy::create([
@@ -67,26 +59,23 @@ class CaseReport extends Controller
             'reporter_teacher'  => $request->reporter_teacher,
             'subject_name'      => $request->subject_name,
             'time_of_occurrence'=> $request->time_of_occurrence,
-            'evidence_file'     => $evidencePath,
+            'evidence_file'     => $evidenceFilePath,
         ]);
 
         return redirect()->route('studykasus.tampil')->with('success', 'Laporan studi kasus berhasil ditambahkan.');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function editCaseReport($id)
+    public function editCaseReport($caseStudyId)
     {
-        $data = CaseStudy::findOrFail($id);
-        $datasiswa = Student::with('class')->get();
-        return view('Guru_BK.CaseStudy.edit', compact('data', 'datasiswa'));
+        $caseStudy = CaseStudy::findOrFail($caseStudyId);
+        $studentList = Student::with('class')->get();
+        return view('Guru_BK.CaseStudy.edit', [
+            'data' => $caseStudy,
+            'datasiswa' => $studentList,
+        ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function updateCaseReport(Request $request, $id)
+    public function updateCaseReport(Request $request, $caseStudyId)
     {
         $request->validate([
             'student_id'        => 'required|exists:students,id',
@@ -100,65 +89,58 @@ class CaseReport extends Controller
             'evidence'          => 'nullable|file|mimes:jpg,jpeg,png,webp,mp4,mov,avi|max:20480',
         ]);
 
-        $data = CaseStudy::findOrFail($id);
-        $evidencePath = $data->evidence_file;
+        $caseStudy = CaseStudy::findOrFail($caseStudyId);
+        $evidenceFilePath = $caseStudy->evidence_file;
 
         if ($request->hasFile('evidence')) {
-            // Delete old file if exists
-            if ($data->evidence_file) {
-                $oldPath = str_replace('storage/', 'public/', $data->evidence_file);
-                \Illuminate\Support\Facades\Storage::delete($oldPath);
+            if ($caseStudy->evidence_file) {
+                $existingFilePath = str_replace('storage/', 'public/', $caseStudy->evidence_file);
+                Storage::delete($existingFilePath);
             }
-            $file = $request->file('evidence');
-            $filename = time() . '_' . $file->getClientOriginalName();
-            $file->storeAs('public/evidence', $filename);
-            $evidencePath = 'storage/evidence/' . $filename;
+            $evidenceFile = $request->file('evidence');
+            $uniqueEvidenceFileName = time() . '_' . $evidenceFile->getClientOriginalName();
+            $evidenceFile->storeAs('public/evidence', $uniqueEvidenceFileName);
+            $evidenceFilePath = 'storage/evidence/' . $uniqueEvidenceFileName;
         }
 
-        $data->update([
+        $caseStudy->update([
             'student_id'        => $request->student_id,
             'case_title'        => $request->case_title,
             'case_description'  => $request->case_description,
             'case_type'         => $request->case_type,
             'action_taken'      => $request->action_taken,
             'recommendation'    => $request->recommendation,
-            'status'            => $request->status ?? $data->status,
+            'status'            => $request->status ?? $caseStudy->status,
             'case_date'         => $request->case_date,
             'reporter_teacher'  => $request->reporter_teacher,
             'subject_name'      => $request->subject_name,
             'time_of_occurrence'=> $request->time_of_occurrence,
-            'evidence_file'     => $evidencePath,
+            'evidence_file'     => $evidenceFilePath,
         ]);
 
         return redirect()->route('studykasus.tampil')->with('success', 'Laporan studi kasus berhasil diperbarui.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroyCaseReport($id)
+    public function destroyCaseReport($caseStudyId)
     {
-        $data = CaseStudy::findOrFail($id);
-        if ($data->evidence_file) {
-            $oldPath = str_replace('storage/', 'public/', $data->evidence_file);
-            \Illuminate\Support\Facades\Storage::delete($oldPath);
+        $caseStudy = CaseStudy::findOrFail($caseStudyId);
+        if ($caseStudy->evidence_file) {
+            $existingFilePath = str_replace('storage/', 'public/', $caseStudy->evidence_file);
+            Storage::delete($existingFilePath);
         }
-        $data->delete();
+        $caseStudy->delete();
         return redirect()->back()->with('success', 'Laporan studi kasus berhasil dihapus.');
     }
 
-    /**
-     * Complete a case study with final actions and recommendations.
-     */
-    public function completeCase(Request $request, $id)
+    public function completeCase(Request $request, $caseStudyId)
     {
         $request->validate([
             'action_taken'   => 'required|string',
             'recommendation' => 'required|string',
         ]);
 
-        $data = CaseStudy::findOrFail($id);
-        $data->update([
+        $caseStudy = CaseStudy::findOrFail($caseStudyId);
+        $caseStudy->update([
             'action_taken'   => $request->action_taken,
             'recommendation' => $request->recommendation,
             'status'         => 'selesai',
@@ -167,34 +149,28 @@ class CaseReport extends Controller
         return redirect()->route('studykasus.tampil')->with('success', 'Kasus berhasil diselesaikan.');
     }
 
-    /**
-     * Apply violation point sanction to the student.
-     */
-    public function applyPointSanction(Request $request, $id)
+    public function applyPointSanction(Request $request, $caseStudyId)
     {
         $request->validate([
             'points_sanction' => 'required|integer|min:1',
         ]);
 
-        $case = CaseStudy::with('student')->findOrFail($id);
+        $caseStudy = CaseStudy::with('student')->findOrFail($caseStudyId);
 
-        // Create the PointData entry
-        $point = \App\Models\PointData::create([
-            'student_id'     => $case->student_id,
-            'violation'      => "Sanksi Kasus: " . $case->case_title . " (Pelapor: " . $case->reporter_teacher . ")",
+        $createdPointData = PointData::create([
+            'student_id'     => $caseStudy->student_id,
+            'violation'      => "Sanksi Kasus: " . $caseStudy->case_title . " (Pelapor: " . $caseStudy->reporter_teacher . ")",
             'point_number'   => $request->points_sanction,
-            'violation_date' => $case->case_date,
-            'description'    => "Poin sanksi diproses otomatis dari Buku Kasus." . ($case->subject_name ? " Pelajaran: " . $case->subject_name : "") . ($case->time_of_occurrence ? " (Waktu: " . $case->time_of_occurrence . ")" : ""),
+            'violation_date' => $caseStudy->case_date,
+            'description'    => "Poin sanksi diproses otomatis dari Buku Kasus." . ($caseStudy->subject_name ? " Pelajaran: " . $caseStudy->subject_name : "") . ($caseStudy->time_of_occurrence ? " (Waktu: " . $caseStudy->time_of_occurrence . ")" : ""),
             'recorded_by'    => Auth::id(),
         ]);
 
-        // Recalculate student score & status
-        if ($point->student) {
-            $point->student->recalculateStatus();
+        if ($createdPointData->student) {
+            $createdPointData->student->recalculateStatus();
         }
 
-        // Update the case study with points info
-        $case->update([
+        $caseStudy->update([
             'points_sanction' => $request->points_sanction,
             'points_applied'  => true,
         ]);
@@ -202,12 +178,9 @@ class CaseReport extends Controller
         return redirect()->route('studykasus.tampil')->with('success', 'Sanksi poin berhasil diterapkan ke siswa.');
     }
 
-    /**
-     * Print a single case study report (PDF print layout).
-     */
-    public function printCasePdf($id)
+    public function printCasePdf($caseStudyId)
     {
-        $case = CaseStudy::with(['student.class', 'student.parent', 'handler'])->findOrFail($id);
-        return view('Guru_BK.CaseStudy.cetak_pdf', compact('case'));
+        $caseStudy = CaseStudy::with(['student.class', 'student.parent', 'handler'])->findOrFail($caseStudyId);
+        return view('Guru_BK.CaseStudy.cetak_pdf', ['case' => $caseStudy]);
     }
 }

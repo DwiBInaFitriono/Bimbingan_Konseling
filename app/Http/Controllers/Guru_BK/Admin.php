@@ -3,7 +3,6 @@
 namespace App\Http\Controllers\Guru_BK;
 
 use App\Http\Controllers\Controller;
-
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\CaseStudy;
@@ -44,19 +43,18 @@ class Admin extends Controller
         ));
     }
 
-    // Menampilkan Halaman Siswa
     public function Siswa()
     {
-        $data = Student::with(['class', 'parent', 'user'])->latest()->get();
-        $datakelas = ClassData::all();
-        return view('Guru_BK.Student.siswa', ['datasiswa' => $data, 'datakelas' => $datakelas]);
+        $studentList = Student::with(['class', 'parent', 'user'])->latest()->get();
+        $classList = ClassData::all();
+        return view('Guru_BK.Student.siswa', ['datasiswa' => $studentList, 'datakelas' => $classList]);
     }
 
     public function tambahSiswa()
     {
-        $datakelas = ClassData::all();
-        $dataparent = Parents::all();
-        return view('Guru_BK.Student.tambah', compact('datakelas', 'dataparent'));
+        $classList = ClassData::all();
+        $parentList = Parents::all();
+        return view('Guru_BK.Student.tambah', compact('classList', 'parentList'));
     }
 
     public function simpanSiswa(Request $request)
@@ -67,33 +65,33 @@ class Admin extends Controller
             'email'     => 'nullable|email|unique:users,email',
         ]);
 
-        $userId = null;
+        $createdUserId = null;
         if ($request->filled('email')) {
-            $user = User::create([
+            $createdUser = User::create([
                 'name'     => $request->full_name,
                 'email'    => $request->email,
-                'password' => Hash::make($request->nis), // default password NIS
+                'password' => Hash::make($request->nis),
                 'role'     => 'siswa',
             ]);
-            $userId = $user->id;
+            $createdUserId = $createdUser->id;
         }
 
-        $parentId = null;
+        $createdParentId = null;
         if ($request->filled('parent_full_name')) {
-            $parent = Parents::create([
+            $parentRecord = Parents::create([
                 'parent_full_name' => $request->parent_full_name,
                 'relationship'     => $request->parent_relationship,
                 'phone_number'     => $request->parent_phone_number,
             ]);
-            $parentId = $parent->id;
+            $createdParentId = $parentRecord->id;
         }
 
         Student::create([
-            'user_id'       => $userId,
+            'user_id'       => $createdUserId,
             'full_name'     => $request->full_name,
             'nis'           => $request->nis,
             'class_id'      => $request->class_id,
-            'parent_id'     => $parentId,
+            'parent_id'     => $createdParentId,
             'gender'        => $request->gender ?? 'L',
             'date_of_birth' => $request->date_of_birth,
             'address'       => $request->address,
@@ -103,93 +101,96 @@ class Admin extends Controller
         return redirect('siswa')->with('success', 'Data siswa berhasil disimpan.');
     }
 
-    public function hapusSiswa($id)
+    public function hapusSiswa($studentId)
     {
-        $datasiswa = Student::findOrFail($id);
-        if ($datasiswa->user) {
-            $datasiswa->user->delete();
+        $student = Student::findOrFail($studentId);
+        if ($student->user) {
+            $student->user->delete();
         }
-        $datasiswa->delete();
+        $student->delete();
 
         return redirect()->back()->with('success', 'Data siswa berhasil dihapus.');
     }
 
-    public function editSiswa($id)
+    public function editSiswa($studentId)
     {
-        $datakelas = ClassData::all();
-        $dataparent = Parents::all();
-        $datasiswa = Student::with('user')->findOrFail($id);
+        $classList = ClassData::all();
+        $parentList = Parents::all();
+        $student = Student::with('user')->findOrFail($studentId);
 
-        return view('Guru_BK.Student.edit', compact('datasiswa', 'datakelas', 'dataparent'));
+        return view('Guru_BK.Student.edit', [
+            'datasiswa' => $student,
+            'datakelas' => $classList,
+            'dataparent' => $parentList
+        ]);
     }
 
-    public function updateSiswa(Request $request, $id)
+    public function updateSiswa(Request $request, $studentId)
     {
-        $datasiswa = Student::findOrFail($id);
+        $student = Student::findOrFail($studentId);
 
         $request->validate([
             'full_name' => 'required|string|max:255',
-            'nis'       => 'required|string|unique:students,nis,' . $id,
+            'nis'       => 'required|string|unique:students,nis,' . $studentId,
         ]);
 
         if ($request->filled('parent_full_name')) {
-            if ($datasiswa->parent_id) {
-                $parent = Parents::find($datasiswa->parent_id);
-                if ($parent) {
-                    $parent->update([
+            if ($student->parent_id) {
+                $parentRecord = Parents::find($student->parent_id);
+                if ($parentRecord) {
+                    $parentRecord->update([
                         'parent_full_name' => $request->parent_full_name,
                         'relationship'     => $request->parent_relationship,
                         'phone_number'     => $request->parent_phone_number,
                     ]);
                 }
             } else {
-                $parent = Parents::create([
+                $parentRecord = Parents::create([
                     'parent_full_name' => $request->parent_full_name,
                     'relationship'     => $request->parent_relationship,
                     'phone_number'     => $request->parent_phone_number,
                 ]);
-                $datasiswa->parent_id = $parent->id;
+                $student->parent_id = $parentRecord->id;
             }
         }
 
-        $datasiswa->full_name     = $request->full_name;
-        $datasiswa->nis           = $request->nis;
-        $datasiswa->class_id      = $request->class_id;
-        $datasiswa->gender        = $request->gender ?? $datasiswa->gender;
-        $datasiswa->date_of_birth = $request->date_of_birth;
-        $datasiswa->address       = $request->address;
-        $datasiswa->phone_number  = $request->phone_number;
-        $datasiswa->save();
+        $student->full_name     = $request->full_name;
+        $student->nis           = $request->nis;
+        $student->class_id      = $request->class_id;
+        $student->gender        = $request->gender ?? $student->gender;
+        $student->date_of_birth = $request->date_of_birth;
+        $student->address       = $request->address;
+        $student->phone_number  = $request->phone_number;
+        $student->save();
 
-        if ($datasiswa->user) {
-            $datasiswa->user->name = $request->full_name;
+        if ($student->user) {
+            $student->user->name = $request->full_name;
             if ($request->filled('email')) {
-                $datasiswa->user->email = $request->email;
+                $student->user->email = $request->email;
             }
-            $datasiswa->user->save();
+            $student->user->save();
         } elseif ($request->filled('email')) {
-            $user = User::create([
+            $createdUser = User::create([
                 'name'     => $request->full_name,
                 'email'    => $request->email,
                 'password' => Hash::make($request->nis),
                 'role'     => 'siswa',
             ]);
-            $datasiswa->user_id = $user->id;
-            $datasiswa->save();
+            $student->user_id = $createdUser->id;
+            $student->save();
         }
 
         return redirect()->route('siswa.tampil')->with('success', 'Data siswa berhasil diperbarui.');
     }
 
-    // Cetak Surat Peringatan / SP Siswa (Poin Pelanggaran)
-    public function printWarningLetter(Request $request, $id)
+    public function printWarningLetter(Request $request, $studentId)
     {
-        $student = Student::with(['class', 'parent', 'pointDatas' => function ($query) {
-            $query->orderBy('violation_date', 'asc');
-        }])->findOrFail($id);
+        $student = Student::with(['class', 'parent', 'pointDatas' => function ($pointDataQuery) {
+            $pointDataQuery->orderBy('violation_date', 'asc');
+        }])->findOrFail($studentId);
 
-        $printType = $request->query('type', 'default'); // default or expel
+        $warningLetterType = $request->query('type', 'default');
 
-        return view('Guru_BK.Student.cetak_sp', compact('student', 'printType'));
+        return view('Guru_BK.Student.cetak_sp', ['student' => $student, 'printType' => $warningLetterType]);
     }
 }

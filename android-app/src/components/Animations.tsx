@@ -1,23 +1,43 @@
 import React from 'react';
-import { P, T, IND } from '../constants';
 
-export function FU({ children, d = 0, cls = '' }: { children: React.ReactNode; d?: number; cls?: string }) {
+export function FadeUpAnimation({
+  children,
+  delayMilliseconds = 0,
+  d,
+  className = ''
+}: {
+  children: React.ReactNode;
+  delayMilliseconds?: number;
+  d?: number;
+  className?: string;
+}) {
+  const actualDelay = d !== undefined ? d : delayMilliseconds;
   return (
-    <div className={cls} style={{ animation: `fadeUp 0.42s ease ${d}ms both` }}>
+    <div className={className} style={{ animation: `fadeUp 0.42s ease ${actualDelay}ms both` }}>
       {children}
     </div>
-  )
+  );
 }
 
-export function SIR({ children, k }: { children: React.ReactNode; k: number }) {
+export function SlideInRightAnimation({
+  children,
+  animationKey,
+  k,
+}: {
+  children: React.ReactNode;
+  animationKey?: number;
+  k?: number;
+}) {
+  const resolvedKey = k !== undefined ? k : animationKey;
   return (
     <div
-      key={k}
+      key={resolvedKey}
       style={{ animation: 'slideInRight 0.38s cubic-bezier(0.22,1,0.36,1) both', flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}
     >
       {children}
     </div>
-  )
+  );
 }
 
-// ─── Status Bar ───────────────────────────────────────────────────────────────
+export const FU = FadeUpAnimation;
+export const SIR = SlideInRightAnimation;

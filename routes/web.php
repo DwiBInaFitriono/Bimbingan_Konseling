@@ -15,12 +15,6 @@ use App\Http\Middleware\CheckRole;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-*/
-
 Route::get('/', function () {
     if (Auth::check()) {
         return redirect()->route('dashboard');
@@ -29,14 +23,8 @@ Route::get('/', function () {
 });
 
 Route::middleware('guest')->group(function () {
-    // Route bawaan laravel diarahkan ke gurubk sebagai default
     Route::get('/login', function() { return redirect()->route('login.gurubk'); })->name('login');
-    
-    // Pintu masuk Guru BK / Admin
     Route::get('/login/gurubk', [AuthController::class, 'showLoginGuru'])->name('login.gurubk');
-    
-    // Endpoint validasi tetap satu untuk memproses auth.
-    // Rate limit 5 percobaan/menit per kombinasi IP+email untuk mencegah brute-force.
     Route::post('/login/perform', [AuthController::class, 'login'])
         ->middleware('throttle:5,1')
         ->name('login.perform');
@@ -55,20 +43,14 @@ Route::middleware('auth')->group(function () {
         return view('pages.profile', ['user' => Auth::user()]);
     })->name('profile.show');
 
-
-
-
     Route::post('/profile/update', [ProfileController::class, 'updateProfile'])->name('profile.update');
     Route::post('/password/update', [ProfileController::class, 'updatePassword'])->name('password.update');
 
-    // Route khusus Guru BK / Admin
     Route::middleware(CheckRole::class . ':guru_bk')->group(function () {
         Route::get('template', [Admin::class, 'index'])->name('dashboard');
 
-        // Counseling Management & Laporan Rekapan Guru BK
         Route::get('konseling', [CounselingSessionController::class, 'index'])->name('counseling.index');
         Route::get('konseling/laporan', [CounselingSessionController::class, 'report'])->name('counseling.report');
-
         Route::get('konseling/laporan/cetak', [CounselingSessionController::class, 'exportPdf'])->name('counseling.report.pdf');
         Route::post('konseling/simpan', [CounselingSessionController::class, 'store'])->name('counseling.store.gurubk');
         Route::post('konseling/setujui/{id}', [CounselingSessionController::class, 'approve'])->name('counseling.approve');
@@ -76,7 +58,6 @@ Route::middleware('auth')->group(function () {
         Route::post('konseling/selesai/{id}', [CounselingSessionController::class, 'complete'])->name('counseling.complete');
         Route::delete('konseling/hapus/{id}', [CounselingSessionController::class, 'destroy'])->name('counseling.destroy');
 
-        // Routes Siswa
         Route::get('siswa', [Admin::class, 'Siswa'])->name('siswa.tampil');
         Route::get('/tambah', [Admin::class, 'tambahSiswa']);
         Route::post('simpan', [Admin::class, 'simpanSiswa']);
@@ -85,7 +66,6 @@ Route::middleware('auth')->group(function () {
         Route::post('/update/{id}', [Admin::class, 'updateSiswa']);
         Route::get('/siswa/{id}/cetak-sp', [Admin::class, 'printWarningLetter'])->name('siswa.cetak.peringatan');
 
-        // Routes Class
         Route::get('kelas', [DataClass::class, 'classData'])->name('kelas.tampil');
         Route::get('tambahkelas', [DataClass::class, 'addClass']);
         Route::post('simpankelas', [DataClass::class, 'storeClass']);
@@ -93,7 +73,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/editkelas/{id}', [DataClass::class, 'editClass']);
         Route::post('/updatekelas/{id}', [DataClass::class, 'updateClass']);
 
-        // Route Parents
         Route::get('ortu', [ParentStudent::class, 'parentData'])->name('ortu.tampil');
         Route::get('tambahparent', [ParentStudent::class, 'addParent']);
         Route::post('simpanparent', [ParentStudent::class, 'storeParent']);
@@ -101,7 +80,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/editparent/{id}', [ParentStudent::class, 'editParent']);
         Route::post('/updateparent/{id}', [ParentStudent::class, 'updateParent']);
 
-        // Route Points
         Route::get('point', [DataPoint::class, 'dataPoint'])->name('point.tampil');
         Route::get('tambahpoint', [DataPoint::class, 'createPoint']);
         Route::post('simpanpoint', [DataPoint::class, 'storePoint']);
@@ -109,7 +87,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/editpoint/{id}', [DataPoint::class, 'editPoint']);
         Route::post('/updatepoint/{id}', [DataPoint::class, 'updatePoint']);
 
-        // Route Points Category
         Route::get('kategori', [PointCategory::class, 'indexPointCategory'])->name('kategori.tampil');
         Route::get('tambahkategori', [PointCategory::class, 'createPointCategory']);
         Route::post('simpankategori', [PointCategory::class, 'storePointCategory']);
@@ -117,7 +94,6 @@ Route::middleware('auth')->group(function () {
         Route::get('/editkategori/{id}', [PointCategory::class, 'editPointCategory']);
         Route::post('/updatekategori/{id}', [PointCategory::class, 'updatePointCategory']);
 
-        // Route Case Report
         Route::get('studykasus', [CaseReport::class, 'indexCaseReport'])->name('studykasus.tampil');
         Route::get('tambahstudykasus', [CaseReport::class, 'createCaseReport']);
         Route::post('simpanstudykasus', [CaseReport::class, 'storeCaseReport']);
@@ -128,7 +104,6 @@ Route::middleware('auth')->group(function () {
         Route::post('studykasus/sanksi-poin/{id}', [CaseReport::class, 'applyPointSanction'])->name('studykasus.sanction');
         Route::get('studykasus/cetak/{id}', [CaseReport::class, 'printCasePdf'])->name('studykasus.pdf');
 
-        // Route Achievement
         Route::get('dataprestasi', [Achievements::class, 'indexAchievement'])->name('dataprestasi.tampil');
         Route::get('tambahprestasi', [Achievements::class, 'createAchievement']);
         Route::post('simpanprestasi', [Achievements::class, 'storeAchievement']);

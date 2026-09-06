@@ -3,32 +3,22 @@
 namespace App\Http\Controllers\Guru_BK;
 
 use App\Http\Controllers\Controller;
-
 use Illuminate\Http\Request;
 use App\Models\ClassData;
 
 class DataClass extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function classData()
     {
-        $data = ClassData::withCount('student')->orderBy('grade')->orderBy('school_class_name')->get();
-        return view('Guru_BK.Class.class', ['datakelas' => $data]);
+        $classList = ClassData::withCount('student')->orderBy('grade')->orderBy('school_class_name')->get();
+        return view('Guru_BK.Class.class', ['datakelas' => $classList]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function addClass()
     {
         return view('Guru_BK.Class.tambah');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function storeClass(Request $request)
     {
         $request->validate([
@@ -46,43 +36,36 @@ class DataClass extends Controller
         return redirect()->route('kelas.tampil')->with('success', 'Data kelas berhasil disimpan.');
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function editClass($id)
+    public function editClass($classDataId)
     {
-        $datakelas = ClassData::findOrFail($id);
-        return view('Guru_BK.Class.edit', compact('datakelas'));
+        $parsedClassId = (int) $classDataId;
+        $classData = ClassData::findOrFail($parsedClassId);
+        return view('Guru_BK.Class.edit', ['datakelas' => $classData]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function updateClass(Request $request, $id)
+    public function updateClass(Request $request, $classDataId)
     {
+        $parsedClassId = (int) $classDataId;
         $request->validate([
             'grade'              => 'required|in:10,11,12',
             'school_class_name'  => 'required|string|max:255',
             'school_class_major' => 'required|string|max:255',
         ]);
 
-        $datakelas = ClassData::findOrFail($id);
-
-        $datakelas->grade              = $request->grade;
-        $datakelas->school_class_name  = $request->school_class_name;
-        $datakelas->school_class_major = $request->school_class_major;
-        $datakelas->save();
+        $classData = ClassData::findOrFail($parsedClassId);
+        $classData->grade              = $request->grade;
+        $classData->school_class_name  = $request->school_class_name;
+        $classData->school_class_major = $request->school_class_major;
+        $classData->save();
 
         return redirect()->route('kelas.tampil')->with('success', 'Data kelas berhasil diperbarui.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroyClass($id)
+    public function destroyClass($classDataId)
     {
-        $data = ClassData::findOrFail($id);
-        $data->delete();
+        $parsedClassId = (int) $classDataId;
+        $classData = ClassData::findOrFail($parsedClassId);
+        $classData->delete();
         return redirect()->back()->with('success', 'Data kelas berhasil dihapus.');
     }
 }
