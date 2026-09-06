@@ -29,6 +29,7 @@ CLAUDE.md
 *.pem
 database/*.pem
 tidb-ca.pem
+!config/ssl/tidb-ca.pem
 
 # Markdown documentation (except root README.md)
 *.md
