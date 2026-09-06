@@ -57,25 +57,10 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'strict' => true,
-            'options' => extension_loaded('pdo_mysql') ? array_merge(
-                [PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false],
-                (function () {
-                    // Cek semua kandidat path SSL cert (urutan prioritas)
-                    $candidates = [
-                        '/tmp/tidb-ca.pem',                                     // di-copy oleh api/index.php saat startup
-                        env('MYSQL_ATTR_SSL_CA'),                                // env variable (absolute path)
-                        base_path('config/ssl/tidb-ca.pem'),                    // Laravel base_path
-                        dirname(__DIR__) . '/config/ssl/tidb-ca.pem',           // root relative
-                        '/var/task/user/config/ssl/tidb-ca.pem',                // Vercel Lambda runtime path
-                    ];
-                    foreach ($candidates as $path) {
-                        if ($path && file_exists($path)) {
-                            return [PDO::MYSQL_ATTR_SSL_CA => $path];
-                        }
-                    }
-                    return [];
-                })()
-            ) : [],
+            'options' => [
+                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false,
+                PDO::MYSQL_ATTR_SSL_CA => '/tmp/tidb-ca.pem',
+            ],
         ],
 
         'pgsql' => [
