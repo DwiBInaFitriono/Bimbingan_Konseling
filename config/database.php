@@ -57,13 +57,7 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'strict' => true,
-            'options' => extension_loaded('pdo_mysql') ? (function () {
-                $caPath = env('MYSQL_ATTR_SSL_CA');
-                return [
-                    1009 => ($caPath && file_exists(base_path($caPath))) ? base_path($caPath) : '',
-                    1014 => false,
-                ];
-            })() : [],
+            'options' => [],
         ],
 
         'pgsql' => [
