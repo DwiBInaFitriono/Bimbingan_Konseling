@@ -4,5 +4,8 @@
       "source": "/api/v1/(.*)",
       "destination": "/api/v1/$1"
     }
-  ]
+  ],
+  "env": {
+    "DATABASE_URL": "mysql://29hkS1jfx2jKirT.root:RTpfTnYqsilcW7aS@gateway01.ap-southeast-1.prod.aws.tidbcloud.com:4000/test?ssl={\"rejectUnauthorized\":true}"
+  }
 }

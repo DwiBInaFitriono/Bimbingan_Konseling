@@ -59,7 +59,25 @@ return [
             'strict' => true,
             'options' => extension_loaded('pdo_mysql') ? array_merge(
                 [PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false],
-                env('MYSQL_ATTR_SSL_CA') ? [PDO::MYSQL_ATTR_SSL_CA => base_path(env('MYSQL_ATTR_SSL_CA'))] : []
+                (function () {
+                    $sslCaEnv = env('MYSQL_ATTR_SSL_CA');
+                    if (!$sslCaEnv) return [];
+                    // Coba absolute path (jika env sudah full path)
+                    if (file_exists($sslCaEnv)) {
+                        return [PDO::MYSQL_ATTR_SSL_CA => $sslCaEnv];
+                    }
+                    // Relative ke base_path()
+                    $basePath = base_path($sslCaEnv);
+                    if (file_exists($basePath)) {
+                        return [PDO::MYSQL_ATTR_SSL_CA => $basePath];
+                    }
+                    // Fallback: relative ke root project
+                    $dirPath = dirname(__DIR__) . '/' . $sslCaEnv;
+                    if (file_exists($dirPath)) {
+                        return [PDO::MYSQL_ATTR_SSL_CA => $dirPath];
+                    }
+                    return [PDO::MYSQL_ATTR_SSL_CA => $basePath];
+                })()
             ) : [],
         ],
 

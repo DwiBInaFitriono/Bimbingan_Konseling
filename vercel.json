@@ -5,15 +5,24 @@
   "env": {
     "APP_NAME": "Sistem BK",
     "APP_ENV": "production",
-    "APP_DEBUG": "true",
+    "APP_DEBUG": "false",
+    "APP_KEY": "base64:+Qcwp/FKLglL0KxMs2gScVj8drIYrGkgQwx0oRGBk9Q=",
+    "APP_URL": "https://bimbingan-konseling-three.vercel.app",
     "LOG_CHANNEL": "stderr",
+    "LOG_LEVEL": "error",
     "DB_CONNECTION": "mysql",
+    "DB_HOST": "gateway01.ap-southeast-1.prod.aws.tidbcloud.com",
+    "DB_PORT": "4000",
+    "DB_DATABASE": "test",
+    "DB_USERNAME": "29hkS1jfx2jKirT.root",
+    "DB_PASSWORD": "RTpfTnYqsilcW7aS",
     "MYSQL_ATTR_SSL_CA": "config/ssl/tidb-ca.pem",
     "VIEW_COMPILED_PATH": "/tmp/storage/framework/views",
     "CACHE_DRIVER": "array",
     "CACHE_STORE": "array",
     "SESSION_DRIVER": "cookie",
-    "FILESYSTEM_DISK": "local"
+    "FILESYSTEM_DISK": "local",
+    "BROADCAST_DRIVER": "log",
+    "QUEUE_CONNECTION": "sync"
   }
 }
-
