@@ -57,10 +57,14 @@ return [
             'prefix' => '',
             'prefix_indexes' => true,
             'strict' => true,
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                1009 => (env('MYSQL_ATTR_SSL_CA') && file_exists(base_path(env('MYSQL_ATTR_SSL_CA')))) ? base_path(env('MYSQL_ATTR_SSL_CA')) : null,
-                1014 => env('MYSQL_ATTR_SSL_VERIFY_SERVER_CERT', false),
-            ]) : [],
+            'options' => extension_loaded('pdo_mysql') ? (function () {
+                $options = [1014 => false];
+                $caPath = env('MYSQL_ATTR_SSL_CA');
+                if ($caPath && file_exists(base_path($caPath))) {
+                    $options[1009] = base_path($caPath);
+                }
+                return $options;
+            })() : [],
         ],
 
         'pgsql' => [

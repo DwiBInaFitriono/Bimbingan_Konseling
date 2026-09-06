@@ -8,9 +8,11 @@
     "APP_DEBUG": "true",
     "LOG_CHANNEL": "stderr",
     "DB_CONNECTION": "mysql",
-    "VIEW_COMPILED_PATH": "/tmp",
+    "VIEW_COMPILED_PATH": "/tmp/storage/framework/views",
     "CACHE_DRIVER": "array",
     "CACHE_STORE": "array",
-    "SESSION_DRIVER": "cookie"
+    "SESSION_DRIVER": "cookie",
+    "FILESYSTEM_DISK": "local"
   }
 }
+
