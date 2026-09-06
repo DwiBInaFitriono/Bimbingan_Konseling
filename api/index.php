@@ -17,9 +17,5 @@ foreach ($requiredCacheDirectories as $cacheDirectoryPath) {
 }
 
 putenv('VIEW_COMPILED_PATH=/tmp/storage/framework/views');
-putenv('APP_SERVICES_CACHE=/tmp/bootstrap/cache/services.php');
-putenv('APP_PACKAGES_CACHE=/tmp/bootstrap/cache/packages.php');
-putenv('APP_CONFIG_CACHE=/tmp/bootstrap/cache/config.php');
-putenv('APP_ROUTES_CACHE=/tmp/bootstrap/cache/routes.php');
 
 require __DIR__ . '/../public/index.php';
