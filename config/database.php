@@ -58,8 +58,8 @@ return [
             'prefix_indexes' => true,
             'strict' => true,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => (env('MYSQL_ATTR_SSL_CA') && file_exists(base_path(env('MYSQL_ATTR_SSL_CA')))) ? base_path(env('MYSQL_ATTR_SSL_CA')) : null,
-                PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => env('MYSQL_ATTR_SSL_VERIFY_SERVER_CERT', false),
+                1009 => (env('MYSQL_ATTR_SSL_CA') && file_exists(base_path(env('MYSQL_ATTR_SSL_CA')))) ? base_path(env('MYSQL_ATTR_SSL_CA')) : null,
+                1014 => env('MYSQL_ATTR_SSL_VERIFY_SERVER_CERT', false),
             ]) : [],
         ],
 
