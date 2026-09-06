@@ -60,23 +60,20 @@ return [
             'options' => extension_loaded('pdo_mysql') ? array_merge(
                 [PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false],
                 (function () {
-                    $sslCaEnv = env('MYSQL_ATTR_SSL_CA');
-                    if (!$sslCaEnv) return [];
-                    // Coba absolute path (jika env sudah full path)
-                    if (file_exists($sslCaEnv)) {
-                        return [PDO::MYSQL_ATTR_SSL_CA => $sslCaEnv];
+                    // Cek semua kandidat path SSL cert (urutan prioritas)
+                    $candidates = [
+                        '/tmp/tidb-ca.pem',                                     // di-copy oleh api/index.php saat startup
+                        env('MYSQL_ATTR_SSL_CA'),                                // env variable (absolute path)
+                        base_path('config/ssl/tidb-ca.pem'),                    // Laravel base_path
+                        dirname(__DIR__) . '/config/ssl/tidb-ca.pem',           // root relative
+                        '/var/task/user/config/ssl/tidb-ca.pem',                // Vercel Lambda runtime path
+                    ];
+                    foreach ($candidates as $path) {
+                        if ($path && file_exists($path)) {
+                            return [PDO::MYSQL_ATTR_SSL_CA => $path];
+                        }
                     }
-                    // Relative ke base_path()
-                    $basePath = base_path($sslCaEnv);
-                    if (file_exists($basePath)) {
-                        return [PDO::MYSQL_ATTR_SSL_CA => $basePath];
-                    }
-                    // Fallback: relative ke root project
-                    $dirPath = dirname(__DIR__) . '/' . $sslCaEnv;
-                    if (file_exists($dirPath)) {
-                        return [PDO::MYSQL_ATTR_SSL_CA => $dirPath];
-                    }
-                    return [PDO::MYSQL_ATTR_SSL_CA => $basePath];
+                    return [];
                 })()
             ) : [],
         ],
