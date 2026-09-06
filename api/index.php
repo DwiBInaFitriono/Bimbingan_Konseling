@@ -21,4 +21,25 @@ foreach ($requiredCacheDirectories as $cacheDirectoryPath) {
 
 putenv('VIEW_COMPILED_PATH=/tmp/storage/framework/views');
 
+// Pastikan SSL cert TiDB Cloud tersedia di /tmp/ (writable di Vercel)
+$sslCertDestination = '/tmp/tidb-ca.pem';
+if (!file_exists($sslCertDestination)) {
+    $possibleSslPaths = [
+        __DIR__ . '/../config/ssl/tidb-ca.pem',
+        __DIR__ . '/config/ssl/tidb-ca.pem',
+    ];
+    foreach ($possibleSslPaths as $sourcePath) {
+        if (file_exists($sourcePath)) {
+            @copy($sourcePath, $sslCertDestination);
+            break;
+        }
+    }
+}
+
+// Override MYSQL_ATTR_SSL_CA ke path /tmp/ jika cert berhasil di-copy
+if (file_exists($sslCertDestination)) {
+    putenv('MYSQL_ATTR_SSL_CA=' . $sslCertDestination);
+    $_ENV['MYSQL_ATTR_SSL_CA'] = $sslCertDestination;
+}
+
 require __DIR__ . '/../public/index.php';
