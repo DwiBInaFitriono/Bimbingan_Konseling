@@ -7,6 +7,25 @@ ini_set('display_errors', '0');
 $tmpStorage = '/tmp/storage';
 putenv('LARAVEL_STORAGE_PATH=' . $tmpStorage);
 
+// Hapus cookie lama yang terlalu besar (menyebabkan 494 REQUEST_HEADER_TOO_LARGE)
+// Ini terjadi jika user punya sisa cookie dari SESSION_DRIVER=cookie sebelumnya
+$totalCookieSize = strlen(implode('', array_values($_COOKIE)));
+if ($totalCookieSize > 4096) {
+    // Clear semua Laravel session cookies
+    $cookiesToClear = ['laravel_session', 'XSRF-TOKEN', 'laravel_token'];
+    foreach (array_keys($_COOKIE) as $cookieName) {
+        if (!in_array($cookieName, ['laravel_session', 'XSRF-TOKEN'])) {
+            $cookiesToClear[] = $cookieName;
+        }
+    }
+    foreach ($cookiesToClear as $cookieName) {
+        if (isset($_COOKIE[$cookieName])) {
+            setcookie($cookieName, '', time() - 3600, '/', '', true, true);
+            unset($_COOKIE[$cookieName]);
+        }
+    }
+}
+
 $requiredCacheDirectories = [
     '/tmp/storage/cache',
     '/tmp/storage/logs',
