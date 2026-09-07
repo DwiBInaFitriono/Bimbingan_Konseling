@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rules\Password;
 
 class ProfileController extends Controller
@@ -47,6 +48,11 @@ class ProfileController extends Controller
         }
 
         unset($validatedProfileData['profile_image']);
+
+        // Cegah error jika database produksi belum di-migrasi (kolom photo tidak ada)
+        if (isset($validatedProfileData['photo']) && !Schema::hasColumn('users', 'photo')) {
+            unset($validatedProfileData['photo']);
+        }
 
         $authenticatedUser->update($validatedProfileData);
 
