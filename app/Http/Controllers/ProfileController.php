@@ -48,9 +48,15 @@ class ProfileController extends Controller
 
         unset($validatedProfileData['profile_image']);
 
-        $authenticatedUser->update($validatedProfileData);
-
-        return back()->with('success', 'Profil berhasil diperbarui.');
+        try {
+            $authenticatedUser->update($validatedProfileData);
+            return back()->with('success', 'Profil berhasil diperbarui.');
+        } catch (\Illuminate\Database\QueryException $e) {
+            // Tangkap error query DB (seperti kolom photo tidak ada di DB produksi)
+            abort(500, 'Terjadi kesalahan pada server database (Kemungkinan kolom belum dimigrasi).');
+        } catch (\Exception $e) {
+            abort(500, 'Terjadi kesalahan internal server.');
+        }
     }
 
     public function updatePassword(Request $request): RedirectResponse
