@@ -84,16 +84,16 @@ export default function App() {
 
   if (isMobileViewport) {
     return (
-      <div style={{ width: '100vw', minHeight: '100vh', background: '#0F172A', display: 'flex', flexDirection: 'column' }}>
+      <div style={{ width: '100vw', minHeight: '100vh', background: '#153D4C', display: 'flex', flexDirection: 'column' }}>
         {renderApplicationContent()}
       </div>
     );
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #0F172A 0%, #1E1B4B 50%, #0F172A 100%)', padding: '24px 16px', overflowY: 'auto' }}>
-      <div style={{ position: 'fixed', top: '15%', left: '5%', width: 400, height: 400, background: `radial-gradient(circle, rgba(79,70,229,0.12) 0%, transparent 70%)`, pointerEvents: 'none' }} />
-      <div style={{ position: 'fixed', bottom: '15%', right: '5%', width: 400, height: 400, background: `radial-gradient(circle, rgba(124,58,237,0.1) 0%, transparent 70%)`, pointerEvents: 'none' }} />
+    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'linear-gradient(135deg, #153D4C 0%, #15565B 50%, #153D4C 100%)', padding: '24px 16px', overflowY: 'auto' }}>
+      <div style={{ position: 'fixed', top: '15%', left: '5%', width: 400, height: 400, background: `radial-gradient(circle, rgba(22,135,119,0.15) 0%, transparent 70%)`, pointerEvents: 'none' }} />
+      <div style={{ position: 'fixed', bottom: '15%', right: '5%', width: 400, height: 400, background: `radial-gradient(circle, rgba(21,86,91,0.12) 0%, transparent 70%)`, pointerEvents: 'none' }} />
 
       <div style={{
         width: 370,

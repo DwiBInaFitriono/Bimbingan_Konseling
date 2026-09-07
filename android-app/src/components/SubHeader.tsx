@@ -26,7 +26,7 @@ export function SubHeader({
     <div
       className="flex-shrink-0 px-4 pb-4"
       style={{
-        background: `linear-gradient(135deg, #5B21B6 0%, ${COLOR_PRIMARY} 60%, ${COLOR_INDIGO} 100%)`,
+        background: `linear-gradient(135deg, #153D4C 0%, ${COLOR_PRIMARY} 60%, ${COLOR_INDIGO} 100%)`,
         paddingTop: 16,
         position: 'relative',
         overflow: 'hidden',

@@ -88,7 +88,7 @@ export const ApiService = {
     }
   },
 
-  async postJadwal(counselingSchedulePayload: { type: string; requested_date: string; requested_time: string; topic: string; description?: string }) {
+  async postJadwal(counselingSchedulePayload: { type: string; requested_date: string; requested_time: string; topic: string; description?: string; additional_members?: string }) {
     try {
       const apiResponse = await fetch(`${API_BASE_URL}/jadwal`, {
         method: 'POST',
@@ -131,6 +131,20 @@ export const ApiService = {
         };
       }
       throw fetchHistoryError;
+    }
+  },
+
+  async getStudents() {
+    try {
+      const apiResponse = await fetch(`http://localhost:8000/api/v1/students`, {
+        headers: { ...getAuthorizationHeaderMap() },
+      });
+      return await processApiResponsePayload(apiResponse);
+    } catch (fetchStudentsError: any) {
+      if (import.meta.env.DEV) {
+        return { success: false, data: [] };
+      }
+      throw fetchStudentsError;
     }
   },
 

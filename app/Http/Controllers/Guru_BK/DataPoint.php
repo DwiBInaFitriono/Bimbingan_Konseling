@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\PointData;
 use App\Models\Student;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class DataPoint extends Controller
 {
@@ -32,20 +33,28 @@ class DataPoint extends Controller
             'violation_date' => 'nullable|date',
         ]);
 
-        $createdPointData = PointData::create([
-            'student_id'     => $request->student_id,
-            'violation'      => $request->violation,
-            'point_number'   => $request->point_number,
-            'violation_date' => $request->violation_date ?? now()->format('Y-m-d'),
-            'description'    => $request->description,
-            'recorded_by'    => Auth::id(),
-        ]);
+        try {
+            DB::beginTransaction();
 
-        if ($createdPointData->student) {
-            $createdPointData->student->recalculateStatus();
+            $createdPointData = PointData::create([
+                'student_id'     => $request->student_id,
+                'violation'      => $request->violation,
+                'point_number'   => $request->point_number,
+                'violation_date' => $request->violation_date ?? now()->format('Y-m-d'),
+                'description'    => $request->description,
+                'recorded_by'    => Auth::id(),
+            ]);
+
+            if ($createdPointData->student) {
+                $createdPointData->student->recalculateStatus();
+            }
+
+            DB::commit();
+            return redirect()->route('point.tampil')->with('success', 'Poin pelanggaran siswa berhasil dicatat.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Terjadi kesalahan saat menyimpan poin: ' . $e->getMessage());
         }
-
-        return redirect()->route('point.tampil')->with('success', 'Poin pelanggaran siswa berhasil dicatat.');
     }
 
     public function editPoint($pointDataId)
@@ -68,27 +77,35 @@ class DataPoint extends Controller
             'point_number' => 'required|integer|min:1',
         ]);
 
-        $violationPointData = PointData::findOrFail($parsedPointId);
-        $originalStudentId = $violationPointData->student_id;
+        try {
+            DB::beginTransaction();
 
-        $violationPointData->student_id     = $request->student_id;
-        $violationPointData->violation      = $request->violation;
-        $violationPointData->point_number   = $request->point_number;
-        $violationPointData->violation_date = $request->violation_date ?? $violationPointData->violation_date;
-        $violationPointData->description    = $request->description;
-        $violationPointData->save();
+            $violationPointData = PointData::findOrFail($parsedPointId);
+            $originalStudentId = $violationPointData->student_id;
 
-        if ($violationPointData->student) {
-            $violationPointData->student->recalculateStatus();
-        }
-        if ($originalStudentId != $violationPointData->student_id) {
-            $previousStudent = Student::find($originalStudentId);
-            if ($previousStudent) {
-                $previousStudent->recalculateStatus();
+            $violationPointData->student_id     = $request->student_id;
+            $violationPointData->violation      = $request->violation;
+            $violationPointData->point_number   = $request->point_number;
+            $violationPointData->violation_date = $request->violation_date ?? $violationPointData->violation_date;
+            $violationPointData->description    = $request->description;
+            $violationPointData->save();
+
+            if ($violationPointData->student) {
+                $violationPointData->student->recalculateStatus();
             }
-        }
+            if ($originalStudentId != $violationPointData->student_id) {
+                $previousStudent = Student::find($originalStudentId);
+                if ($previousStudent) {
+                    $previousStudent->recalculateStatus();
+                }
+            }
 
-        return redirect()->route('point.tampil')->with('success', 'Data poin pelanggaran berhasil diperbarui.');
+            DB::commit();
+            return redirect()->route('point.tampil')->with('success', 'Data poin pelanggaran berhasil diperbarui.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Terjadi kesalahan saat mengupdate poin: ' . $e->getMessage());
+        }
     }
 
     public function destroyPoint($pointDataId)

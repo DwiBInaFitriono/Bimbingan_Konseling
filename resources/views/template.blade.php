@@ -28,23 +28,6 @@
             </nav>
         </div><!-- End Page Title -->
 
-        @php
-            $currentHour = (int) now()->format('H');
-            if ($currentHour >= 4 && $currentHour < 11) {
-                $serverGreeting = 'Selamat pagi';
-            } elseif ($currentHour >= 11 && $currentHour < 15) {
-                $serverGreeting = 'Selamat siang';
-            } elseif ($currentHour >= 15 && $currentHour < 18) {
-                $serverGreeting = 'Selamat sore';
-            } else {
-                $serverGreeting = 'Selamat malam';
-            }
-
-            \Carbon\Carbon::setLocale('id');
-            $serverDate = now()->translatedFormat('l, d F Y');
-            $serverClock = now()->format('H:i:s') . ' WIB';
-        @endphp
-
         <div class="col-12 mb-3">
             <div class="welcome-hero-card p-3 p-md-4 rounded-3 shadow-xs border position-relative overflow-hidden">
                 <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-2">

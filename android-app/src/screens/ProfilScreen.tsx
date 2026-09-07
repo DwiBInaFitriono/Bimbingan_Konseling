@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Screen } from '../types';
 import {
   COLOR_PRIMARY,
+  COLOR_PRIMARY_DARK,
   COLOR_VIOLET,
   COLOR_SUCCESS,
   COLOR_WARNING,
@@ -83,7 +84,7 @@ export function ProfilScreen({ navigate }: { navigate: (targetScreen: Screen) =>
       itemSubtitle: 'Kelola informasi profil Anda',
       targetScreen: 'editprofil',
       iconColor: COLOR_PRIMARY,
-      iconBackgroundColor: '#EEF2FF',
+      iconBackgroundColor: '#E6F5F3',
     },
     {
       iconElement: (
@@ -95,7 +96,7 @@ export function ProfilScreen({ navigate }: { navigate: (targetScreen: Screen) =>
       itemSubtitle: 'Keamanan & privasi akun',
       targetScreen: 'ubahpassword',
       iconColor: COLOR_VIOLET,
-      iconBackgroundColor: '#F5F3FF',
+      iconBackgroundColor: '#E8F0F1',
     },
     {
       iconElement: (
@@ -146,7 +147,7 @@ export function ProfilScreen({ navigate }: { navigate: (targetScreen: Screen) =>
 
   return (
     <div style={{ flex: 1, overflowY: 'auto', background: '#F1F5F9' }}>
-      <div style={{ background: `linear-gradient(135deg, #5B21B6 0%, ${COLOR_PRIMARY} 55%, ${COLOR_INDIGO} 100%)`, padding: '16px 20px 32px', position: 'relative', overflow: 'hidden' }}>
+      <div style={{ background: `linear-gradient(135deg, #153D4C 0%, ${COLOR_PRIMARY} 55%, ${COLOR_PRIMARY_DARK} 100%)`, padding: '16px 20px 32px', position: 'relative', overflow: 'hidden' }}>
         <div style={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, border: '1px solid rgba(255,255,255,0.07)', borderRadius: '50%', pointerEvents: 'none' }} />
         <div style={{ position: 'absolute', bottom: 0, left: -40, width: 120, height: 120, background: 'rgba(255,255,255,0.04)', borderRadius: '50%', pointerEvents: 'none' }} />
         <FadeUpAnimation delayMilliseconds={0}>
@@ -155,7 +156,7 @@ export function ProfilScreen({ navigate }: { navigate: (targetScreen: Screen) =>
               <div style={{ width: 82, height: 82, borderRadius: '50%', background: 'rgba(255,255,255,0.18)', backdropFilter: 'blur(10px)', border: '2.5px solid rgba(255,255,255,0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 26, fontWeight: 900, color: '#fff', fontFamily: 'Nunito' }}>
                 {studentProfile?.name ? studentProfile.name.substring(0, 2).toUpperCase() : 'US'}
               </div>
-              <div style={{ position: 'absolute', bottom: -2, right: -2, width: 24, height: 24, borderRadius: '50%', background: COLOR_SUCCESS, border: '2px solid rgba(91,33,182)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <div style={{ position: 'absolute', bottom: -2, right: -2, width: 24, height: 24, borderRadius: '50%', background: COLOR_SUCCESS, border: '2px solid #153D4C', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round"><path d="M20 6L9 17l-5-5"/></svg>
               </div>
             </div>

@@ -20,12 +20,12 @@ body {
 }
 
 a {
-  color: #4154f1;
+  color: #168777;
   text-decoration: none;
 }
 
 a:hover {
-  color: #717ff5;
+  color: #156F69;
   text-decoration: none;
 }
 
@@ -68,7 +68,7 @@ h6 {
   margin-top: 0;
   margin-bottom: 2px;
   font-weight: 700;
-  color: #012970;
+  color: #15565B;
   line-height: 1.15;
 }
 
@@ -109,7 +109,7 @@ h6 {
   right: 15px;
   bottom: 15px;
   z-index: 99999;
-  background: #4154f1;
+  background: #168777;
   width: 40px;
   height: 40px;
   border-radius: 4px;
@@ -123,7 +123,7 @@ h6 {
 }
 
 .back-to-top:hover {
-  background: #6776f4;
+  background: #153D4C;
   color: #fff;
 }
 
@@ -253,7 +253,7 @@ h6 {
   margin-bottom: 30px;
   border: none;
   border-radius: 5px;
-  box-shadow: 0px 0 30px rgba(1, 41, 112, 0.1);
+  box-shadow: 0px 0 30px rgba(21, 86, 91, 0.1);
 }
 
 .card-header,
@@ -268,7 +268,7 @@ h6 {
   padding: 15px 0 10px 0;
   font-size: 17px;
   font-weight: 700;
-  color: #012970;
+  color: #15565B;
   font-family: "Poppins", "Nunito", sans-serif;
 }
 
@@ -314,7 +314,7 @@ h6 {
 }
 
 .accordion-button:not(.collapsed) {
-  color: #012970;
+  color: #15565B;
   background-color: #f6f9ff;
 }
 
@@ -326,7 +326,7 @@ h6 {
 
 .accordion-flush .accordion-button:not(.collapsed) {
   box-shadow: none;
-  color: #4154f1;
+  color: #168777;
 }
 
 .accordion-flush .accordion-body {
@@ -374,13 +374,13 @@ h6 {
 
 .nav-tabs-bordered .nav-link:hover,
 .nav-tabs-bordered .nav-link:focus {
-  color: #4154f1;
+  color: #168777;
 }
 
 .nav-tabs-bordered .nav-link.active {
   background-color: #fff;
-  color: #4154f1;
-  border-bottom: 2px solid #4154f1;
+  color: #168777;
+  border-bottom: 2px solid #168777;
 }
 
 /*--------------------------------------------------------------
@@ -405,7 +405,7 @@ h6 {
 .logo .brand-main {
   font-size: 16px;
   font-weight: 800;
-  color: #012970;
+  color: #15565B;
   font-family: "Nunito", sans-serif;
   letter-spacing: -0.01em;
   white-space: nowrap;
@@ -413,9 +413,9 @@ h6 {
 }
 
 .logo .brand-accent {
-  color: #4154f1;
+  color: #168777;
   font-weight: 900;
-  background: linear-gradient(135deg, #4154f1, #0ea5e9);
+  background: linear-gradient(135deg, #168777, #0ea5e9);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -423,7 +423,7 @@ h6 {
 .logo .brand-sub {
   font-size: 9px;
   font-weight: 700;
-  color: #717ff5;
+  color: #156F69;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   font-family: "Open Sans", sans-serif;
@@ -439,13 +439,13 @@ h6 {
   flex-shrink: 0;
   display: block;
   border-radius: 9px;
-  box-shadow: 0 4px 10px rgba(65, 84, 241, 0.18);
+  box-shadow: 0 4px 10px rgba(22, 135, 119, 0.18);
 }
 
 .profile-avatar {
   width: 40px;
   height: 40px;
-  background: linear-gradient(135deg, #4154f1, #012970);
+  background: linear-gradient(135deg, #168777, #15565B);
   color: #fff;
   font-size: 0.95rem;
   font-weight: 700;
@@ -456,26 +456,26 @@ h6 {
   width: 72px;
   height: 72px;
   object-fit: cover;
-  box-shadow: 0 10px 24px rgba(1, 41, 112, 0.18);
+  box-shadow: 0 10px 24px rgba(21, 86, 91, 0.18);
 }
 
 .header {
   transition: all 0.5s;
   z-index: 997;
   height: 60px;
-  box-shadow: 0 1px 0 rgba(1, 41, 112, 0.08);
+  box-shadow: 0 1px 0 rgba(21, 86, 91, 0.08);
   background-color: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
   padding-left: 20px;
-  border-bottom: 1px solid rgba(1, 41, 112, 0.06);
+  border-bottom: 1px solid rgba(21, 86, 91, 0.06);
 }
 
 .header .toggle-sidebar-btn {
   font-size: 32px;
   padding-left: 10px;
   cursor: pointer;
-  color: #012970;
+  color: #15565B;
 }
 
 .header .search-bar {
@@ -490,7 +490,7 @@ h6 {
     left: 0;
     right: 0;
     padding: 20px;
-    box-shadow: 0px 0px 15px 0px rgba(1, 41, 112, 0.1);
+    box-shadow: 0px 0px 15px 0px rgba(21, 86, 91, 0.1);
     background: white;
     z-index: 9999;
     transition: 0.3s;
@@ -512,8 +512,8 @@ h6 {
 .header .search-form input {
   border: 0;
   font-size: 14px;
-  color: #012970;
-  border: 1px solid rgba(1, 41, 112, 0.2);
+  color: #15565B;
+  border: 1px solid rgba(21, 86, 91, 0.2);
   padding: 7px 38px 7px 8px;
   border-radius: 3px;
   transition: 0.3s;
@@ -523,8 +523,8 @@ h6 {
 .header .search-form input:focus,
 .header .search-form input:hover {
   outline: none;
-  box-shadow: 0 0 10px 0 rgba(1, 41, 112, 0.15);
-  border: 1px solid rgba(1, 41, 112, 0.3);
+  box-shadow: 0 0 10px 0 rgba(21, 86, 91, 0.15);
+  border: 1px solid rgba(21, 86, 91, 0.3);
 }
 
 .header .search-form button {
@@ -535,7 +535,7 @@ h6 {
 }
 
 .header .search-form button i {
-  color: #012970;
+  color: #15565B;
 }
 
 /*--------------------------------------------------------------
@@ -552,13 +552,13 @@ h6 {
 
 .header-nav .nav-icon {
   font-size: 22px;
-  color: #012970;
+  color: #15565B;
   margin-right: 25px;
   position: relative;
 }
 
 .header-nav .nav-profile {
-  color: #012970;
+  color: #15565B;
 }
 
 .header-nav .nav-profile img {
@@ -650,14 +650,14 @@ h6 {
   padding: 0;
   top: 8px !important;
   border-radius: 12px;
-  border: 1px solid rgba(1, 41, 112, 0.08);
-  box-shadow: 0 10px 30px rgba(1, 41, 112, 0.12);
+  border: 1px solid rgba(21, 86, 91, 0.08);
+  box-shadow: 0 10px 30px rgba(21, 86, 91, 0.12);
 }
 
 .header-nav .profile.dropdown-menu-arrow::before {
-  background: #4154f1;
-  border-top: 1px solid #4154f1;
-  border-left: 1px solid #4154f1;
+  background: #168777;
+  border-top: 1px solid #168777;
+  border-left: 1px solid #168777;
 }
 
 .header-profile-img {
@@ -677,7 +677,7 @@ h6 {
 
 .profile-dropdown-banner {
   height: 42px;
-  background: linear-gradient(135deg, #4154f1 0%, #012970 100%);
+  background: linear-gradient(135deg, #168777 0%, #15565B 100%);
   border-radius: 11px 11px 0 0;
 }
 
@@ -692,14 +692,14 @@ h6 {
   border-radius: 50%;
   object-fit: cover;
   border: 2.5px solid #fff;
-  box-shadow: 0 4px 10px rgba(1, 41, 112, 0.15);
+  box-shadow: 0 4px 10px rgba(21, 86, 91, 0.15);
 }
 
 .profile-dropdown-avatar-fallback {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #4154f1, #012970);
+  background: linear-gradient(135deg, #168777, #15565B);
   color: #fff;
   font-size: 1rem;
   font-weight: 700;
@@ -707,7 +707,7 @@ h6 {
   align-items: center;
   justify-content: center;
   border: 2.5px solid #fff;
-  box-shadow: 0 4px 10px rgba(1, 41, 112, 0.15);
+  box-shadow: 0 4px 10px rgba(21, 86, 91, 0.15);
 }
 
 .profile-dropdown-name {
@@ -748,7 +748,7 @@ h6 {
 }
 
 .bg-primary-subtle {
-  background: rgba(65, 84, 241, 0.1);
+  background: rgba(22, 135, 119, 0.1);
 }
 
 .bg-success-subtle {
@@ -783,11 +783,11 @@ h6 {
 
 .header-nav .profile .dropdown-item:hover {
   background-color: #f1f5f9;
-  color: #012970;
+  color: #15565B;
 }
 
 .header-nav .profile .dropdown-item:hover i {
-  color: #4154f1;
+  color: #168777;
 }
 
 .header-nav .profile .dropdown-divider {
@@ -832,7 +832,7 @@ h6 {
   scrollbar-width: thin;
   scrollbar-color: #d5dce8 transparent;
   box-shadow: none;
-  border-right: 1px solid rgba(1, 41, 112, 0.07);
+  border-right: 1px solid rgba(21, 86, 91, 0.07);
   background-color: #fff;
 }
 
@@ -909,9 +909,9 @@ h6 {
   align-items: center;
   font-size: 14px;
   font-weight: 600;
-  color: #4154f1;
+  color: #168777;
   transition: all 0.2s ease;
-  background: linear-gradient(135deg, #eef1ff, #f4f6ff);
+  background: linear-gradient(135deg, #e6f5f3, #f0faf8);
   padding: 10px 14px;
   border-radius: 8px;
 }
@@ -919,7 +919,7 @@ h6 {
 .sidebar-nav .nav-link i {
   font-size: 17px;
   margin-right: 10px;
-  color: #4154f1;
+  color: #168777;
   width: 22px;
   text-align: center;
 }
@@ -934,12 +934,12 @@ h6 {
 }
 
 .sidebar-nav .nav-link:hover {
-  color: #4154f1;
-  background: #f0f3ff;
+  color: #168777;
+  background: #e6f5f3;
 }
 
 .sidebar-nav .nav-link:hover i {
-  color: #4154f1;
+  color: #168777;
 }
 
 .sidebar-nav .nav-link .bi-chevron-down {
@@ -977,11 +977,11 @@ h6 {
 
 .sidebar-nav .nav-content a:hover,
 .sidebar-nav .nav-content a.active {
-  color: #4154f1;
+  color: #168777;
 }
 
 .sidebar-nav .nav-content a.active i {
-  background-color: #4154f1;
+  background-color: #168777;
 }
 
 /*--------------------------------------------------------------
@@ -1004,7 +1004,7 @@ h6 {
 
 .dashboard .filter .icon:hover,
 .dashboard .filter .icon:focus {
-  color: #4154f1;
+  color: #168777;
 }
 
 .dashboard .filter .dropdown-header {
@@ -1028,16 +1028,16 @@ h6 {
 /* Welcome Hero Card (Anti-Slop UI) */
 .welcome-hero-card {
   background: linear-gradient(135deg, #ffffff 0%, #f7f9ff 100%);
-  border: 1px solid rgba(1, 41, 112, 0.08) !important;
+  border: 1px solid rgba(21, 86, 91, 0.08) !important;
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(1, 41, 112, 0.04);
+  box-shadow: 0 2px 8px rgba(21, 86, 91, 0.04);
 }
 
 .welcome-avatar-badge {
   width: 40px;
   height: 40px;
   border-radius: 9px;
-  background: linear-gradient(135deg, #4154f1, #012970);
+  background: linear-gradient(135deg, #168777, #15565B);
   color: #fff;
   font-size: 19px;
   flex-shrink: 0;
@@ -1046,18 +1046,18 @@ h6 {
 .welcome-title {
   font-size: 18px;
   font-weight: 700;
-  color: #012970;
+  color: #15565B;
   line-height: 1.25;
 }
 
 .welcome-title .welcome-name {
-  color: #4154f1;
+  color: #168777;
   font-weight: 800;
 }
 
 .welcome-date-chip {
   background: #ffffff;
-  border: 1px solid rgba(1, 41, 112, 0.12);
+  border: 1px solid rgba(21, 86, 91, 0.12);
   padding: 6px 14px;
   border-radius: 8px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
@@ -1074,8 +1074,8 @@ h6 {
 }
 
 .welcome-clock-badge {
-  background: rgba(65, 84, 241, 0.09);
-  color: #3b4bf2;
+  background: rgba(22, 135, 119, 0.09);
+  color: #15565B;
   font-weight: 700;
   font-size: 13px;
   padding: 3px 9px;
@@ -1084,7 +1084,7 @@ h6 {
 }
 
 .welcome-quote-box {
-  border-color: rgba(1, 41, 112, 0.06) !important;
+  border-color: rgba(21, 86, 91, 0.06) !important;
 }
 
 .welcome-quote-text {
@@ -1109,27 +1109,27 @@ h6 {
 .dashboard .info-card {
   padding-bottom: 10px;
   border-radius: 14px;
-  border: 1px solid rgba(1, 41, 112, 0.06);
-  box-shadow: 0 3px 12px rgba(1, 41, 112, 0.04);
+  border: 1px solid rgba(21, 86, 91, 0.06);
+  box-shadow: 0 3px 12px rgba(21, 86, 91, 0.04);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .dashboard .info-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 22px rgba(1, 41, 112, 0.08);
+  box-shadow: 0 8px 22px rgba(21, 86, 91, 0.08);
 }
 
 .dashboard .info-card .card-title {
   font-size: 15px;
   font-weight: 700;
-  color: #012970;
+  color: #15565B;
   padding: 15px 0 10px 0;
   font-family: "Poppins", "Nunito", sans-serif;
 }
 
 .dashboard .info-card h6 {
   font-size: 28px;
-  color: #012970;
+  color: #15565B;
   font-weight: 800;
   margin: 0;
   padding: 0;
@@ -1146,8 +1146,8 @@ h6 {
 }
 
 .dashboard .sales-card .card-icon {
-  color: #4154f1;
-  background: #f6f6fe;
+  color: #168777;
+  background: #e6f5f3;
 }
 
 .dashboard .revenue-card .card-icon {
@@ -1180,7 +1180,7 @@ h6 {
   width: 4px;
   top: 0;
   bottom: 0;
-  background-color: #eceefe;
+  background-color: #c8e8e5;
 }
 
 .dashboard .activity .activity-item .activity-badge {
@@ -1226,12 +1226,12 @@ h6 {
 }
 
 .dashboard .news h4 a {
-  color: #012970;
+  color: #15565B;
   transition: 0.3s;
 }
 
 .dashboard .news h4 a:hover {
-  color: #4154f1;
+  color: #168777;
 }
 
 .dashboard .news p {
@@ -1246,7 +1246,7 @@ h6 {
 }
 
 .dashboard .recent-sales .table thead {
-  background: #f6f6fe;
+  background: #e6f5f3;
 }
 
 .dashboard .recent-sales .table thead th {
@@ -1267,7 +1267,7 @@ h6 {
 }
 
 .dashboard .top-selling .table thead {
-  background: #f6f6fe;
+  background: #e6f5f3;
 }
 
 .dashboard .top-selling .table thead th {
@@ -1298,7 +1298,7 @@ h6 {
   background-color: #fff;
   border-radius: 0.25rem;
   text-align: center;
-  color: #012970;
+  color: #15565B;
   padding: 15px 0;
 }
 
@@ -1340,14 +1340,14 @@ h6 {
 .profile .profile-card .social-links a {
   font-size: 20px;
   display: inline-block;
-  color: rgba(1, 41, 112, 0.5);
+  color: rgba(21, 86, 91, 0.5);
   line-height: 0;
   margin-right: 10px;
   transition: 0.3s;
 }
 
 .profile .profile-card .social-links a:hover {
-  color: #012970;
+  color: #15565B;
 }
 
 .profile .profile-overview .row {
@@ -1356,17 +1356,17 @@ h6 {
 }
 
 .profile .profile-overview .card-title {
-  color: #012970;
+  color: #15565B;
 }
 
 .profile .profile-overview .label {
   font-weight: 600;
-  color: rgba(1, 41, 112, 0.6);
+  color: rgba(21, 86, 91, 0.6);
 }
 
 .profile .profile-edit label {
   font-weight: 600;
-  color: rgba(1, 41, 112, 0.6);
+  color: rgba(21, 86, 91, 0.6);
 }
 
 .profile .profile-edit img {
@@ -1379,7 +1379,7 @@ h6 {
 .faq .basic h6 {
   font-size: 18px;
   font-weight: 600;
-  color: #4154f1;
+  color: #168777;
 }
 
 .faq .basic p {
@@ -1396,12 +1396,12 @@ h6 {
 .contact .info-box i {
   font-size: 38px;
   line-height: 0;
-  color: #4154f1;
+  color: #168777;
 }
 
 .contact .info-box h3 {
   font-size: 20px;
-  color: #012970;
+  color: #15565B;
   font-weight: 700;
   margin: 20px 0 10px 0;
 }
@@ -1463,7 +1463,7 @@ h6 {
 
 .contact .php-email-form input:focus,
 .contact .php-email-form textarea:focus {
-  border-color: #4154f1;
+  border-color: #168777;
 }
 
 .contact .php-email-form input {
@@ -1475,7 +1475,7 @@ h6 {
 }
 
 .contact .php-email-form button[type=submit] {
-  background: #4154f1;
+  background: #168777;
   border: 0;
   padding: 10px 30px;
   color: #fff;
@@ -1484,7 +1484,7 @@ h6 {
 }
 
 .contact .php-email-form button[type=submit]:hover {
-  background: #5969f3;
+  background: #156F69;
 }
 
 @keyframes animate-loading {
@@ -1507,7 +1507,7 @@ h6 {
 .error-404 h1 {
   font-size: 180px;
   font-weight: 700;
-  color: #4154f1;
+  color: #168777;
   margin-bottom: 0;
   line-height: 150px;
 }
@@ -1515,7 +1515,7 @@ h6 {
 .error-404 h2 {
   font-size: 24px;
   font-weight: 700;
-  color: #012970;
+  color: #15565B;
   margin-bottom: 30px;
 }
 
@@ -1549,14 +1549,14 @@ h6 {
 
 .footer .copyright {
   text-align: center;
-  color: #012970;
+  color: #15565B;
 }
 
 .footer .credits {
   padding-top: 5px;
   text-align: center;
   font-size: 13px;
-  color: #012970;
+  color: #15565B;
 }
 
 /*--------------------------------------------------------------
@@ -1681,14 +1681,14 @@ h6 {
 }
 
 .swal-btn-primary {
-  background: #012970;
+  background: #15565B;
   color: #ffffff;
-  border: 1px solid #012970;
+  border: 1px solid #15565B;
 }
 
 .swal-btn-primary:hover {
-  background: #4154f1;
-  border-color: #4154f1;
+  background: #168777;
+  border-color: #168777;
 }
 
 .swal-btn-danger {

@@ -32,8 +32,8 @@ body.auth-page {
     background-size: 24px 24px;
 }
 
-.auth-card-wrap.theme-guru { background-color: #4154f1; }
-.auth-card-wrap.theme-siswa { background-color: #198754; }
+.auth-card-wrap.theme-guru { background-color: #168777; }
+.auth-card-wrap.theme-siswa { background-color: #156F69; }
 
 .auth-card {
     width: 100%;
@@ -106,15 +106,15 @@ body.auth-page {
 
 .theme-guru .fk-form-control:focus {
     background-color: #ffffff;
-    border-color: #4154f1;
-    box-shadow: 0 0 0 4px rgba(65, 84, 241, 0.4);
+    border-color: #168777;
+    box-shadow: 0 0 0 4px rgba(22, 135, 119, 0.4);
     outline: 2px solid transparent;
 }
 
 .theme-siswa .fk-form-control:focus {
     background-color: #ffffff;
-    border-color: #198754;
-    box-shadow: 0 0 0 4px rgba(25, 135, 84, 0.4);
+    border-color: #156F69;
+    box-shadow: 0 0 0 4px rgba(21, 86, 91, 0.4);
     outline: 2px solid transparent;
 }
 
@@ -129,12 +129,12 @@ body.auth-page {
     width: 16px;
     height: 16px;
     border-radius: 4px;
-    accent-color: #4154f1;
+    accent-color: #168777;
     cursor: pointer;
 }
 
 .theme-siswa .fk-form-check input[type="checkbox"] {
-    accent-color: #198754;
+    accent-color: #156F69;
 }
 
 .fk-form-check label {
@@ -160,23 +160,23 @@ body.auth-page {
 }
 
 .theme-guru .fk-btn-primary {
-    background-color: #4154f1;
+    background-color: #168777;
 }
 
 .theme-guru .fk-btn-primary:hover {
-    background-color: #2a3eb1;
+    background-color: #153D4C;
     transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(65, 84, 241, 0.3);
+    box-shadow: 0 10px 20px rgba(22, 135, 119, 0.3);
 }
 
 .theme-siswa .fk-btn-primary {
-    background-color: #198754;
+    background-color: #156F69;
 }
 
 .theme-siswa .fk-btn-primary:hover {
-    background-color: #146c43;
+    background-color: #153D4C;
     transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(25, 135, 84, 0.3);
+    box-shadow: 0 10px 20px rgba(21, 86, 91, 0.3);
 }
 
 /* --- fk-btn-light --- */
@@ -213,32 +213,32 @@ body.auth-page {
 
 .theme-guru .form-control:focus {
     background-color: #ffffff;
-    box-shadow: 0 0 0 4px rgba(65, 84, 241, 0.4);
-    border-color: #4154f1;
+    box-shadow: 0 0 0 4px rgba(22, 135, 119, 0.4);
+    border-color: #168777;
     outline: 2px solid transparent;
 }
 
 .theme-siswa .form-control:focus {
     background-color: #ffffff;
-    box-shadow: 0 0 0 4px rgba(25, 135, 84, 0.4);
-    border-color: #198754;
+    box-shadow: 0 0 0 4px rgba(21, 86, 91, 0.4);
+    border-color: #156F69;
     outline: 2px solid transparent;
 }
 
 .btn-primary { border-radius: 12px; transition: all 0.3s ease; }
 
-.theme-guru .btn-primary { background-color: #4154f1; border-color: #4154f1; }
+.theme-guru .btn-primary { background-color: #168777; border-color: #168777; }
 .theme-guru .btn-primary:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(65, 84, 241, 0.3) !important;
-    background-color: #2a3eb1; border-color: #2a3eb1;
+    box-shadow: 0 10px 20px rgba(22, 135, 119, 0.3) !important;
+    background-color: #153D4C; border-color: #153D4C;
 }
 
-.theme-siswa .btn-primary { background-color: #198754; border-color: #198754; }
+.theme-siswa .btn-primary { background-color: #156F69; border-color: #156F69; }
 .theme-siswa .btn-primary:hover {
     transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(25, 135, 84, 0.3) !important;
-    background-color: #146c43; border-color: #146c43;
+    box-shadow: 0 10px 20px rgba(21, 86, 91, 0.3) !important;
+    background-color: #153D4C; border-color: #153D4C;
 }
 
 /* --- Alert Modern --- */

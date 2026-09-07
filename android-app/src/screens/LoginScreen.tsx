@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { ApiService } from '../services/api';
-import { COLOR_PRIMARY, COLOR_VIOLET, COLOR_DANGER, COLOR_INDIGO } from '../constants';
+import { COLOR_PRIMARY, COLOR_PRIMARY_DARK, COLOR_VIOLET, COLOR_DANGER, COLOR_INDIGO, COLOR_SUCCESS } from '../constants';
 import { FadeUpAnimation } from '../components/Animations';
 
 export function LoginScreen({ onLogin }: { onLogin: () => void }) {
@@ -52,7 +52,7 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
   };
 
   return (
-    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: `linear-gradient(145deg, #5B21B6 0%, ${COLOR_PRIMARY} 45%, ${COLOR_INDIGO} 75%, ${COLOR_VIOLET} 100%)`, position: 'relative', overflow: 'hidden' }}>
+    <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: `linear-gradient(145deg, #153D4C 0%, ${COLOR_PRIMARY} 45%, ${COLOR_PRIMARY_DARK} 75%, ${COLOR_SUCCESS} 100%)`, position: 'relative', overflow: 'hidden' }}>
 
       {isNotificationToastVisible && (
         <div
@@ -202,7 +202,7 @@ export function LoginScreen({ onLogin }: { onLogin: () => void }) {
               border: 'none',
               cursor: isLoadingAuthentication ? 'not-allowed' : 'pointer',
               background: isLoadingAuthentication ? '#94A3B8' : `linear-gradient(135deg, ${COLOR_PRIMARY} 0%, ${COLOR_VIOLET} 100%)`,
-              boxShadow: isLoadingAuthentication ? 'none' : `0 10px 28px rgba(79,70,229,0.45)`,
+              boxShadow: isLoadingAuthentication ? 'none' : `0 10px 28px rgba(22,135,119,0.45)`,
               color: '#fff',
               fontWeight: 900,
               fontSize: 16,

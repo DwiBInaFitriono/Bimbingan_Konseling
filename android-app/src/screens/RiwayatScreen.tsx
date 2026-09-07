@@ -49,7 +49,7 @@ export function RiwayatScreen() {
 
   const getHistoryStatusBadgeColor = (statusName: string) => {
     if (statusName === 'Disetujui') {
-      return { backgroundColor: '#EEF2FF', textColor: COLOR_PRIMARY };
+      return { backgroundColor: '#E6F5F3', textColor: COLOR_PRIMARY };
     }
     if (statusName === 'Selesai') {
       return { backgroundColor: '#F0FDF4', textColor: COLOR_SUCCESS };
@@ -68,7 +68,7 @@ export function RiwayatScreen() {
 
   return (
     <>
-      <div style={{ background: `linear-gradient(135deg, #5B21B6 0%, ${COLOR_PRIMARY} 55%, ${COLOR_INDIGO} 100%)`, padding: '16px 20px 20px', position: 'relative', overflow: 'hidden', flexShrink: 0 }}>
+      <div style={{ background: `linear-gradient(135deg, #153D4C 0%, ${COLOR_PRIMARY} 55%, ${COLOR_INDIGO} 100%)`, padding: '16px 20px 20px', position: 'relative', overflow: 'hidden', flexShrink: 0 }}>
         <div style={{ position: 'absolute', top: -50, right: -50, width: 200, height: 200, border: '1px solid rgba(255,255,255,0.07)', borderRadius: '50%', pointerEvents: 'none' }} />
         <FadeUpAnimation delayMilliseconds={0}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
@@ -101,7 +101,7 @@ export function RiwayatScreen() {
                 fontFamily: 'Nunito',
                 background: isCategoryActive ? COLOR_PRIMARY : '#F1F5F9',
                 color: isCategoryActive ? '#fff' : '#64748B',
-                boxShadow: isCategoryActive ? `0 4px 14px rgba(79,70,229,0.35)` : 'none',
+                boxShadow: isCategoryActive ? `0 4px 14px rgba(22,135,119,0.35)` : 'none',
                 transition: 'all 0.2s',
                 textTransform: 'capitalize',
                 display: 'flex',

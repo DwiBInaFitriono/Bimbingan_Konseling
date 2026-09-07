@@ -17,7 +17,7 @@ export function StatusBar({ dark = true }: { dark?: boolean }) {
   }, []);
 
   const contentTextColor = dark ? '#FFFFFF' : '#1E293B';
-  const statusBarBackgroundColor = dark ? '#5B21B6' : '#FFFFFF';
+  const statusBarBackgroundColor = dark ? '#153D4C' : '#FFFFFF';
 
   return (
     <div

@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class CounselingSessionController extends Controller
 {
@@ -177,46 +178,54 @@ class CounselingSessionController extends Controller
         $sessionStartTime = $timeSlotComponents[0] ?? null;
         $sessionEndTime = $timeSlotComponents[1] ?? null;
 
-        $counselingSession = CounselingSession::create([
-            'student_id'     => $selectedStudentId,
-            'additional_student_ids' => $request->type === 'kelompok' ? $request->additional_student_ids : null,
-            'case_study_id'  => $request->case_study_id,
-            'guru_bk_id'     => $authenticatedUser->id,
-            'requested_date' => $request->requested_date,
-            'slot_waktu'     => $request->slot_waktu,
-            'available_time_start' => $sessionStartTime,
-            'available_time_end' => $sessionEndTime,
-            'requested_time' => $sessionStartTime,
-            'topic'          => $request->topic,
-            'description'    => $request->description,
-            'type'           => $request->type,
-            'status'         => 'disetujui',
-            'status_antrian' => 'menunggu',
-            'approved_at'    => now(),
-        ]);
+        try {
+            DB::beginTransaction();
 
-        $queueAllocationData = $this->generateQueueNumber($counselingSession);
-        if (isset($queueAllocationData['error'])) {
-            $counselingSession->forceDelete();
-            return back()->with('error', $queueAllocationData['error']);
-        }
-        
-        $counselingSession->update([
-            'no_antrian'      => $queueAllocationData['no_antrian'],
-            'waktu_perkiraan' => $queueAllocationData['waktu_perkiraan_str']
-        ]);
+            $counselingSession = CounselingSession::create([
+                'student_id'     => $selectedStudentId,
+                'additional_student_ids' => $request->type === 'kelompok' ? $request->additional_student_ids : null,
+                'case_study_id'  => $request->case_study_id,
+                'guru_bk_id'     => $authenticatedUser->id,
+                'requested_date' => $request->requested_date,
+                'slot_waktu'     => $request->slot_waktu,
+                'available_time_start' => $sessionStartTime,
+                'available_time_end' => $sessionEndTime,
+                'requested_time' => $sessionStartTime,
+                'topic'          => $request->topic,
+                'description'    => $request->description,
+                'type'           => $request->type,
+                'status'         => 'disetujui',
+                'status_antrian' => 'menunggu',
+                'approved_at'    => now(),
+            ]);
 
-        if ($request->case_study_id) {
-            $relatedCaseStudy = CaseStudy::find($request->case_study_id);
-            if ($relatedCaseStudy) {
-                $relatedCaseStudy->update([
-                    'status' => 'proses',
-                    'handled_by' => $authenticatedUser->id,
-                ]);
+            $queueAllocationData = $this->generateQueueNumber($counselingSession);
+            if (isset($queueAllocationData['error'])) {
+                DB::rollBack();
+                return back()->with('error', $queueAllocationData['error']);
             }
-        }
+            
+            $counselingSession->update([
+                'no_antrian'      => $queueAllocationData['no_antrian'],
+                'waktu_perkiraan' => $queueAllocationData['waktu_perkiraan_str']
+            ]);
 
-        return redirect()->route('counseling.index')->with('success', 'Pengajuan jadwal konseling berhasil disimpan.');
+            if ($request->case_study_id) {
+                $relatedCaseStudy = CaseStudy::find($request->case_study_id);
+                if ($relatedCaseStudy) {
+                    $relatedCaseStudy->update([
+                        'status' => 'proses',
+                        'handled_by' => $authenticatedUser->id,
+                    ]);
+                }
+            }
+
+            DB::commit();
+            return redirect()->route('counseling.index')->with('success', 'Pengajuan jadwal konseling berhasil disimpan.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Terjadi kesalahan saat menyimpan data: ' . $e->getMessage());
+        }
     }
 
     public function approve(Request $request, $counselingSessionId)
@@ -224,35 +233,44 @@ class CounselingSessionController extends Controller
         $parsedSessionId = (int) $counselingSessionId;
         $counselingSession = CounselingSession::findOrFail($parsedSessionId);
 
-        $queueAllocationData = $this->generateQueueNumber($counselingSession);
-        if (isset($queueAllocationData['error'])) {
-            return back()->with('error', $queueAllocationData['error']);
-        }
-        
-        $allocatedQueueNumber = $queueAllocationData['no_antrian'];
-        $allocatedTimeString = $queueAllocationData['waktu_perkiraan_str'];
+        try {
+            DB::beginTransaction();
 
-        $counselingSession->update([
-            'status'          => 'disetujui',
-            'guru_bk_id'      => Auth::id(),
-            'notes'           => $request->notes ?? $counselingSession->notes,
-            'no_antrian'      => $allocatedQueueNumber,
-            'waktu_perkiraan' => $allocatedTimeString,
-            'status_antrian'  => 'menunggu',
-            'approved_at'     => now(),
-        ]);
-
-        if ($counselingSession->case_study_id) {
-            $relatedCaseStudy = CaseStudy::find($counselingSession->case_study_id);
-            if ($relatedCaseStudy) {
-                $relatedCaseStudy->update([
-                    'status'     => 'proses',
-                    'handled_by' => Auth::id(),
-                ]);
+            $queueAllocationData = $this->generateQueueNumber($counselingSession);
+            if (isset($queueAllocationData['error'])) {
+                DB::rollBack();
+                return back()->with('error', $queueAllocationData['error']);
             }
-        }
+            
+            $allocatedQueueNumber = $queueAllocationData['no_antrian'];
+            $allocatedTimeString = $queueAllocationData['waktu_perkiraan_str'];
 
-        return redirect()->route('counseling.index')->with('success', 'Konseling disetujui. Siswa mendapat antrian ke-'.$allocatedQueueNumber);
+            $counselingSession->update([
+                'status'          => 'disetujui',
+                'guru_bk_id'      => Auth::id(),
+                'notes'           => $request->notes ?? $counselingSession->notes,
+                'no_antrian'      => $allocatedQueueNumber,
+                'waktu_perkiraan' => $allocatedTimeString,
+                'status_antrian'  => 'menunggu',
+                'approved_at'     => now(),
+            ]);
+
+            if ($counselingSession->case_study_id) {
+                $relatedCaseStudy = CaseStudy::find($counselingSession->case_study_id);
+                if ($relatedCaseStudy) {
+                    $relatedCaseStudy->update([
+                        'status'     => 'proses',
+                        'handled_by' => Auth::id(),
+                    ]);
+                }
+            }
+
+            DB::commit();
+            return redirect()->route('counseling.index')->with('success', 'Konseling disetujui. Siswa mendapat antrian ke-'.$allocatedQueueNumber);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Terjadi kesalahan saat menyetujui konseling: ' . $e->getMessage());
+        }
     }
 
     public function reject(Request $request, $counselingSessionId)
@@ -272,27 +290,36 @@ class CounselingSessionController extends Controller
     {
         $parsedSessionId = (int) $counselingSessionId;
         $counselingSession = CounselingSession::findOrFail($parsedSessionId);
-        $counselingSession->update([
-            'status'         => 'selesai',
-            'status_antrian' => 'selesai',
-            'notes'          => $request->notes,
-            'completed_at'   => now(),
-        ]);
+        
+        try {
+            DB::beginTransaction();
 
-        $this->advanceQueue($counselingSession);
+            $counselingSession->update([
+                'status'         => 'selesai',
+                'status_antrian' => 'selesai',
+                'notes'          => $request->notes,
+                'completed_at'   => now(),
+            ]);
 
-        if ($counselingSession->case_study_id) {
-            $relatedCaseStudy = CaseStudy::find($counselingSession->case_study_id);
-            if ($relatedCaseStudy) {
-                $relatedCaseStudy->update([
-                    'status' => 'selesai',
-                    'action_taken' => $request->notes,
-                    'recommendation' => $relatedCaseStudy->recommendation ?: 'Konseling telah selesai dilakukan.',
-                ]);
+            $this->advanceQueue($counselingSession);
+
+            if ($counselingSession->case_study_id) {
+                $relatedCaseStudy = CaseStudy::find($counselingSession->case_study_id);
+                if ($relatedCaseStudy) {
+                    $relatedCaseStudy->update([
+                        'status' => 'selesai',
+                        'action_taken' => $request->notes,
+                        'recommendation' => $relatedCaseStudy->recommendation ?: 'Konseling telah selesai dilakukan.',
+                    ]);
+                }
             }
-        }
 
-        return redirect()->route('counseling.index')->with('success', 'Sesi konseling telah selesai dicatat.');
+            DB::commit();
+            return redirect()->route('counseling.index')->with('success', 'Sesi konseling telah selesai dicatat.');
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return back()->with('error', 'Terjadi kesalahan saat menyelesaikan konseling: ' . $e->getMessage());
+        }
     }
 
     public function destroy($counselingSessionId)
