@@ -21,6 +21,15 @@ Laravel is a web application framework with expressive, elegant syntax. We belie
 
 Laravel is accessible, powerful, and provides tools required for large, robust applications.
 
+## PHP Runtime Security Update (2026-10-21)
+
+This repository is pinned to patched PHP releases for CVE-2026-109618 and CVE-2026-109619.
+
+- Composer runtime constraint now allows only patched supported lines: `8.2.35+`, `8.3.36+`, `8.4.27+`, or `8.5.12+` (and excludes `8.6` RC line).
+- Vercel custom PHP runtime package is pinned to `@libphp/almalinux-9-v85@0.0.4` (published on 2026-10-21).
+
+After pulling these changes, you must update/redeploy the hosting runtime and restart PHP workers/processes (PHP-FPM/Apache/LiteSpeed/FrankenPHP/Vercel functions) so patched binaries are actually loaded.
+
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
